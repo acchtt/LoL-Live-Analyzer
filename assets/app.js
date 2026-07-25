@@ -10,6 +10,7 @@ const state = {
   lastSnapshot: null
 };
 
+const statsCache = new Map();
 const scheduleList = document.querySelector('#scheduleList');
 const gameContent = document.querySelector('#gameContent');
 const connectionDot = document.querySelector('#connectionDot');
@@ -28,12 +29,21 @@ function setConnection(label, kind = '') {
 }
 
 async function api(path) {
-  const response = await fetch(`${WORKER_BASE}${path}`, {
-    headers: { Accept: 'application/json' },
-    cache: 'no-store'
-  });
+  const endpoint = `${WORKER_BASE}${path}`;
+  let response;
+
+  try {
+    response = await fetch(endpoint, {
+      headers: { Accept: 'application/json' }
+    });
+  } catch (error) {
+    throw new Error(`Network/CORS failure at ${path}`);
+  }
+
   const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(data.error || `Request failed (${response.status})`);
+  if (!response.ok) {
+    throw new Error(data.error || `Request failed (${response.status}) at ${path}`);
+  }
   return data;
 }
 
@@ -57,7 +67,7 @@ function eventTeams(event) {
 }
 
 function eventId(event) {
-  return String(event?.id || event?.match?.id || '');
+  return String(event?.match?.id || event?.id || '');
 }
 
 function renderSchedule() {
@@ -67,10 +77,10 @@ function renderSchedule() {
   }
 
   scheduleList.innerHTML = state.events.map(event => {
+    const id = eventId(event);
     const [a, b] = eventTeams(event);
     const status = event.state || 'unstarted';
-    const id = eventId(event);
-    return `<button class="match-card ${id === state.selectedEventId ? 'active' : ''}" data-event-id="${id}" type="button" ${id ? '' : 'disabled'}>
+    return `<button class="match-card ${id === state.selectedEventId ? 'active' : ''}" data-event-id="${id}" type="button">
       <div class="match-meta"><span>${event.league?.name || event.league?.slug || 'LoL Esports'}</span><span class="match-state">${status}</span></div>
       <div class="teams">
         <div class="team-line"><span class="team-name">${teamLogo(a)}${a.name || 'TBD'}</span><strong>${a.result?.gameWins ?? 0}</strong></div>
@@ -125,7 +135,6 @@ function setJsonEndpoint(gameId) {
 }
 
 async function selectEvent(id) {
-  if (!id) return;
   state.selectedEventId = String(id);
   state.selectedGameId = null;
   clearInterval(state.pollTimer);
@@ -134,8 +143,8 @@ async function selectEvent(id) {
 
   try {
     const payload = await api(`/api/event?id=${encodeURIComponent(id)}`);
-    const event = payload?.data?.event || payload?.event || payload;
-    const games = event?.match?.games || payload?.match?.games || [];
+    const event = payload.data?.event || payload.event || payload.data || payload;
+    const games = event?.match?.games || event?.games || [];
     const active = games.find(game => game.state === 'inProgress') || [...games].reverse().find(game => game.state !== 'unstarted');
     if (!active?.id) throw new Error('No active game is available for this match yet.');
 
@@ -144,9 +153,8 @@ async function selectEvent(id) {
     await loadGame();
     startPolling();
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unable to load this match.';
-    setConnection(message, 'error');
-    gameContent.innerHTML = `<div class="empty hero-empty"><strong>Game unavailable</strong><span>${message}</span></div>`;
+    setConnection(error.message, 'error');
+    gameContent.innerHTML = `<div class="empty hero-empty"><strong>Game unavailable</strong><span>${error.message}</span></div>`;
   }
 }
 
@@ -157,7 +165,8 @@ async function loadGame() {
     renderGame(snapshot);
     setConnection(`Live · updated ${new Date(snapshot.updatedAt).toLocaleTimeString()}`, 'live');
   } catch (error) {
-    setConnection(error instanceof Error ? error.message : 'Live feed unavailable', 'error');
+    setConnection(error.message, 'error');
+    gameContent.innerHTML = `<div class="empty hero-empty"><strong>Live feed unavailable</strong><span>${error.message}</span></div>`;
   }
 }
 
@@ -180,9 +189,8 @@ async function loadSchedule() {
     renderSchedule();
     setConnection('Schedule connected', 'live');
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Schedule unavailable';
-    setConnection(message, 'error');
-    scheduleList.innerHTML = `<div class="empty">${message}</div>`;
+    setConnection(error.message, 'error');
+    scheduleList.innerHTML = `<div class="empty">${error.message}</div>`;
   }
 }
 
