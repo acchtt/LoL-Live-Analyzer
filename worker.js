@@ -2,12 +2,14 @@ const PERSISTED_BASE = 'https://esports-api.lolesports.com/persisted/gw';
 const LIVE_BASE = 'https://feed.lolesports.com/livestats/v1';
 const DEFAULT_LOCALE = 'en-US';
 
-function cors(origin = '*') {
+function cors() {
   return {
-    'Access-Control-Allow-Origin': origin,
+    'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Max-Age': '86400'
+    'Access-Control-Allow-Headers': 'Content-Type, Accept',
+    'Access-Control-Max-Age': '86400',
+    'Access-Control-Expose-Headers': 'Content-Type, Cache-Control',
+    'Cross-Origin-Resource-Policy': 'cross-origin'
   };
 }
 
@@ -31,13 +33,15 @@ function required(value, name) {
 async function riotPersisted(path, params, env) {
   const key = env.LOL_ESPORTS_API_KEY;
   if (!key) {
-    throw new Error('LOL_ESPORTS_API_KEY is not configured in the Worker. Copy the public x-api-key used by lolesports.com into a Worker secret or variable.');
+    throw new Error('LOL_ESPORTS_API_KEY is not configured in the Worker.');
   }
+
   const url = new URL(`${PERSISTED_BASE}/${path}`);
   url.searchParams.set('hl', DEFAULT_LOCALE);
   for (const [name, value] of Object.entries(params || {})) {
     if (value !== undefined && value !== null && value !== '') url.searchParams.set(name, value);
   }
+
   const response = await fetch(url, {
     headers: {
       Accept: 'application/json',
@@ -205,29 +209,33 @@ export default {
       if (url.pathname === '/' || url.pathname === '/health') {
         return json({ ok: true, service: 'LoL Live Analyzer API', apiKeyConfigured: Boolean(env.LOL_ESPORTS_API_KEY) });
       }
+
       if (url.pathname === '/api/schedule') {
         const data = await riotPersisted('getSchedule', { leagueId: url.searchParams.get('leagueId') || undefined }, env);
         return json(data, 200, { 'Cache-Control': 'public, max-age=30' });
       }
-      if (url.pathname === '/api/event') {
-        const id = required(url.searchParams.get('id'), 'event id');
+
+      if (url.pathname === '/api/event' || url.pathname === '/api/match-details') {
+        const id = required(url.searchParams.get('matchId') || url.searchParams.get('id'), 'match id');
         const data = await riotPersisted('getEventDetails', { id }, env);
-        return json(data, 200, { 'Cache-Control': 'public, max-age=15' });
+        return json(data, 200, { 'Cache-Control': 'no-store' });
       }
+
       if (url.pathname === '/api/window') {
         const gameId = required(url.searchParams.get('gameId'), 'gameId');
-        const data = await riotLive(`window/${encodeURIComponent(gameId)}`);
-        return json(data);
+        return json(await riotLive(`window/${encodeURIComponent(gameId)}`));
       }
+
       if (url.pathname === '/api/details') {
         const gameId = required(url.searchParams.get('gameId'), 'gameId');
-        const data = await riotLive(`details/${encodeURIComponent(gameId)}`);
-        return json(data);
+        return json(await riotLive(`details/${encodeURIComponent(gameId)}`));
       }
+
       if (url.pathname === '/api/chatgpt') {
         const gameId = required(url.searchParams.get('gameId'), 'gameId');
         return json(await buildChatGptSnapshot(gameId));
       }
+
       return json({ error: 'Not found' }, 404);
     } catch (error) {
       return json({
