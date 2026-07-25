@@ -10,7 +10,6 @@ const state = {
   lastSnapshot: null
 };
 
-const statsCache = new Map();
 const scheduleList = document.querySelector('#scheduleList');
 const gameContent = document.querySelector('#gameContent');
 const connectionDot = document.querySelector('#connectionDot');
@@ -57,6 +56,10 @@ function eventTeams(event) {
   return [teams[0] || {}, teams[1] || {}];
 }
 
+function eventId(event) {
+  return String(event?.id || event?.match?.id || '');
+}
+
 function renderSchedule() {
   if (!state.events.length) {
     scheduleList.innerHTML = '<div class="empty">No live or upcoming events were returned.</div>';
@@ -66,7 +69,8 @@ function renderSchedule() {
   scheduleList.innerHTML = state.events.map(event => {
     const [a, b] = eventTeams(event);
     const status = event.state || 'unstarted';
-    return `<button class="match-card ${event.id === state.selectedEventId ? 'active' : ''}" data-event-id="${event.id}" type="button">
+    const id = eventId(event);
+    return `<button class="match-card ${id === state.selectedEventId ? 'active' : ''}" data-event-id="${id}" type="button" ${id ? '' : 'disabled'}>
       <div class="match-meta"><span>${event.league?.name || event.league?.slug || 'LoL Esports'}</span><span class="match-state">${status}</span></div>
       <div class="teams">
         <div class="team-line"><span class="team-name">${teamLogo(a)}${a.name || 'TBD'}</span><strong>${a.result?.gameWins ?? 0}</strong></div>
@@ -120,16 +124,18 @@ function setJsonEndpoint(gameId) {
   copyJsonUrl.disabled = false;
 }
 
-async function selectEvent(eventId) {
-  state.selectedEventId = eventId;
+async function selectEvent(id) {
+  if (!id) return;
+  state.selectedEventId = String(id);
   state.selectedGameId = null;
   clearInterval(state.pollTimer);
   renderSchedule();
   gameContent.innerHTML = '<div class="empty hero-empty"><strong>Resolving game</strong><span>Loading event details…</span></div>';
 
   try {
-    const event = await api(`/api/event?id=${encodeURIComponent(eventId)}`);
-    const games = event.event?.match?.games || event.match?.games || [];
+    const payload = await api(`/api/event?id=${encodeURIComponent(id)}`);
+    const event = payload?.data?.event || payload?.event || payload;
+    const games = event?.match?.games || payload?.match?.games || [];
     const active = games.find(game => game.state === 'inProgress') || [...games].reverse().find(game => game.state !== 'unstarted');
     if (!active?.id) throw new Error('No active game is available for this match yet.');
 
@@ -138,8 +144,9 @@ async function selectEvent(eventId) {
     await loadGame();
     startPolling();
   } catch (error) {
-    setConnection(error.message, 'error');
-    gameContent.innerHTML = `<div class="empty hero-empty"><strong>Game unavailable</strong><span>${error.message}</span></div>`;
+    const message = error instanceof Error ? error.message : 'Unable to load this match.';
+    setConnection(message, 'error');
+    gameContent.innerHTML = `<div class="empty hero-empty"><strong>Game unavailable</strong><span>${message}</span></div>`;
   }
 }
 
@@ -150,7 +157,7 @@ async function loadGame() {
     renderGame(snapshot);
     setConnection(`Live · updated ${new Date(snapshot.updatedAt).toLocaleTimeString()}`, 'live');
   } catch (error) {
-    setConnection(error.message, 'error');
+    setConnection(error instanceof Error ? error.message : 'Live feed unavailable', 'error');
   }
 }
 
@@ -173,14 +180,15 @@ async function loadSchedule() {
     renderSchedule();
     setConnection('Schedule connected', 'live');
   } catch (error) {
-    setConnection(error.message, 'error');
-    scheduleList.innerHTML = `<div class="empty">${error.message}</div>`;
+    const message = error instanceof Error ? error.message : 'Schedule unavailable';
+    setConnection(message, 'error');
+    scheduleList.innerHTML = `<div class="empty">${message}</div>`;
   }
 }
 
 scheduleList.addEventListener('click', event => {
   const card = event.target.closest('[data-event-id]');
-  if (card) selectEvent(card.dataset.eventId);
+  if (card?.dataset.eventId) selectEvent(card.dataset.eventId);
 });
 
 document.querySelector('#refreshSchedule').addEventListener('click', loadSchedule);
