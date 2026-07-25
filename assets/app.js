@@ -29,9 +29,9 @@ async function api(path) {
   const endpoint = `${WORKER_BASE}${path}`;
   let response;
   try {
-    response = await fetch(endpoint, { headers: { Accept: 'application/json' } });
+    response = await fetch(endpoint);
   } catch {
-    throw new Error(`Network/CORS failure at ${path}`);
+    throw new Error(`Network request blocked at ${path}`);
   }
 
   const data = await response.json().catch(() => ({}));
@@ -145,10 +145,10 @@ function showWaiting(event) {
 
 async function resolveEvent(id, isRetry = false) {
   if (!isRetry) {
-    gameContent.innerHTML = '<div class="empty hero-empty"><strong>Resolving game</strong><span>Loading event details…</span></div>';
+    gameContent.innerHTML = '<div class="empty hero-empty"><strong>Resolving game</strong><span>Loading match details…</span></div>';
   }
 
-  const payload = await api(`/api/event?id=${encodeURIComponent(id)}`);
+  const payload = await api(`/api/match-details?matchId=${encodeURIComponent(id)}`);
   const event = payload.data?.event || payload.event || payload.data || payload;
   const games = event?.match?.games || event?.games || [];
   const active = games.find(game => game.state === 'inProgress');
