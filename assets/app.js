@@ -1,16 +1,17 @@
 // Public Cloudflare Worker for Riot LoL Esports data.
 const WORKER_BASE = 'https://lol-live-analyzer-api.acchtt.workers.dev';
 const GAME_POLL_MS = 15000;
+const EVENT_RETRY_MS = 15000;
 
 const state = {
   events: [],
   selectedEventId: null,
   selectedGameId: null,
   pollTimer: null,
+  eventRetryTimer: null,
   lastSnapshot: null
 };
 
-const statsCache = new Map();
 const scheduleList = document.querySelector('#scheduleList');
 const gameContent = document.querySelector('#gameContent');
 const connectionDot = document.querySelector('#connectionDot');
@@ -18,10 +19,6 @@ const connectionText = document.querySelector('#connectionText');
 const jsonUrl = document.querySelector('#jsonUrl');
 const jsonPreview = document.querySelector('#jsonPreview');
 const copyJsonUrl = document.querySelector('#copyJsonUrl');
-
-function configured() {
-  return !WORKER_BASE.includes('YOUR-WORKER');
-}
 
 function setConnection(label, kind = '') {
   connectionText.textContent = label;
@@ -31,34 +28,30 @@ function setConnection(label, kind = '') {
 async function api(path) {
   const endpoint = `${WORKER_BASE}${path}`;
   let response;
-
   try {
-    response = await fetch(endpoint, {
-      headers: { Accept: 'application/json' }
-    });
-  } catch (error) {
+    response = await fetch(endpoint, { headers: { Accept: 'application/json' } });
+  } catch {
     throw new Error(`Network/CORS failure at ${path}`);
   }
 
   const data = await response.json().catch(() => ({}));
-  if (!response.ok) {
-    throw new Error(data.error || `Request failed (${response.status}) at ${path}`);
-  }
+  if (!response.ok) throw new Error(data.error || `Request failed (${response.status}) at ${path}`);
   return data;
 }
 
 function formatTime(value) {
   if (!value) return 'TBD';
   return new Intl.DateTimeFormat(undefined, {
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
+    month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
   }).format(new Date(value));
 }
 
+function secureUrl(value = '') {
+  return value.replace(/^http:\/\//i, 'https://');
+}
+
 function teamLogo(team) {
-  return team?.image ? `<img src="${team.image}" alt="">` : '';
+  return team?.image ? `<img src="${secureUrl(team.image)}" alt="">` : '';
 }
 
 function eventTeams(event) {
@@ -103,15 +96,14 @@ function renderGame(snapshot) {
   state.lastSnapshot = snapshot;
   const blue = snapshot.blue || {};
   const red = snapshot.red || {};
-
   gameContent.innerHTML = `
     <div class="game-header">
       <div class="game-title"><div><p class="eyebrow">${snapshot.match?.league || 'Live game'} · Game ${snapshot.match?.gameNumber || '?'}</p><h2>${blue.name || 'Blue'} vs ${red.name || 'Red'}</h2></div><div class="clock">${snapshot.clock || '--:--'}</div></div>
     </div>
     <div class="score-grid">
-      <div class="team-summary">${blue.image ? `<img src="${blue.image}" alt="">` : ''}<h3>${blue.name || 'Blue side'}</h3><div class="big-score">${blue.kills ?? 0}</div><span>${(blue.gold ?? 0).toLocaleString()} gold</span></div>
+      <div class="team-summary">${blue.image ? `<img src="${secureUrl(blue.image)}" alt="">` : ''}<h3>${blue.name || 'Blue side'}</h3><div class="big-score">${blue.kills ?? 0}</div><span>${(blue.gold ?? 0).toLocaleString()} gold</span></div>
       <div class="vs">KILLS</div>
-      <div class="team-summary red">${red.image ? `<img src="${red.image}" alt="">` : ''}<h3>${red.name || 'Red side'}</h3><div class="big-score">${red.kills ?? 0}</div><span>${(red.gold ?? 0).toLocaleString()} gold</span></div>
+      <div class="team-summary red">${red.image ? `<img src="${secureUrl(red.image)}" alt="">` : ''}<h3>${red.name || 'Red side'}</h3><div class="big-score">${red.kills ?? 0}</div><span>${(red.gold ?? 0).toLocaleString()} gold</span></div>
     </div>
     <div class="metrics">
       <div class="metric"><span>Gold diff</span><strong>${snapshot.differences?.gold > 0 ? '+' : ''}${(snapshot.differences?.gold ?? 0).toLocaleString()}</strong></div>
@@ -120,11 +112,7 @@ function renderGame(snapshot) {
       <div class="metric"><span>Barons</span><strong>${blue.barons ?? 0} – ${red.barons ?? 0}</strong></div>
       <div class="metric"><span>Inhibitors</span><strong>${blue.inhibitors ?? 0} – ${red.inhibitors ?? 0}</strong></div>
     </div>
-    <div class="players">
-      <div class="player-column">${playerRows(blue.players)}</div>
-      <div class="player-column">${playerRows(red.players)}</div>
-    </div>`;
-
+    <div class="players"><div class="player-column">${playerRows(blue.players)}</div><div class="player-column">${playerRows(red.players)}</div></div>`;
   jsonPreview.textContent = JSON.stringify(snapshot, null, 2);
 }
 
@@ -134,24 +122,62 @@ function setJsonEndpoint(gameId) {
   copyJsonUrl.disabled = false;
 }
 
+function clearTimers() {
+  clearInterval(state.pollTimer);
+  clearTimeout(state.eventRetryTimer);
+  state.pollTimer = null;
+  state.eventRetryTimer = null;
+}
+
+function showWaiting(event) {
+  const teams = event?.match?.teams || [];
+  const title = teams.length >= 2 ? `${teams[0].name} vs ${teams[1].name}` : 'Selected match';
+  gameContent.innerHTML = `<div class="empty hero-empty"><strong>Waiting for game to start</strong><span>${title} is listed as in progress, but Riot still marks every game as unstarted. Checking again automatically…</span></div>`;
+  jsonUrl.value = '';
+  copyJsonUrl.disabled = true;
+  jsonPreview.textContent = JSON.stringify({
+    status: 'waiting_for_game',
+    eventId: state.selectedEventId,
+    reason: 'Riot event details report all games as unstarted'
+  }, null, 2);
+  setConnection('Waiting for live game data', '');
+}
+
+async function resolveEvent(id, isRetry = false) {
+  if (!isRetry) {
+    gameContent.innerHTML = '<div class="empty hero-empty"><strong>Resolving game</strong><span>Loading event details…</span></div>';
+  }
+
+  const payload = await api(`/api/event?id=${encodeURIComponent(id)}`);
+  const event = payload.data?.event || payload.event || payload.data || payload;
+  const games = event?.match?.games || event?.games || [];
+  const active = games.find(game => game.state === 'inProgress');
+  const completed = [...games].reverse().find(game => game.state === 'completed');
+  const selected = active || completed;
+
+  if (!selected?.id) {
+    showWaiting(event);
+    state.eventRetryTimer = setTimeout(() => {
+      if (state.selectedEventId === String(id) && !document.hidden) {
+        resolveEvent(id, true).catch(error => setConnection(error.message, 'error'));
+      }
+    }, EVENT_RETRY_MS);
+    return;
+  }
+
+  state.selectedGameId = String(selected.id);
+  setJsonEndpoint(state.selectedGameId);
+  await loadGame();
+  startPolling();
+}
+
 async function selectEvent(id) {
   state.selectedEventId = String(id);
   state.selectedGameId = null;
-  clearInterval(state.pollTimer);
+  clearTimers();
   renderSchedule();
-  gameContent.innerHTML = '<div class="empty hero-empty"><strong>Resolving game</strong><span>Loading event details…</span></div>';
-
   try {
-    const payload = await api(`/api/event?id=${encodeURIComponent(id)}`);
-    const event = payload.data?.event || payload.event || payload.data || payload;
-    const games = event?.match?.games || event?.games || [];
-    const active = games.find(game => game.state === 'inProgress') || [...games].reverse().find(game => game.state !== 'unstarted');
-    if (!active?.id) throw new Error('No active game is available for this match yet.');
-
-    state.selectedGameId = String(active.id);
-    setJsonEndpoint(state.selectedGameId);
-    await loadGame();
-    startPolling();
+    await resolveEvent(id);
   } catch (error) {
     setConnection(error.message, 'error');
     gameContent.innerHTML = `<div class="empty hero-empty"><strong>Game unavailable</strong><span>${error.message}</span></div>`;
@@ -176,11 +202,6 @@ function startPolling() {
 }
 
 async function loadSchedule() {
-  if (!configured()) {
-    setConnection('Worker URL required', 'error');
-    return;
-  }
-
   setConnection('Loading schedule…');
   try {
     const payload = await api('/api/schedule');
@@ -207,7 +228,9 @@ copyJsonUrl.addEventListener('click', async () => {
 });
 
 document.addEventListener('visibilitychange', () => {
-  if (!document.hidden && state.selectedGameId) loadGame();
+  if (document.hidden) return;
+  if (state.selectedGameId) loadGame();
+  else if (state.selectedEventId) resolveEvent(state.selectedEventId, true).catch(error => setConnection(error.message, 'error'));
 });
 
 loadSchedule();
