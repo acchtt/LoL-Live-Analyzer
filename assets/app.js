@@ -1,5 +1,5 @@
-// Replace this after deploying worker.js.
-const WORKER_BASE = 'https://YOUR-WORKER.workers.dev';
+// Public Cloudflare Worker for Riot LoL Esports data.
+const WORKER_BASE = 'https://lol-live-analyzer-api.acchtt.workers.dev';
 const GAME_POLL_MS = 15000;
 
 const state = {
@@ -10,6 +10,7 @@ const state = {
   lastSnapshot: null
 };
 
+const statsCache = new Map();
 const scheduleList = document.querySelector('#scheduleList');
 const gameContent = document.querySelector('#gameContent');
 const connectionDot = document.querySelector('#connectionDot');
@@ -28,7 +29,10 @@ function setConnection(label, kind = '') {
 }
 
 async function api(path) {
-  const response = await fetch(`${WORKER_BASE}${path}`, { headers: { Accept: 'application/json' } });
+  const response = await fetch(`${WORKER_BASE}${path}`, {
+    headers: { Accept: 'application/json' },
+    cache: 'no-store'
+  });
   const data = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(data.error || `Request failed (${response.status})`);
   return data;
@@ -36,7 +40,12 @@ async function api(path) {
 
 function formatTime(value) {
   if (!value) return 'TBD';
-  return new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(value));
+  return new Intl.DateTimeFormat(undefined, {
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  }).format(new Date(value));
 }
 
 function teamLogo(team) {
@@ -53,6 +62,7 @@ function renderSchedule() {
     scheduleList.innerHTML = '<div class="empty">No live or upcoming events were returned.</div>';
     return;
   }
+
   scheduleList.innerHTML = state.events.map(event => {
     const [a, b] = eventTeams(event);
     const status = event.state || 'unstarted';
@@ -79,6 +89,7 @@ function renderGame(snapshot) {
   state.lastSnapshot = snapshot;
   const blue = snapshot.blue || {};
   const red = snapshot.red || {};
+
   gameContent.innerHTML = `
     <div class="game-header">
       <div class="game-title"><div><p class="eyebrow">${snapshot.match?.league || 'Live game'} · Game ${snapshot.match?.gameNumber || '?'}</p><h2>${blue.name || 'Blue'} vs ${red.name || 'Red'}</h2></div><div class="clock">${snapshot.clock || '--:--'}</div></div>
@@ -99,6 +110,7 @@ function renderGame(snapshot) {
       <div class="player-column">${playerRows(blue.players)}</div>
       <div class="player-column">${playerRows(red.players)}</div>
     </div>`;
+
   jsonPreview.textContent = JSON.stringify(snapshot, null, 2);
 }
 
@@ -114,11 +126,13 @@ async function selectEvent(eventId) {
   clearInterval(state.pollTimer);
   renderSchedule();
   gameContent.innerHTML = '<div class="empty hero-empty"><strong>Resolving game</strong><span>Loading event details…</span></div>';
+
   try {
     const event = await api(`/api/event?id=${encodeURIComponent(eventId)}`);
     const games = event.event?.match?.games || event.match?.games || [];
     const active = games.find(game => game.state === 'inProgress') || [...games].reverse().find(game => game.state !== 'unstarted');
     if (!active?.id) throw new Error('No active game is available for this match yet.');
+
     state.selectedGameId = String(active.id);
     setJsonEndpoint(state.selectedGameId);
     await loadGame();
@@ -150,6 +164,7 @@ async function loadSchedule() {
     setConnection('Worker URL required', 'error');
     return;
   }
+
   setConnection('Loading schedule…');
   try {
     const payload = await api('/api/schedule');
