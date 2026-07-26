@@ -1,0 +1,106 @@
+name: Add odds heartbeat and last-good retention
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/fix-odds-heartbeat.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Add browser heartbeat and retain last good odds
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          userscript = Path('odds-bridge.user.js')
+          source = userscript.read_text()
+          source = source.replace('// @version      1.2.0', '// @version      1.3.0')
+          if 'const HEARTBEAT_MS' not in source:
+              source = source.replace(
+                  "  const DEFAULT_WORKER = 'https://lol-live-analyzer-api.acchtt.workers.dev';",
+                  "  const DEFAULT_WORKER = 'https://lol-live-analyzer-api.acchtt.workers.dev';\n  const HEARTBEAT_MS = 10000;"
+              )
+          heartbeat = """  setInterval(() => {
+            if (lastPayload && bridgeSecret() && !sending) queueSend(lastPayload, true);
+          }, HEARTBEAT_MS);
+          """
+          marker = "  console.info('[LoL Odds Bridge] v1.2.0 installed.');"
+          if heartbeat.strip() not in source:
+              source = source.replace(marker, heartbeat + "  console.info('[LoL Odds Bridge] v1.3.0 installed.');")
+          else:
+              source = source.replace("v1.2.0 installed", "v1.3.0 installed")
+          userscript.write_text(source)
+
+          ui = Path('assets/bookmaker-odds-ui.js')
+          code = ui.read_text()
+          pattern = re.compile(r"  async function loadOdds\(\) \{.*?\n  \}\n\n  function startOddsPolling", re.S)
+          replacement = '''  async function loadOdds() {
+            try {
+              const response = await fetch(`${ENDPOINT}?_=${Date.now()}`, { cache: 'no-store' });
+              const payload = await response.json().catch(() => ({}));
+              if (response.ok && payload?.status === 'ok') {
+                latestPayload = payload;
+                latestError = '';
+              } else if (latestPayload?.status === 'ok') {
+                latestPayload = {
+                  ...latestPayload,
+                  stale: true,
+                  ageSeconds: Number(latestPayload.ageSeconds || 0) + (POLL_MS / 1000)
+                };
+                latestError = '';
+              } else {
+                latestPayload = payload;
+                latestError = response.status === 404
+                  ? ''
+                  : (payload.error || `Odds request failed (${response.status})`);
+              }
+            } catch {
+              if (latestPayload?.status === 'ok') {
+                latestPayload = {
+                  ...latestPayload,
+                  stale: true,
+                  ageSeconds: Number(latestPayload.ageSeconds || 0) + (POLL_MS / 1000)
+                };
+                latestError = '';
+              } else {
+                latestError = 'Could not reach the private odds bridge.';
+              }
+            }
+            renderPanel();
+          }
+
+          function startOddsPolling'''
+          updated, count = pattern.subn(replacement, code, count=1)
+          if count != 1:
+              raise SystemExit(f'Expected one loadOdds block, replaced {count}')
+          ui.write_text(updated)
+
+          index = Path('index.html')
+          html = index.read_text()
+          html = html.replace('assets/bookmaker-odds-ui.js?v=20260727-2', 'assets/bookmaker-odds-ui.js?v=20260727-3')
+          index.write_text(html)
+          PY
+
+          node --check odds-bridge.user.js
+          node --check assets/bookmaker-odds-ui.js
+
+      - name: Commit heartbeat fix
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add odds-bridge.user.js assets/bookmaker-odds-ui.js index.html
+          git commit -m "Keep bookmaker odds visible and refreshed [skip ci]"
+          git push
