@@ -1,9 +1,24 @@
 // Final schedule integrity guard for stale LPL lifecycle data and missing finished scores.
 (() => {
-  const BUILD = '20260726-22';
+  const BUILD = '20260726-24';
   const FINAL_SCORE_RETRY_MS = 5 * 60 * 1000;
   const checkedAt = new Map();
   let hydrationRequest = null;
+
+  const KNOWN_FINALS = [
+    {
+      date: '2026-07-26',
+      teams: ['LNG', 'NIP'],
+      score: { LNG: 0, NIP: 2 },
+      note: 'Riot and Leaguepedia did not publish a usable final LPL state.'
+    },
+    {
+      date: '2026-07-26',
+      teams: ['TT', 'EDG'],
+      score: { TT: 2, EDG: 0 },
+      note: 'The completed TT 2–0 EDG result was externally confirmed while Riot remained stale.'
+    }
+  ];
 
   function numberOrNull(value) {
     if (value === null || value === undefined || String(value).trim() === '') return null;
@@ -20,6 +35,8 @@
     if (code) return code;
     const name = normalize(team.name || '');
     if (name.includes('NINJASINPYJAMAS')) return 'NIP';
+    if (name.includes('THUNDERTALKGAMING') || name === 'THUNDERTALK') return 'TT';
+    if (name.includes('EDWARDGAMING')) return 'EDG';
     if (name.includes('LNG')) return 'LNG';
     return name;
   }
@@ -33,21 +50,24 @@
     return Number.isFinite(parsed) ? new Date(parsed).toISOString().slice(0, 10) : null;
   }
 
-  function isLngNipFinal(event) {
-    const teams = (event?.match?.teams || []).map(teamKey);
-    return eventDate(event) === '2026-07-26' && teams.includes('LNG') && teams.includes('NIP');
+  function knownFinal(event) {
+    const keys = (event?.match?.teams || []).map(teamKey);
+    const date = eventDate(event);
+    return KNOWN_FINALS.find(result =>
+      result.date === date && result.teams.every(key => keys.includes(key))
+    ) || null;
   }
 
-  function applyLngNipFinal(event) {
-    if (!isLngNipFinal(event)) return false;
-    for (const team of event.match.teams || []) {
+  function applyKnownFinal(event, result = knownFinal(event)) {
+    if (!event || !result) return false;
+    for (const team of event.match?.teams || []) {
       const key = teamKey(team);
-      if (key === 'LNG') team.result = { ...(team.result || {}), gameWins: 0 };
-      if (key === 'NIP') team.result = { ...(team.result || {}), gameWins: 2 };
+      if (!Object.prototype.hasOwnProperty.call(result.score, key)) continue;
+      team.result = { ...(team.result || {}), gameWins: result.score[key] };
     }
     event.state = 'completed';
     event.communitySource = 'manual fallback';
-    event.communityNote = 'Riot and Leaguepedia did not publish a usable final LPL state.';
+    event.communityNote = result.note;
     event.scoreUnavailable = false;
     state.liveMatchIds.delete(eventKey(event));
     return true;
@@ -90,7 +110,7 @@
     if (hydrationRequest) return hydrationRequest;
     const now = Date.now();
     const candidates = (state.events || [])
-      .filter(event => displayState(event) === 'completed' && !hasValidScore(event))
+      .filter(event => displayState(event) === 'completed' && !hasValidScore(event) && !knownFinal(event))
       .filter(event => now - (checkedAt.get(eventKey(event)) || 0) >= FINAL_SCORE_RETRY_MS)
       .slice(0, 12);
     if (!candidates.length) return;
@@ -112,7 +132,7 @@
 
   const previousDisplayState = displayState;
   displayState = function integrityDisplayState(event) {
-    if (isLngNipFinal(event)) return 'completed';
+    if (knownFinal(event)) return 'completed';
     return previousDisplayState(event);
   };
 
@@ -131,57 +151,71 @@
   const previousRenderSchedule = renderSchedule;
   renderSchedule = function integrityRenderSchedule() {
     (state.events || []).forEach(event => {
-      applyLngNipFinal(event);
+      applyKnownFinal(event);
       if (displayState(event) === 'completed' && !hasValidScore(event)) event.scoreUnavailable = true;
     });
     previousRenderSchedule();
     patchRenderedCards();
   };
 
-  function renderLngNipFinal(event) {
-    const teams = event.match.teams || [];
-    const lng = teams.find(team => teamKey(team) === 'LNG') || teams[0] || {};
-    const nip = teams.find(team => teamKey(team) === 'NIP') || teams[1] || {};
+  function renderKnownFinal(event, result) {
+    const teams = event.match?.teams || [];
+    const firstKey = result.teams[0];
+    const secondKey = result.teams[1];
+    const first = teams.find(team => teamKey(team) === firstKey) || teams[0] || {};
+    const second = teams.find(team => teamKey(team) === secondKey) || teams[1] || {};
+    const firstScore = result.score[firstKey];
+    const secondScore = result.score[secondKey];
+
     state.selectedMatchState = 'completed';
     state.selectedGameId = null;
     state.liveMatchIds.delete(eventKey(event));
     clearMatchTimers();
     gameContent.innerHTML = `<div class="empty hero-empty">
-      <strong>Match finished · ${lng.name || 'LNG'} 0–2 ${nip.name || 'NIP'}</strong>
-      <span>Fallback result used because Riot and Leaguepedia did not publish a usable completed LPL state.</span>
+      <strong>Match finished · ${first.name || firstKey} ${firstScore}–${secondScore} ${second.name || secondKey}</strong>
+      <span>${result.note} The score is marked as an externally confirmed fallback.</span>
     </div>`;
     jsonUrl.value = '';
     copyJsonUrl.disabled = true;
     jsonPreview.textContent = JSON.stringify({
-      status: 'finished', matchId: eventKey(event), source: 'manual_fallback',
-      score: { LNG: 0, NIP: 2 }, updatedAt: new Date().toISOString()
+      status: 'finished',
+      matchId: eventKey(event),
+      source: 'manual_fallback',
+      score: result.score,
+      updatedAt: new Date().toISOString()
     }, null, 2);
-    setConnection('FINISHED · LNG 0–2 NIP · manual fallback', '');
+    setConnection(`FINISHED · ${firstKey} ${firstScore}–${secondScore} ${secondKey} · manual fallback`, '');
   }
 
   const previousSelectEvent = selectEvent;
   selectEvent = async function integritySelectEvent(id) {
     const event = (state.events || []).find(item => eventKey(item) === String(id));
-    if (!event || !applyLngNipFinal(event)) return previousSelectEvent(id);
+    const result = knownFinal(event);
+    if (!event || !result) return previousSelectEvent(id);
+    applyKnownFinal(event, result);
     state.selectedEventId = String(id);
     state.scheduleTab = 'finished';
     renderSchedule();
-    renderLngNipFinal(event);
+    renderKnownFinal(event, result);
   };
 
   const previousLoadSchedule = loadSchedule;
   loadSchedule = async function integrityLoadSchedule(...args) {
     const result = await previousLoadSchedule(...args);
-    (state.events || []).forEach(applyLngNipFinal);
+    (state.events || []).forEach(event => applyKnownFinal(event));
     await hydrateFinishedScores();
     renderSchedule();
+
+    const selected = selectedScheduleEvent();
+    const finalResult = knownFinal(selected);
+    if (selected && finalResult) renderKnownFinal(selected, finalResult);
     return result;
   };
 
   const footer = document.querySelector('footer');
   if (footer) {
     footer.querySelector('.integrity-build')?.remove();
-    footer.insertAdjacentHTML('beforeend', `<span class="build-mark integrity-build">Score integrity · ${BUILD}</span>`);
+    footer.insertAdjacentHTML('beforeend', `<span class="build-mark integrity-build"> Score integrity · ${BUILD}</span>`);
   }
 
   setTimeout(() => loadSchedule(true), 0);
