@@ -9,6 +9,7 @@ on:
       - worker-v1.4.js
       - worker-v1.5.js
       - worker-v1.6.js
+      - worker-v1.7.js
       - wrangler.toml
       - .github/workflows/deploy-worker.yml
 
