@@ -1,0 +1,68 @@
+{
+  "workerVersion": "2.0",
+  "feed": {
+    "schemaVersion": "2.0",
+    "matchState": "finished",
+    "live": false,
+    "series": [
+      {
+        "code": "VIT",
+        "wins": 2
+      },
+      {
+        "code": "MKOI",
+        "wins": 1
+      }
+    ],
+    "result": {
+      "status": "completed",
+      "winnerTeamId": "99322214695067838",
+      "winnerCode": "VIT",
+      "winnerName": "Team Vitality",
+      "loserTeamId": "103461966965149786",
+      "loserCode": "MKOI",
+      "score": {
+        "VIT": 2,
+        "MKOI": 1
+      }
+    },
+    "message": "Match finished: Team Vitality defeated Movistar KOI 2-1."
+  },
+  "resolver": {
+    "selectedGame": null,
+    "selectedPhase": "finished",
+    "series": [
+      {
+        "code": "VIT",
+        "wins": 2
+      },
+      {
+        "code": "MKOI",
+        "wins": 1
+      }
+    ],
+    "result": {
+      "status": "completed",
+      "winnerTeamId": "99322214695067838",
+      "winnerCode": "VIT",
+      "score": {
+        "VIT": 2,
+        "MKOI": 1
+      }
+    }
+  },
+  "schedule": {
+    "state": "completed",
+    "series": [
+      {
+        "code": "VIT",
+        "wins": 0
+      },
+      {
+        "code": "MKOI",
+        "wins": 0
+      }
+    ],
+    "scoreSource": "confirmed retained final frame"
+  }
+}

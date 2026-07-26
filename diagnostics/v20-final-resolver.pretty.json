@@ -1,0 +1,195 @@
+{
+    "event": {
+        "id": "115548681803406191",
+        "type": "match",
+        "tournament": {
+            "id": "115548681802226458"
+        },
+        "league": {
+            "id": "98767991302996019",
+            "slug": "lec",
+            "image": "http://static.lolesports.com/leagues/1592516184297_LEC-01-FullonDark.png",
+            "name": "LEC"
+        },
+        "match": {
+            "strategy": {
+                "count": 3
+            },
+            "teams": [
+                {
+                    "id": "99322214695067838",
+                    "name": "Team Vitality",
+                    "code": "VIT",
+                    "image": "http://static.lolesports.com/teams/1675865863968_Vitality_FullColor.png",
+                    "result": {
+                        "gameWins": 2
+                    }
+                },
+                {
+                    "id": "103461966965149786",
+                    "name": "Movistar KOI",
+                    "code": "MKOI",
+                    "image": "http://static.lolesports.com/teams/1734012609283_MKOI_FullColor_Blue.png",
+                    "result": {
+                        "gameWins": 1
+                    }
+                }
+            ],
+            "games": [
+                {
+                    "number": 1,
+                    "id": "115548681803406192",
+                    "state": "unstarted",
+                    "teams": [
+                        {
+                            "id": "99322214695067838",
+                            "side": "blue"
+                        },
+                        {
+                            "id": "103461966965149786",
+                            "side": "red"
+                        }
+                    ],
+                    "vods": []
+                },
+                {
+                    "number": 2,
+                    "id": "115548681803406193",
+                    "state": "unstarted",
+                    "teams": [
+                        {
+                            "id": "103461966965149786",
+                            "side": "blue"
+                        },
+                        {
+                            "id": "99322214695067838",
+                            "side": "red"
+                        }
+                    ],
+                    "vods": []
+                },
+                {
+                    "number": 3,
+                    "id": "115548681803406194",
+                    "state": "unstarted",
+                    "teams": [
+                        {
+                            "id": "99322214695067838",
+                            "side": "blue"
+                        },
+                        {
+                            "id": "103461966965149786",
+                            "side": "red"
+                        }
+                    ],
+                    "vods": []
+                }
+            ],
+            "state": "completed",
+            "result": {
+                "winnerTeamId": "99322214695067838",
+                "score": {
+                    "99322214695067838": 2,
+                    "103461966965149786": 1
+                }
+            }
+        },
+        "streams": [],
+        "scoreSource": "confirmed retained final frame",
+        "state": "completed",
+        "resultSource": "Riot retained game-three telemetry"
+    },
+    "games": [
+        {
+            "number": 1,
+            "id": "115548681803406192",
+            "state": "unstarted",
+            "teams": [
+                {
+                    "id": "99322214695067838",
+                    "side": "blue"
+                },
+                {
+                    "id": "103461966965149786",
+                    "side": "red"
+                }
+            ],
+            "vods": []
+        },
+        {
+            "number": 2,
+            "id": "115548681803406193",
+            "state": "unstarted",
+            "teams": [
+                {
+                    "id": "103461966965149786",
+                    "side": "blue"
+                },
+                {
+                    "id": "99322214695067838",
+                    "side": "red"
+                }
+            ],
+            "vods": []
+        },
+        {
+            "number": 3,
+            "id": "115548681803406194",
+            "state": "unstarted",
+            "teams": [
+                {
+                    "id": "99322214695067838",
+                    "side": "blue"
+                },
+                {
+                    "id": "103461966965149786",
+                    "side": "red"
+                }
+            ],
+            "vods": []
+        }
+    ],
+    "selectedGame": null,
+    "selectedPhase": "finished",
+    "series": {
+        "teams": [
+            {
+                "id": "99322214695067838",
+                "name": "Team Vitality",
+                "code": "VIT",
+                "image": "http://static.lolesports.com/teams/1675865863968_Vitality_FullColor.png",
+                "wins": 2
+            },
+            {
+                "id": "103461966965149786",
+                "name": "Movistar KOI",
+                "code": "MKOI",
+                "image": "http://static.lolesports.com/teams/1734012609283_MKOI_FullColor_Blue.png",
+                "wins": 1
+            }
+        ],
+        "source": "confirmed retained final frame",
+        "confirmedThroughGame": 3,
+        "completed": true,
+        "winnerTeamId": "99322214695067838"
+    },
+    "broadcastLive": false,
+    "telemetryAvailable": false,
+    "checkedAt": "2026-07-26T17:13:25.729Z",
+    "diagnostics": {
+        "finalResult": {
+            "gameId": "115548681803406194",
+            "source": "Riot retained game-three telemetry",
+            "score": "VIT 2-1 MKOI"
+        }
+    },
+    "result": {
+        "status": "completed",
+        "winnerTeamId": "99322214695067838",
+        "winnerCode": "VIT",
+        "score": {
+            "VIT": 2,
+            "MKOI": 1
+        }
+    }
+}

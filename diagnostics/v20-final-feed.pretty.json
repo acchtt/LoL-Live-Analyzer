@@ -1,0 +1,263 @@
+{
+    "schemaVersion": "2.0",
+    "updatedAt": "2026-07-26T17:13:25.054Z",
+    "source": {
+        "provider": "Riot LoL Esports web feed",
+        "gameId": "115548681803406194",
+        "matchId": "115548681803406191",
+        "live": false,
+        "frameTimestamp": "2026-07-26T17:01:10.005Z",
+        "dataAgeSeconds": 735,
+        "historicalProbe": false,
+        "telemetryAdvancing": false,
+        "staleFinalFrame": true,
+        "clockSource": "Riot initial telemetry frame",
+        "clockAnchorTime": "2026-07-26T16:27:16.083Z",
+        "clockRecovered": true,
+        "finalResult": true,
+        "resultSource": "Riot retained game-three telemetry"
+    },
+    "match": {
+        "league": "LEC",
+        "bestOf": 3,
+        "gameNumber": 3,
+        "patch": "16.14.794.9266",
+        "state": "finished",
+        "result": {
+            "winnerTeamId": "99322214695067838",
+            "winnerCode": "VIT",
+            "score": "2-1"
+        }
+    },
+    "series": {
+        "teams": [
+            {
+                "id": "99322214695067838",
+                "name": "Team Vitality",
+                "code": "VIT",
+                "image": "http://static.lolesports.com/teams/1675865863968_Vitality_FullColor.png",
+                "wins": 2
+            },
+            {
+                "id": "103461966965149786",
+                "name": "Movistar KOI",
+                "code": "MKOI",
+                "image": "http://static.lolesports.com/teams/1734012609283_MKOI_FullColor_Blue.png",
+                "wins": 1
+            }
+        ],
+        "source": "confirmed retained final frame",
+        "confirmedThroughGame": 3,
+        "completed": true,
+        "winnerTeamId": "99322214695067838"
+    },
+    "status": "ok",
+    "clock": "33:54",
+    "clockSeconds": 2034,
+    "blue": {
+        "id": "103461966965149786",
+        "side": "blue",
+        "name": "Movistar KOI",
+        "code": "MKOI",
+        "image": "http://static.lolesports.com/teams/1734012609283_MKOI_FullColor_Blue.png",
+        "gold": 60547,
+        "kills": 15,
+        "towers": 2,
+        "inhibitors": 0,
+        "barons": 0,
+        "heralds": 0,
+        "dragons": [],
+        "players": [
+            {
+                "participantId": 1,
+                "name": "MKOI Myrwn",
+                "champion": "Shen",
+                "role": "top",
+                "level": 17,
+                "kills": 0,
+                "deaths": 5,
+                "assists": 11,
+                "creepScore": 226,
+                "totalGold": 10636,
+                "currentGold": 0,
+                "items": []
+            },
+            {
+                "participantId": 2,
+                "name": "MKOI Elyoya",
+                "champion": "JarvanIV",
+                "role": "jungle",
+                "level": 15,
+                "kills": 2,
+                "deaths": 5,
+                "assists": 11,
+                "creepScore": 200,
+                "totalGold": 11545,
+                "currentGold": 0,
+                "items": []
+            },
+            {
+                "participantId": 3,
+                "name": "MKOI Jojopyun",
+                "champion": "Anivia",
+                "role": "mid",
+                "level": 17,
+                "kills": 2,
+                "deaths": 7,
+                "assists": 5,
+                "creepScore": 264,
+                "totalGold": 11791,
+                "currentGold": 0,
+                "items": []
+            },
+            {
+                "participantId": 4,
+                "name": "MKOI Supa",
+                "champion": "Kaisa",
+                "role": "bottom",
+                "level": 15,
+                "kills": 9,
+                "deaths": 5,
+                "assists": 5,
+                "creepScore": 304,
+                "totalGold": 17743,
+                "currentGold": 0,
+                "items": []
+            },
+            {
+                "participantId": 5,
+                "name": "MKOI Alvaro",
+                "champion": "Alistar",
+                "role": "support",
+                "level": 12,
+                "kills": 2,
+                "deaths": 7,
+                "assists": 8,
+                "creepScore": 32,
+                "totalGold": 8832,
+                "currentGold": 0,
+                "items": []
+            }
+        ]
+    },
+    "red": {
+        "id": "99322214695067838",
+        "side": "red",
+        "name": "Team Vitality",
+        "code": "VIT",
+        "image": "http://static.lolesports.com/teams/1675865863968_Vitality_FullColor.png",
+        "gold": 71904,
+        "kills": 29,
+        "towers": 10,
+        "inhibitors": 2,
+        "barons": 2,
+        "heralds": 0,
+        "dragons": [
+            "infernal",
+            "ocean",
+            "chemtech",
+            "chemtech",
+            "elder"
+        ],
+        "players": [
+            {
+                "participantId": 6,
+                "name": "VIT Naak Nako",
+                "champion": "KSante",
+                "role": "top",
+                "level": 19,
+                "kills": 4,
+                "deaths": 4,
+                "assists": 15,
+                "creepScore": 230,
+                "totalGold": 13717,
+                "currentGold": 0,
+                "items": []
+            },
+            {
+                "participantId": 7,
+                "name": "VIT Lyncas",
+                "champion": "Naafiri",
+                "role": "jungle",
+                "level": 17,
+                "kills": 11,
+                "deaths": 0,
+                "assists": 8,
+                "creepScore": 244,
+                "totalGold": 16303,
+                "currentGold": 0,
+                "items": []
+            },
+            {
+                "participantId": 8,
+                "name": "VIT FIESTA",
+                "champion": "Hwei",
+                "role": "mid",
+                "level": 17,
+                "kills": 7,
+                "deaths": 4,
+                "assists": 14,
+                "creepScore": 234,
+                "totalGold": 14437,
+                "currentGold": 0,
+                "items": []
+            },
+            {
+                "participantId": 9,
+                "name": "VIT Carzzy",
+                "champion": "Ziggs",
+                "role": "bottom",
+                "level": 17,
+                "kills": 7,
+                "deaths": 3,
+                "assists": 13,
+                "creepScore": 296,
+                "totalGold": 17022,
+                "currentGold": 0,
+                "items": []
+            },
+            {
+                "participantId": 10,
+                "name": "VIT Fleshy",
+                "champion": "Rell",
+                "role": "support",
+                "level": 14,
+                "kills": 0,
+                "deaths": 4,
+                "assists": 23,
+                "creepScore": 46,
+                "totalGold": 10425,
+                "currentGold": 0,
+                "items": []
+            }
+        ]
+    },
+    "differences": {
+        "gold": -11357,
+        "kills": -14,
+        "towers": -8,
+        "dragons": -5,
+        "barons": -2
+    },
+    "summary": "Team Vitality leads by 11,357 gold. Kills are 15-29; towers are 2-10.",
+    "message": "Match finished: Team Vitality defeated Movistar KOI 2-1.",
+    "request": {
+        "gameId": "115548681803406194",
+        "feedUrl": "https://lol-live-analyzer-api.acchtt.workers.dev/api/chatgpt/115548681803406194/final-1785086004",
+        "format": "rotating-path",
+        "freshToken": "final-1785086004",
+        "cachePolicy": "unique path token plus no-store headers"
+    },
+    "result": {
+        "status": "completed",
+        "winnerTeamId": "99322214695067838",
+        "winnerCode": "VIT",
+        "winnerName": "Team Vitality",
+        "loserTeamId": "103461966965149786",
+        "loserCode": "MKOI",
+        "score": {
+            "VIT": 2,
+            "MKOI": 1
+        }
+    }
+}
