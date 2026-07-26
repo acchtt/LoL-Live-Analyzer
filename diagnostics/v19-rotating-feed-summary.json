@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "1.9",
+  "status": "ok",
+  "gameId": "115548681803406194",
+  "feedUrl": "https://lol-live-analyzer-api.acchtt.workers.dev/api/chatgpt/115548681803406194/verify-1785085552",
+  "freshToken": "verify-1785085552",
+  "format": "rotating-path",
+  "cachePolicy": "unique path token plus no-store headers",
+  "clock": "33:54",
+  "series": [
+    {
+      "code": "VIT",
+      "wins": 1
+    },
+    {
+      "code": "MKOI",
+      "wins": 1
+    }
+  ],
+  "message": "The last Riot frame is no longer advancing. Treat this game as ended and resolve the next game in the series."
+}

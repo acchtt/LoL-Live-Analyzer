@@ -2,6 +2,7 @@
   "ok": true,
   "service": "LoL Live Analyzer API",
   "apiKeyConfigured": true,
-  "version": "1.8",
-  "preferredFeedFormat": "https://lol-live-analyzer-api.acchtt.workers.dev/api/chatgpt/GAME_ID"
+  "version": "1.9",
+  "preferredFeedFormat": "https://lol-live-analyzer-api.acchtt.workers.dev/api/chatgpt/GAME_ID/FRESH_TOKEN",
+  "tokenGuidance": "Use a new minute token such as m29384271 for each fresh read."
 }
