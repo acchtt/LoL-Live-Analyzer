@@ -17,7 +17,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v6
 
-      - name: Verify Worker v1.8 path feed
+      - name: Verify Worker v1.9 rotating feed
         shell: bash
         run: |
           set -euo pipefail
@@ -28,30 +28,35 @@ jobs:
             curl --retry 2 --retry-delay 1 --fail-with-body -sS "$base/" \
               -o diagnostics/worker-health.json
             version=$(python -c "import json; print(json.load(open('diagnostics/worker-health.json')).get('version',''))")
-            if [ "$version" = "1.8" ]; then
+            if [ "$version" = "1.9" ]; then
               break
             fi
             sleep 4
           done
 
-          python -c "import json; v=json.load(open('diagnostics/worker-health.json')).get('version'); assert v == '1.8', f'Expected Worker 1.8, got {v}'"
+          python -c "import json; v=json.load(open('diagnostics/worker-health.json')).get('version'); assert v == '1.9', f'Expected Worker 1.9, got {v}'"
 
+          token="verify-$(date +%s)"
+          feed_url="$base/api/chatgpt/115548681803406194/$token"
+          printf '%s\n' "$feed_url" > diagnostics/v19-rotating-feed-url.txt
           curl --retry 5 --retry-delay 3 --fail-with-body -sS \
-            "$base/api/chatgpt/115548681803406194" \
-            -D diagnostics/path-feed.headers.txt \
-            -o diagnostics/path-feed.json
+            "$feed_url" \
+            -D diagnostics/v19-rotating-feed.headers.txt \
+            -o diagnostics/v19-rotating-feed.json
 
-          python -m json.tool diagnostics/path-feed.json > diagnostics/path-feed.pretty.json
+          python -m json.tool diagnostics/v19-rotating-feed.json > diagnostics/v19-rotating-feed.pretty.json
           python - <<'PY'
           import json
           from pathlib import Path
-          data = json.load(open('diagnostics/path-feed.json'))
+          data = json.load(open('diagnostics/v19-rotating-feed.json'))
           summary = {
               'schemaVersion': data.get('schemaVersion'),
               'status': data.get('status'),
               'gameId': data.get('source', {}).get('gameId'),
               'feedUrl': data.get('request', {}).get('feedUrl'),
+              'freshToken': data.get('request', {}).get('freshToken'),
               'format': data.get('request', {}).get('format'),
+              'cachePolicy': data.get('request', {}).get('cachePolicy'),
               'clock': data.get('clock'),
               'series': [
                   {'code': team.get('code'), 'wins': team.get('wins')}
@@ -59,7 +64,7 @@ jobs:
               ],
               'message': data.get('message')
           }
-          Path('diagnostics/v18-path-feed-summary.json').write_text(json.dumps(summary, indent=2) + '\n')
+          Path('diagnostics/v19-rotating-feed-summary.json').write_text(json.dumps(summary, indent=2) + '\n')
           PY
 
       - name: Commit diagnostic response
@@ -68,5 +73,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add diagnostics/
-          git commit -m "Verify Worker v1.8 path feed [skip ci]"
+          git commit -m "Verify Worker v1.9 rotating feed [skip ci]"
           git push
