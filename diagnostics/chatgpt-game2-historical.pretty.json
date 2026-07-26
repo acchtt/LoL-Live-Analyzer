@@ -1,13 +1,13 @@
 {
     "schemaVersion": "1.6",
-    "updatedAt": "2026-07-26T16:31:37.168Z",
+    "updatedAt": "2026-07-26T16:33:42.781Z",
     "source": {
         "provider": "Riot LoL Esports web feed",
         "gameId": "115548681803406193",
         "matchId": "115548681803406191",
         "live": false,
         "frameTimestamp": "2026-07-26T15:32:43.314Z",
-        "dataAgeSeconds": 3534,
+        "dataAgeSeconds": 3659,
         "historicalProbe": true
     },
     "match": {
