@@ -1,0 +1,55 @@
+name: Set up durable odds KV
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/setup-odds-kv.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: setup-odds-kv
+  cancel-in-progress: false
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Check existing binding
+        id: binding
+        shell: bash
+        run: |
+          if grep -q 'binding = "ODDS_CACHE"' wrangler.toml; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create and bind Workers KV namespace
+        if: steps.binding.outputs.exists != 'true'
+        shell: bash
+        run: npx wrangler@4 kv namespace create lol-live-analyzer-odds-cache --binding ODDS_CACHE --update-config
+
+      - name: Validate Worker syntax
+        shell: bash
+        run: node --check worker-v2.3.js
+
+      - name: Commit KV binding
+        if: steps.binding.outputs.exists != 'true'
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add wrangler.toml
+          git commit -m "Bind durable bookmaker odds KV [skip ci]"
+          git push
