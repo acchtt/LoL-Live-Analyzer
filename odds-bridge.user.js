@@ -1,10 +1,11 @@
 // ==UserScript==
 // @name         LoL Live Analyzer - BK8/IME Odds Bridge
 // @namespace    https://github.com/acchtt/LoL-Live-Analyzer
-// @version      1.0.0
+// @version      1.1.0
 // @description  Captures sanitized eSportsBull market responses and sends them to your private Cloudflare Worker bridge.
 // @author       LoL Live Analyzer
 // @match        https://*.dotnapu.com/*
+// @match        https://dotnapu.com/*
 // @include      /^https:\/\/[^/]*\.dotnapu\.com(?::\d+)?\//
 // @run-at       document-start
 // @grant        unsafeWindow
@@ -26,6 +27,8 @@
   const page = typeof unsafeWindow !== 'undefined' ? unsafeWindow : window;
 
   let badge = null;
+  let lastBadgeMessage = '';
+  let lastBadgeState = 'idle';
   let lastPayload = null;
   let lastFingerprint = '';
   let sendTimer = null;
@@ -39,52 +42,70 @@
     return String(GM_getValue(SECRET_KEY, '') || '').trim();
   }
 
-  function setBadge(message, state = 'idle') {
-    if (!badge) createBadge();
-    if (!badge) return;
-    badge.textContent = message;
-    badge.dataset.state = state;
-    const colors = {
+  function badgeColors(state) {
+    return {
       idle: ['#182033', '#cbd5e1'],
       waiting: ['#332d18', '#fde68a'],
       sending: ['#172554', '#bfdbfe'],
       ok: ['#123524', '#bbf7d0'],
       error: ['#3f1717', '#fecaca']
-    };
-    const [background, color] = colors[state] || colors.idle;
-    badge.style.background = background;
-    badge.style.color = color;
+    }[state] || ['#182033', '#cbd5e1'];
   }
 
-  function createBadge() {
-    if (badge || !document.documentElement) return;
-    badge = document.createElement('button');
-    badge.type = 'button';
-    badge.title = 'Click to configure the private odds bridge secret.';
-    badge.style.cssText = [
-      'position:fixed',
-      'right:12px',
-      'bottom:12px',
-      'z-index:2147483647',
-      'border:1px solid rgba(255,255,255,.18)',
-      'border-radius:9px',
-      'padding:8px 11px',
-      'font:12px/1.35 system-ui,sans-serif',
-      'box-shadow:0 4px 18px rgba(0,0,0,.28)',
-      'cursor:pointer',
-      'max-width:320px',
-      'text-align:left'
-    ].join(';');
-    badge.addEventListener('click', configureSecret);
-    document.documentElement.appendChild(badge);
-    setBadge(bridgeSecret() ? 'Odds bridge ready · waiting for odds' : 'Odds bridge · click to set secret', bridgeSecret() ? 'waiting' : 'idle');
+  function ensureBadge() {
+    const mount = document.body || document.documentElement;
+    if (!mount) return null;
+
+    if (!badge) {
+      badge = document.createElement('button');
+      badge.type = 'button';
+      badge.id = 'lol-live-analyzer-odds-bridge';
+      badge.title = 'Click to configure the private odds bridge secret.';
+      badge.style.cssText = [
+        'all:initial',
+        'position:fixed',
+        'right:12px',
+        'bottom:12px',
+        'z-index:2147483647',
+        'display:block',
+        'box-sizing:border-box',
+        'border:1px solid rgba(255,255,255,.24)',
+        'border-radius:9px',
+        'padding:9px 12px',
+        'font:600 12px/1.35 system-ui,-apple-system,Segoe UI,sans-serif',
+        'box-shadow:0 5px 20px rgba(0,0,0,.42)',
+        'cursor:pointer',
+        'max-width:340px',
+        'text-align:left',
+        'white-space:normal'
+      ].join(';');
+      badge.addEventListener('click', configureSecret);
+    }
+
+    if (!badge.isConnected || badge.parentNode !== mount) mount.appendChild(badge);
+
+    const message = lastBadgeMessage || (bridgeSecret()
+      ? 'Odds bridge ready · waiting for odds'
+      : 'Odds bridge · click to set secret');
+    const state = lastBadgeMessage ? lastBadgeState : (bridgeSecret() ? 'waiting' : 'idle');
+    const [background, color] = badgeColors(state);
+    badge.textContent = message;
+    badge.dataset.state = state;
+    badge.style.background = background;
+    badge.style.color = color;
+    return badge;
+  }
+
+  function setBadge(message, state = 'idle') {
+    lastBadgeMessage = String(message || '');
+    lastBadgeState = state;
+    ensureBadge();
   }
 
   function configureSecret() {
-    const current = bridgeSecret();
     const value = prompt(
-      'Paste ODDS_BRIDGE_SECRET. It stays in Tampermonkey storage on this browser and is never placed in the page or repository.',
-      current
+      'Paste ODDS_BRIDGE_SECRET. It remains in Tampermonkey storage on this browser.',
+      bridgeSecret()
     );
     if (value === null) return;
     const secret = String(value).trim();
@@ -235,7 +256,6 @@
         }
       }
     }
-
     return {
       schemaVersion: '1.0',
       source: 'ime-esportsbull-browser-bridge',
@@ -267,7 +287,8 @@
   function sendPayload(payload) {
     const secret = bridgeSecret();
     if (!secret) {
-      setBadge(`Odds captured · ${payload.matches[0]?.teams?.home?.code || 'Team A'} vs ${payload.matches[0]?.teams?.away?.code || 'Team B'} · set secret`, 'waiting');
+      const first = payload.matches[0];
+      setBadge(`Odds captured · ${first?.teams?.home?.code || 'A'} vs ${first?.teams?.away?.code || 'B'} · click to set secret`, 'waiting');
       return;
     }
     if (sending) {
@@ -287,7 +308,7 @@
         Authorization: `Bearer ${secret}`
       },
       data: JSON.stringify(payload),
-      timeout: 15_000,
+      timeout: 15000,
       onload(response) {
         sending = false;
         let body = null;
@@ -326,17 +347,18 @@
 
   function patchXmlHttpRequest() {
     const prototype = page.XMLHttpRequest?.prototype;
-    if (!prototype || prototype.__lolOddsBridgePatched) return;
+    if (!prototype) return;
+    if (prototype.open?.__lolOddsBridgePatched && prototype.send?.__lolOddsBridgePatched) return;
 
     const originalOpen = prototype.open;
     const originalSend = prototype.send;
 
-    prototype.open = function patchedOpen(method, url, ...rest) {
+    function patchedOpen(method, url, ...rest) {
       this.__lolOddsBridgeUrl = String(url || '');
       return originalOpen.call(this, method, url, ...rest);
-    };
+    }
 
-    prototype.send = function patchedSend(...args) {
+    function patchedSend(...args) {
       if (isTarget(this.__lolOddsBridgeUrl)) {
         this.addEventListener('load', () => {
           if (this.status < 200 || this.status >= 300) return;
@@ -351,9 +373,12 @@
         }, { once: true });
       }
       return originalSend.apply(this, args);
-    };
+    }
 
-    Object.defineProperty(prototype, '__lolOddsBridgePatched', { value: true });
+    Object.defineProperty(patchedOpen, '__lolOddsBridgePatched', { value: true });
+    Object.defineProperty(patchedSend, '__lolOddsBridgePatched', { value: true });
+    prototype.open = patchedOpen;
+    prototype.send = patchedSend;
   }
 
   function patchFetch() {
@@ -373,6 +398,16 @@
     page.fetch = patchedFetch;
   }
 
+  function maintainBridge() {
+    ensureBadge();
+    patchXmlHttpRequest();
+    patchFetch();
+  }
+
+  GM_registerMenuCommand('Show bridge badge', () => {
+    badge?.remove();
+    ensureBadge();
+  });
   GM_registerMenuCommand('Configure bridge secret', configureSecret);
   GM_registerMenuCommand('Configure Worker URL', configureWorker);
   GM_registerMenuCommand('Send last captured odds again', () => {
@@ -384,9 +419,8 @@
     setBadge('Odds bridge · secret cleared', 'idle');
   });
 
-  patchXmlHttpRequest();
-  patchFetch();
-  createBadge();
-  document.addEventListener('DOMContentLoaded', createBadge, { once: true });
-  console.info('[LoL Odds Bridge] Installed. Waiting for GetMatchDetailsByParentV2 responses.');
+  maintainBridge();
+  document.addEventListener('DOMContentLoaded', maintainBridge, { once: true });
+  setInterval(maintainBridge, 1500);
+  console.info('[LoL Odds Bridge] v1.1.0 installed. Waiting for GetMatchDetailsByParentV2 responses.');
 })();
