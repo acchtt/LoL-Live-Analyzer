@@ -294,20 +294,41 @@ function renderPanel() {
   }
 
   async function loadOdds() {
-    try {
-      const response = await fetch(`${ENDPOINT}?_=${Date.now()}`, { cache: 'no-store' });
-      const payload = await response.json().catch(() => ({}));
+  try {
+    const response = await fetch(`${ENDPOINT}?_=${Date.now()}`, { cache: 'no-store' });
+    const payload = await response.json().catch(() => ({}));
+    if (response.ok && payload?.status === 'ok') {
       latestPayload = payload;
-      latestError = response.ok || response.status === 404
+      latestError = '';
+    } else if (latestPayload?.status === 'ok') {
+      latestPayload = {
+        ...latestPayload,
+        stale: true,
+        ageSeconds: Number(latestPayload.ageSeconds || 0) + (POLL_MS / 1000)
+      };
+      latestError = '';
+    } else {
+      latestPayload = payload;
+      latestError = response.status === 404
         ? ''
         : (payload.error || `Odds request failed (${response.status})`);
-    } catch {
+    }
+  } catch {
+    if (latestPayload?.status === 'ok') {
+      latestPayload = {
+        ...latestPayload,
+        stale: true,
+        ageSeconds: Number(latestPayload.ageSeconds || 0) + (POLL_MS / 1000)
+      };
+      latestError = '';
+    } else {
       latestError = 'Could not reach the private odds bridge.';
     }
-    renderPanel();
   }
+  renderPanel();
+}
 
-  function startOddsPolling() {
+function startOddsPolling() {
     clearInterval(pollTimer);
     loadOdds();
     pollTimer = setInterval(() => {

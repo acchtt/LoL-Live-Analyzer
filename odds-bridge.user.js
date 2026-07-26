@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         LoL Live Analyzer - BK8/IME Odds Bridge
 // @namespace    https://github.com/acchtt/LoL-Live-Analyzer
-// @version      1.2.0
+// @version      1.3.0
 // @description  Captures sanitized eSportsBull market responses and sends them to your private Cloudflare Worker bridge.
 // @author       LoL Live Analyzer
 // @match        https://*.dotnapu.com/*
@@ -22,6 +22,7 @@
 
   const TARGET = '/api/GetMatchDetailsByParentV2';
   const DEFAULT_WORKER = 'https://lol-live-analyzer-api.acchtt.workers.dev';
+  const HEARTBEAT_MS = 10000;
   const SECRET_KEY = 'oddsBridgeSecret';
   const WORKER_KEY = 'oddsBridgeWorker';
   const page = typeof unsafeWindow !== 'undefined' ? unsafeWindow : window;
@@ -343,5 +344,8 @@
   maintain();
   document.addEventListener('DOMContentLoaded', maintain, { once: true });
   setInterval(maintain, 1500);
-  console.info('[LoL Odds Bridge] v1.2.0 installed.');
+  setInterval(() => {
+  if (lastPayload && bridgeSecret() && !sending) queueSend(lastPayload, true);
+}, HEARTBEAT_MS);
+  console.info('[LoL Odds Bridge] v1.3.0 installed.');
 })();
