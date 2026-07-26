@@ -189,8 +189,11 @@ function applyConfirmedSchedule(payload) {
 
 async function addFallbackClock(snapshot, requestUrl, gameId, env, ctx) {
   if (!snapshot || snapshot.status !== 'ok') return snapshot;
-  const existing = Number(snapshot.clockSeconds);
-  if (Number.isFinite(existing) && existing >= 0) return snapshot;
+  const rawClockSeconds = snapshot.clockSeconds;
+  const existing = rawClockSeconds === null || rawClockSeconds === undefined || rawClockSeconds === ''
+    ? null
+    : Number(rawClockSeconds);
+  if (existing !== null && Number.isFinite(existing) && existing >= 0) return snapshot;
 
   const currentFrameMs = parseTimestamp(snapshot?.source?.frameTimestamp);
   if (currentFrameMs === null) return snapshot;
