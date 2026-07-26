@@ -1,0 +1,17 @@
+{
+  "health": {
+    "version": "2.2",
+    "bridgeConfigured": false,
+    "rawStatus": null
+  },
+  "latest": {
+    "status": "waiting_for_bridge",
+    "provider": null,
+    "ageSeconds": null,
+    "stale": null,
+    "matchCount": 0,
+    "matches": [],
+    "message": "Open the bookmaker page with the odds bridge userscript enabled.",
+    "error": null
+  }
+}
