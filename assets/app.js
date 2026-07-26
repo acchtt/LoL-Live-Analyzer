@@ -1,4 +1,4 @@
-// Public Cloudflare Worker for Riot LoL Esports data.
+// Frontend for the public LoL Live Analyzer Worker.
 const WORKER_BASE = 'https://lol-live-analyzer-api.acchtt.workers.dev';
 const GAME_POLL_MS = 15000;
 const EVENT_RETRY_MS = 15000;
@@ -7,6 +7,7 @@ const state = {
   events: [],
   selectedEventId: null,
   selectedGameId: null,
+  selectedMatchState: null,
   pollTimer: null,
   eventRetryTimer: null,
   lastSnapshot: null
@@ -28,6 +29,7 @@ function setConnection(label, kind = '') {
 async function api(path) {
   const endpoint = `${WORKER_BASE}${path}`;
   let response;
+
   try {
     response = await fetch(endpoint);
   } catch {
@@ -35,14 +37,19 @@ async function api(path) {
   }
 
   const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(data.error || `Request failed (${response.status}) at ${path}`);
+  if (!response.ok) {
+    throw new Error(data.error || `Request failed (${response.status}) at ${path}`);
+  }
   return data;
 }
 
 function formatTime(value) {
   if (!value) return 'TBD';
   return new Intl.DateTimeFormat(undefined, {
-    month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
   }).format(new Date(value));
 }
 
@@ -55,12 +62,16 @@ function teamLogo(team) {
 }
 
 function eventTeams(event) {
-  const teams = event.match?.teams || [];
+  const teams = event?.match?.teams || [];
   return [teams[0] || {}, teams[1] || {}];
 }
 
 function eventId(event) {
   return String(event?.match?.id || event?.id || '');
+}
+
+function selectedScheduleEvent() {
+  return state.events.find(event => eventId(event) === state.selectedEventId) || null;
 }
 
 function statusLabel(status) {
@@ -72,9 +83,21 @@ function statusLabel(status) {
   return labels[status] || String(status || 'UPCOMING').toUpperCase();
 }
 
+function sortEvents(events) {
+  const priority = { inProgress: 0, unstarted: 1, completed: 2 };
+  return [...events].sort((a, b) => {
+    const stateDifference = (priority[a.state] ?? 3) - (priority[b.state] ?? 3);
+    if (stateDifference !== 0) return stateDifference;
+
+    const aTime = Date.parse(a.startTime || 0) || 0;
+    const bTime = Date.parse(b.startTime || 0) || 0;
+    return a.state === 'completed' ? bTime - aTime : aTime - bTime;
+  });
+}
+
 function renderSchedule() {
   if (!state.events.length) {
-    scheduleList.innerHTML = '<div class="empty">No live or upcoming events were returned.</div>';
+    scheduleList.innerHTML = '<div class="empty">No matches were returned.</div>';
     return;
   }
 
@@ -82,6 +105,7 @@ function renderSchedule() {
     const id = eventId(event);
     const [a, b] = eventTeams(event);
     const status = event.state || 'unstarted';
+
     return `<button class="match-card ${id === state.selectedEventId ? 'active' : ''}" data-event-id="${id}" type="button">
       <div class="match-meta"><span>${event.league?.name || event.league?.slug || 'LoL Esports'}</span><span class="match-state">${statusLabel(status)}</span></div>
       <div class="teams">
@@ -105,9 +129,13 @@ function renderGame(snapshot) {
   state.lastSnapshot = snapshot;
   const blue = snapshot.blue || {};
   const red = snapshot.red || {};
+  const scheduleEvent = selectedScheduleEvent();
+  const league = snapshot.match?.league || scheduleEvent?.league?.name || 'LoL Esports';
+  const stateText = state.selectedMatchState === 'completed' ? 'Final snapshot' : 'Live game';
+
   gameContent.innerHTML = `
     <div class="game-header">
-      <div class="game-title"><div><p class="eyebrow">${snapshot.match?.league || 'Live game'} · Game ${snapshot.match?.gameNumber || '?'}</p><h2>${blue.name || 'Blue'} vs ${red.name || 'Red'}</h2></div><div class="clock">${snapshot.clock || '--:--'}</div></div>
+      <div class="game-title"><div><p class="eyebrow">${league} · ${stateText} · Game ${snapshot.match?.gameNumber || '?'}</p><h2>${blue.name || 'Blue'} vs ${red.name || 'Red'}</h2></div><div class="clock">${snapshot.clock || '--:--'}</div></div>
     </div>
     <div class="score-grid">
       <div class="team-summary">${blue.image ? `<img src="${secureUrl(blue.image)}" alt="">` : ''}<h3>${blue.name || 'Blue side'}</h3><div class="big-score">${blue.kills ?? 0}</div><span>${(blue.gold ?? 0).toLocaleString()} gold</span></div>
@@ -122,12 +150,12 @@ function renderGame(snapshot) {
       <div class="metric"><span>Inhibitors</span><strong>${blue.inhibitors ?? 0} – ${red.inhibitors ?? 0}</strong></div>
     </div>
     <div class="players"><div class="player-column">${playerRows(blue.players)}</div><div class="player-column">${playerRows(red.players)}</div></div>`;
+
   jsonPreview.textContent = JSON.stringify(snapshot, null, 2);
 }
 
 function setJsonEndpoint(gameId) {
-  const url = `${WORKER_BASE}/api/chatgpt?gameId=${encodeURIComponent(gameId)}`;
-  jsonUrl.value = url;
+  jsonUrl.value = `${WORKER_BASE}/api/chatgpt?gameId=${encodeURIComponent(gameId)}`;
   copyJsonUrl.disabled = false;
 }
 
@@ -136,6 +164,19 @@ function clearTimers() {
   clearTimeout(state.eventRetryTimer);
   state.pollTimer = null;
   state.eventRetryTimer = null;
+}
+
+function showUpcoming(event) {
+  const [a, b] = eventTeams(event);
+  gameContent.innerHTML = `<div class="empty hero-empty"><strong>Upcoming match</strong><span>${a.name || 'TBD'} vs ${b.name || 'TBD'} is scheduled for ${formatTime(event.startTime)}.</span></div>`;
+  jsonUrl.value = '';
+  copyJsonUrl.disabled = true;
+  jsonPreview.textContent = JSON.stringify({
+    status: 'upcoming',
+    matchId: state.selectedEventId,
+    scheduledStart: event.startTime || null
+  }, null, 2);
+  setConnection('Upcoming match', '');
 }
 
 function showWaiting(event, resolution = {}) {
@@ -158,7 +199,7 @@ function showWaiting(event, resolution = {}) {
   setConnection('Waiting for live telemetry', '');
 }
 
-async function resolveEvent(id, isRetry = false) {
+async function resolveLiveEvent(id, isRetry = false) {
   if (!isRetry) {
     gameContent.innerHTML = '<div class="empty hero-empty"><strong>Resolving game</strong><span>Checking Riot event, game-state and live-feed data…</span></div>';
   }
@@ -171,25 +212,60 @@ async function resolveEvent(id, isRetry = false) {
     showWaiting(event, resolution);
     state.eventRetryTimer = setTimeout(() => {
       if (state.selectedEventId === String(id) && !document.hidden) {
-        resolveEvent(id, true).catch(error => setConnection(error.message, 'error'));
+        resolveLiveEvent(id, true).catch(error => setConnection(error.message, 'error'));
       }
     }, EVENT_RETRY_MS);
     return;
   }
 
   state.selectedGameId = String(selected.id);
+  state.selectedMatchState = 'inProgress';
   setJsonEndpoint(state.selectedGameId);
   await loadGame();
   startPolling();
 }
 
+async function loadFinishedMatch(id) {
+  gameContent.innerHTML = '<div class="empty hero-empty"><strong>Loading finished match</strong><span>Finding the most recent played game and its final telemetry frame…</span></div>';
+
+  const payload = await api(`/api/match-details?matchId=${encodeURIComponent(id)}`);
+  const event = payload.data?.event || payload.event || payload.data || payload;
+  const games = Array.isArray(event?.match?.games) ? event.match.games : [];
+  const playedGame = [...games].reverse().find(game => game.state === 'completed')
+    || [...games].reverse().find(game => Array.isArray(game.vods) && game.vods.length > 0);
+
+  if (!playedGame?.id) {
+    throw new Error('No completed game telemetry is available for this match.');
+  }
+
+  state.selectedGameId = String(playedGame.id);
+  state.selectedMatchState = 'completed';
+  setJsonEndpoint(state.selectedGameId);
+  await loadGame();
+}
+
 async function selectEvent(id) {
   state.selectedEventId = String(id);
   state.selectedGameId = null;
+  state.selectedMatchState = null;
   clearTimers();
   renderSchedule();
+
+  const selectedEvent = selectedScheduleEvent();
+
   try {
-    await resolveEvent(id);
+    if (selectedEvent?.state === 'unstarted') {
+      state.selectedMatchState = 'unstarted';
+      showUpcoming(selectedEvent);
+      return;
+    }
+
+    if (selectedEvent?.state === 'completed') {
+      await loadFinishedMatch(id);
+      return;
+    }
+
+    await resolveLiveEvent(id);
   } catch (error) {
     setConnection(error.message, 'error');
     gameContent.innerHTML = `<div class="empty hero-empty"><strong>Game unavailable</strong><span>${error.message}</span></div>`;
@@ -198,29 +274,45 @@ async function selectEvent(id) {
 
 async function loadGame() {
   if (!state.selectedGameId || document.hidden) return;
+
   try {
     const snapshot = await api(`/api/chatgpt?gameId=${encodeURIComponent(state.selectedGameId)}`);
+
+    if (state.selectedMatchState === 'completed') {
+      snapshot.match = { ...(snapshot.match || {}), state: 'finished' };
+    }
+
     renderGame(snapshot);
-    setConnection(`Live · updated ${new Date(snapshot.updatedAt).toLocaleTimeString()}`, 'live');
+
+    if (state.selectedMatchState === 'completed') {
+      setConnection('Finished · historical snapshot', '');
+    } else {
+      setConnection(`Live · updated ${new Date(snapshot.updatedAt).toLocaleTimeString()}`, 'live');
+    }
   } catch (error) {
     setConnection(error.message, 'error');
-    gameContent.innerHTML = `<div class="empty hero-empty"><strong>Live feed unavailable</strong><span>${error.message}</span></div>`;
+    gameContent.innerHTML = `<div class="empty hero-empty"><strong>Feed unavailable</strong><span>${error.message}</span></div>`;
   }
 }
 
 function startPolling() {
+  if (state.selectedMatchState !== 'inProgress') return;
   clearInterval(state.pollTimer);
   state.pollTimer = setInterval(loadGame, GAME_POLL_MS);
 }
 
 async function loadSchedule() {
   setConnection('Loading schedule…');
+
   try {
     const payload = await api('/api/schedule');
     const events = payload.data?.schedule?.events || payload.schedule?.events || payload.events || [];
-    state.events = events.filter(event => ['inProgress', 'unstarted'].includes(event.state)).slice(0, 40);
+    const supported = events.filter(event => ['inProgress', 'unstarted', 'completed'].includes(event.state));
+    state.events = sortEvents(supported).slice(0, 80);
     renderSchedule();
-    setConnection('Schedule connected', 'live');
+
+    const finishedCount = state.events.filter(event => event.state === 'completed').length;
+    setConnection(`Schedule connected · ${finishedCount} finished`, 'live');
   } catch (error) {
     setConnection(error.message, 'error');
     scheduleList.innerHTML = `<div class="empty">${error.message}</div>`;
@@ -241,8 +333,10 @@ copyJsonUrl.addEventListener('click', async () => {
 
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) return;
-  if (state.selectedGameId) loadGame();
-  else if (state.selectedEventId) resolveEvent(state.selectedEventId, true).catch(error => setConnection(error.message, 'error'));
+  if (state.selectedMatchState === 'inProgress' && state.selectedGameId) loadGame();
+  else if (state.selectedMatchState === 'inProgress' && state.selectedEventId) {
+    resolveLiveEvent(state.selectedEventId, true).catch(error => setConnection(error.message, 'error'));
+  }
 });
 
 loadSchedule();
