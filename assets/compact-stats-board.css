@@ -1,0 +1,146 @@
+/* Compact sizing for the central live-statistics board. */
+@media (min-width: 1101px) {
+  .layout {
+    grid-template-columns: minmax(250px, .88fr) minmax(390px, 1.38fr) minmax(290px, .96fr);
+  }
+}
+
+.game-content {
+  min-height: 470px;
+}
+
+.hero-empty {
+  min-height: 470px;
+}
+
+.game-header {
+  padding: 14px 16px;
+}
+
+.game-title {
+  gap: 12px;
+}
+
+.game-title h2 {
+  font-size: 18px;
+}
+
+.clock {
+  min-width: 70px;
+  font-size: 23px;
+}
+
+.score-grid {
+  gap: 12px;
+  padding: 16px;
+}
+
+.team-summary {
+  gap: 5px;
+}
+
+.team-summary h3 {
+  font-size: 18px;
+}
+
+.team-summary img {
+  width: 38px;
+  height: 38px;
+}
+
+.big-score {
+  font-size: 28px;
+}
+
+.vs {
+  padding-top: 36px;
+  font-size: 12px;
+}
+
+.metrics {
+  gap: 7px;
+  padding: 0 16px 14px;
+}
+
+.metric {
+  padding: 9px 7px;
+  border-radius: 10px;
+}
+
+.metric span {
+  font-size: 11px;
+}
+
+.metric strong {
+  margin-top: 3px;
+  font-size: 13px;
+}
+
+.players {
+  gap: 9px;
+  padding: 0 16px 16px;
+}
+
+.player-column {
+  gap: 5px;
+}
+
+.player-row,
+.enhanced-player-row {
+  min-height: 43px;
+  gap: 8px;
+  padding: 7px 8px;
+  font-size: 12px;
+}
+
+.player-identity {
+  gap: 8px;
+}
+
+.champion-portrait {
+  width: 31px;
+  height: 31px;
+  flex-basis: 31px;
+  border-radius: 8px;
+  font-size: 11px;
+}
+
+.player-copy small {
+  font-size: 10px;
+}
+
+.authority-message {
+  padding: 20px !important;
+}
+
+.authority-lineups {
+  gap: 10px !important;
+  margin-top: 15px !important;
+}
+
+.authority-lineup {
+  padding: 9px !important;
+}
+
+@media (max-width: 760px) {
+  .game-content,
+  .hero-empty {
+    min-height: 410px;
+  }
+
+  .game-header {
+    padding: 13px 14px;
+  }
+
+  .score-grid {
+    padding: 14px;
+  }
+
+  .metrics {
+    padding: 0 14px 14px;
+  }
+
+  .players {
+    padding: 0 14px 14px;
+  }
+}
