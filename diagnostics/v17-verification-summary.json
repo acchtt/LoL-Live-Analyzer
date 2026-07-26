@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "1.7",
+  "updatedAt": "2026-07-26T16:45:13.836Z",
+  "frameTimestamp": "2026-07-26T16:44:39.991Z",
+  "clock": "17:24",
+  "clockSeconds": 1044,
+  "clockSource": "Riot initial telemetry frame",
+  "clockAnchorTime": "2026-07-26T16:27:16.083Z",
+  "matchState": "in_game",
+  "series": [
+    {
+      "code": "VIT",
+      "wins": 1
+    },
+    {
+      "code": "MKOI",
+      "wins": 1
+    }
+  ],
+  "seriesSource": "confirmed game results"
+}

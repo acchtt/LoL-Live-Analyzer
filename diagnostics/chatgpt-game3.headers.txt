@@ -1,7 +1,7 @@
 HTTP/2 200 
-date: Sun, 26 Jul 2026 16:42:02 GMT
+date: Sun, 26 Jul 2026 16:45:14 GMT
 content-type: application/json; charset=utf-8
-content-length: 5144
+content-length: 5279
 access-control-allow-origin: *
 cache-control: public, max-age=5
 access-control-allow-headers: Content-Type, Accept
@@ -9,15 +9,15 @@ access-control-allow-methods: GET, OPTIONS
 access-control-expose-headers: Content-Type, Cache-Control, X-Data-Source
 access-control-max-age: 86400
 cross-origin-resource-policy: cross-origin
-x-clock-source: unavailable
+x-clock-source: Riot initial telemetry frame
 x-data-source: riot-feed
 x-series-source: confirmed game results
 x-telemetry-state: advancing
 x-timer-version: 1.5
 x-worker-version: 1.7
-report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=ZMmqP%2BzrkmkgpBVCyeYSfPn7T3%2BKF7CyNhf54NeR0TPaLRCYi8CFxryRHGxeBveoaFFVxQyxpqAlbaSxV9F0pGVOMrPEG0pvIrfM84BGjJWWMNXzS0YERTVmKk1JsSrbiyqFO1Ia22ZIf0dCoy7kwovGXPysYJT3QQic"}]}
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=ne0PRQPI8WLNG1NAdCCPDEHtjXulOD%2Fr07oaOhKF7lQ4iEpAx4K3chYmof%2Flo9AmjUu8HE1Vysr9KwLWqQ6ATikVkz%2By8kSeb3fi1QzOo4k6bwr%2BdEzjpwaJV3hT0hsyeNBSkDnM9T7uIj4nVU2GAgqJjqiEjMpi%2BUnP"}]}
 nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
 server: cloudflare
-cf-ray: a214daf089c5f606-ORD
+cf-ray: a214df9e9c56a351-LAX
 alt-svc: h3=":443"; ma=86400
 
