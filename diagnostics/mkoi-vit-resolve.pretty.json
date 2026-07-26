@@ -22,7 +22,7 @@
                     "code": "VIT",
                     "image": "http://static.lolesports.com/teams/1675865863968_Vitality_FullColor.png",
                     "result": {
-                        "gameWins": 0
+                        "gameWins": 1
                     }
                 },
                 {
@@ -31,7 +31,7 @@
                     "code": "MKOI",
                     "image": "http://static.lolesports.com/teams/1734012609283_MKOI_FullColor_Blue.png",
                     "result": {
-                        "gameWins": 0
+                        "gameWins": 1
                     }
                 }
             ],
@@ -456,7 +456,8 @@
                 "offset": -30000,
                 "statsStatus": "enabled"
             }
-        ]
+        ],
+        "scoreSource": "confirmed game results"
     },
     "games": [
         {
@@ -532,19 +533,21 @@
                 "name": "Team Vitality",
                 "code": "VIT",
                 "image": "http://static.lolesports.com/teams/1675865863968_Vitality_FullColor.png",
-                "wins": 0
+                "wins": 1
             },
             {
                 "id": "103461966965149786",
                 "name": "Movistar KOI",
                 "code": "MKOI",
                 "image": "http://static.lolesports.com/teams/1734012609283_MKOI_FullColor_Blue.png",
-                "wins": 0
+                "wins": 1
             }
-        ]
+        ],
+        "source": "confirmed game results",
+        "confirmedThroughGame": 2
     },
     "broadcastLive": true,
     "telemetryAvailable": true,
-    "checkedAt": "2026-07-26T16:33:44.200Z",
+    "checkedAt": "2026-07-26T16:40:41.908Z",
     "diagnostics": {}
 }
