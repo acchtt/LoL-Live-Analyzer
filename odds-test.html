@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>VSGG Odds Proxy Test</title>
+  <style>
+    :root { color-scheme: dark; font-family: Inter, system-ui, sans-serif; }
+    body { margin: 0; background: #0b1020; color: #e8ecf8; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 18px 64px; }
+    h1 { margin: 0 0 8px; }
+    p { color: #aeb7d0; }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; margin: 22px 0; }
+    input, button { border: 1px solid #33405e; border-radius: 10px; padding: 11px 13px; background: #141b2d; color: inherit; font: inherit; }
+    input { flex: 1 1 240px; }
+    button { cursor: pointer; background: #315efb; border-color: #315efb; }
+    .status { padding: 12px 14px; border: 1px solid #33405e; border-radius: 12px; background: #11182a; margin-bottom: 14px; }
+    .ok { border-color: #2a9d62; }
+    .error { border-color: #d15b5b; }
+    pre { white-space: pre-wrap; overflow-wrap: anywhere; background: #080d18; border: 1px solid #26324d; border-radius: 12px; padding: 16px; min-height: 180px; }
+    code { color: #d8e1ff; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>VSGG odds proxy test</h1>
+    <p>This page calls the Cloudflare Worker proxy. The VSGG token remains stored only in Worker secrets.</p>
+
+    <div class="row">
+      <input id="matchId" value="1564643" aria-label="VSGG match ID">
+      <button id="run" type="button">Run test</button>
+    </div>
+
+    <div id="status" class="status">Waiting to test.</div>
+    <pre id="output">No response yet.</pre>
+  </main>
+
+  <script>
+    const workerBase = 'https://lol-live-analyzer-api.acchtt.workers.dev';
+    const matchInput = document.querySelector('#matchId');
+    const runButton = document.querySelector('#run');
+    const statusBox = document.querySelector('#status');
+    const output = document.querySelector('#output');
+
+    function describeData(value) {
+      if (Array.isArray(value)) {
+        return {
+          type: 'array',
+          length: value.length,
+          firstItemKeys: value[0] && typeof value[0] === 'object' ? Object.keys(value[0]) : []
+        };
+      }
+      if (value && typeof value === 'object') {
+        return { type: 'object', keys: Object.keys(value) };
+      }
+      return { type: typeof value, value };
+    }
+
+    async function runTest() {
+      const matchId = matchInput.value.trim();
+      if (!/^\d{4,12}$/.test(matchId)) {
+        statusBox.className = 'status error';
+        statusBox.textContent = 'Enter a valid numeric VSGG match ID.';
+        return;
+      }
+
+      runButton.disabled = true;
+      statusBox.className = 'status';
+      statusBox.textContent = 'Requesting Worker health and VSGG response…';
+      output.textContent = 'Loading…';
+
+      try {
+        const cacheBust = Date.now();
+        const [healthResponse, oddsResponse] = await Promise.all([
+          fetch(`${workerBase}/?t=${cacheBust}`, { cache: 'no-store' }),
+          fetch(`${workerBase}/api/odds/vsgg/${encodeURIComponent(matchId)}?t=${cacheBust}`, { cache: 'no-store' })
+        ]);
+        const health = await healthResponse.json().catch(() => null);
+        const odds = await oddsResponse.json().catch(() => null);
+
+        const summary = {
+          healthHttpStatus: healthResponse.status,
+          workerVersion: health?.version,
+          oddsConfigured: health?.odds?.configured,
+          proxyHttpStatus: oddsResponse.status,
+          proxyStatus: odds?.status,
+          provider: odds?.provider,
+          vsggMatchId: odds?.vsggMatchId,
+          upstreamStatus: odds?.upstreamStatus,
+          error: odds?.error,
+          fetchedAt: odds?.fetchedAt,
+          cache: odds?.cache,
+          dataShape: describeData(odds?.data),
+          rawResponse: odds
+        };
+
+        const passed = oddsResponse.ok && odds?.status === 'ok';
+        statusBox.className = `status ${passed ? 'ok' : 'error'}`;
+        statusBox.textContent = passed
+          ? 'PASS: Worker reached VSGG and returned odds data.'
+          : `FAIL: ${odds?.error || odds?.status || `HTTP ${oddsResponse.status}`}`;
+        output.textContent = JSON.stringify(summary, null, 2);
+      } catch (error) {
+        statusBox.className = 'status error';
+        statusBox.textContent = 'Request failed before a JSON response was received.';
+        output.textContent = String(error?.stack || error);
+      } finally {
+        runButton.disabled = false;
+      }
+    }
+
+    runButton.addEventListener('click', runTest);
+    runTest();
+  </script>
+</body>
+</html>
