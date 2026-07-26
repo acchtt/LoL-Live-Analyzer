@@ -12,7 +12,7 @@
   const aliases = new Map([
     ['bilibiligaming', 'BLG'], ['blg', 'BLG'],
     ['anyoneslegend', 'AL'], ['al', 'AL'],
-    ['movistarkoi', 'MKOI'], ['movistarkoi', 'MKOI'], ['mkoi', 'MKOI'], ['koi', 'MKOI'],
+    ['movistarkoi', 'MKOI'], ['mkoi', 'MKOI'], ['koi', 'MKOI'],
     ['teamvitality', 'VIT'], ['vitality', 'VIT'], ['vit', 'VIT']
   ]);
 
@@ -45,23 +45,17 @@
     return Number.isFinite(value) ? value : 0;
   }
 
-  function applyScore(event, score, source, minimumTotal = 0) {
-    const teams = event?.match?.teams || [];
-    const currentTotal = teams.reduce((sum, team) => sum + numericWins(team), 0);
-    if (currentTotal >= minimumTotal && minimumTotal > 0) return false;
-
+  function applyScore(event, score, source) {
     let changed = false;
-    for (const team of teams) {
+    for (const team of event?.match?.teams || []) {
       const key = teamKey(team);
       if (!Object.prototype.hasOwnProperty.call(score, key)) continue;
       const wins = Number(score[key]);
+      if (numericWins(team) !== wins) changed = true;
       team.result = { ...(team.result || {}), gameWins: wins };
-      changed = true;
     }
-    if (changed) {
-      event.scoreSource = source;
-      event.scoreUnavailable = false;
-    }
+    event.scoreSource = source;
+    event.scoreUnavailable = false;
     return changed;
   }
 
@@ -77,12 +71,13 @@
       return true;
     }
 
-    // User-confirmed game results. This is a floor only; a later 2-1 result can replace it.
+    // User-confirmed game results remain authoritative until a third game result exists.
     if (eventIdOf(event) === MKOI_VIT_MATCH_ID || (
       eventDate(event) === '2026-07-26' && hasPair(event, 'MKOI', 'VIT')
     )) {
-      applyScore(event, { MKOI: 1, VIT: 1 }, 'confirmed game results', 2);
-      if (event.state !== 'completed') {
+      const currentTotal = (event.match.teams || []).reduce((sum, team) => sum + numericWins(team), 0);
+      if (currentTotal <= 2) {
+        applyScore(event, { MKOI: 1, VIT: 1 }, 'confirmed game results');
         event.state = 'inProgress';
         state.liveMatchIds.add(eventIdOf(event));
       }
