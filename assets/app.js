@@ -63,6 +63,15 @@ function eventId(event) {
   return String(event?.match?.id || event?.id || '');
 }
 
+function statusLabel(status) {
+  const labels = {
+    inProgress: 'LIVE',
+    unstarted: 'UPCOMING',
+    completed: 'FINISHED'
+  };
+  return labels[status] || String(status || 'UPCOMING').toUpperCase();
+}
+
 function renderSchedule() {
   if (!state.events.length) {
     scheduleList.innerHTML = '<div class="empty">No live or upcoming events were returned.</div>';
@@ -74,7 +83,7 @@ function renderSchedule() {
     const [a, b] = eventTeams(event);
     const status = event.state || 'unstarted';
     return `<button class="match-card ${id === state.selectedEventId ? 'active' : ''}" data-event-id="${id}" type="button">
-      <div class="match-meta"><span>${event.league?.name || event.league?.slug || 'LoL Esports'}</span><span class="match-state">${status}</span></div>
+      <div class="match-meta"><span>${event.league?.name || event.league?.slug || 'LoL Esports'}</span><span class="match-state">${statusLabel(status)}</span></div>
       <div class="teams">
         <div class="team-line"><span class="team-name">${teamLogo(a)}${a.name || 'TBD'}</span><strong>${a.result?.gameWins ?? 0}</strong></div>
         <div class="team-line"><span class="team-name">${teamLogo(b)}${b.name || 'TBD'}</span><strong>${b.result?.gameWins ?? 0}</strong></div>
