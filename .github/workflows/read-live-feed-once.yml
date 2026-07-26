@@ -17,18 +17,17 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v6
 
-      - name: Verify corrected Worker v1.7 feed
+      - name: Read current Worker v1.7 feed
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p diagnostics
           base="https://lol-live-analyzer-api.acchtt.workers.dev"
 
-          sleep 35
           curl --retry 5 --retry-delay 3 --fail-with-body -sS "$base/" \
             -o diagnostics/worker-health.json
           curl --retry 5 --retry-delay 3 --fail-with-body -sS \
-            "$base/api/chatgpt?gameId=115548681803406194" \
+            "$base/api/chatgpt?gameId=115548681803406194&_=$(date +%s)" \
             -D diagnostics/chatgpt-game3.headers.txt \
             -o diagnostics/chatgpt-game3.json
 
@@ -42,16 +41,33 @@ jobs:
               'schemaVersion': data.get('schemaVersion'),
               'updatedAt': data.get('updatedAt'),
               'frameTimestamp': data.get('source', {}).get('frameTimestamp'),
+              'dataAgeSeconds': data.get('source', {}).get('dataAgeSeconds'),
+              'live': data.get('source', {}).get('live'),
               'clock': data.get('clock'),
               'clockSeconds': data.get('clockSeconds'),
               'clockSource': data.get('source', {}).get('clockSource'),
-              'clockAnchorTime': data.get('source', {}).get('clockAnchorTime'),
               'matchState': data.get('match', {}).get('state'),
               'series': [
                   {'code': team.get('code'), 'wins': team.get('wins')}
                   for team in data.get('series', {}).get('teams', [])
               ],
-              'seriesSource': data.get('series', {}).get('source')
+              'seriesSource': data.get('series', {}).get('source'),
+              'blue': {
+                  'code': data.get('blue', {}).get('code'),
+                  'kills': data.get('blue', {}).get('kills'),
+                  'gold': data.get('blue', {}).get('gold'),
+                  'towers': data.get('blue', {}).get('towers'),
+                  'dragons': len(data.get('blue', {}).get('dragons', [])),
+                  'barons': data.get('blue', {}).get('barons')
+              },
+              'red': {
+                  'code': data.get('red', {}).get('code'),
+                  'kills': data.get('red', {}).get('kills'),
+                  'gold': data.get('red', {}).get('gold'),
+                  'towers': data.get('red', {}).get('towers'),
+                  'dragons': len(data.get('red', {}).get('dragons', [])),
+                  'barons': data.get('red', {}).get('barons')
+              }
           }
           Path('diagnostics/v17-verification-summary.json').write_text(json.dumps(summary, indent=2) + '\n')
           PY
@@ -62,5 +78,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add diagnostics/
-          git commit -m "Verify corrected Worker v1.7 clock [skip ci]"
+          git commit -m "Read current ChatGPT feed [skip ci]"
           git push
