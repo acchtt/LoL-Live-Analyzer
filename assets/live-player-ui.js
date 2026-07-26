@@ -6,7 +6,6 @@
   const observedAnchors = new Map();
 
   let dataDragonVersion = null;
-  let catalogReady = false;
   let clockTimer = null;
   let clockToken = 0;
 
@@ -50,8 +49,14 @@
         championCatalog.set(String(champion.key || ''), entry);
       }
 
-      catalogReady = championCatalog.size > 0;
-      if (state.lastSnapshot) renderGame(state.lastSnapshot);
+      const lastGameId = String(state.lastSnapshot?.source?.gameId || '');
+      if (
+        championCatalog.size > 0 &&
+        state.lastSnapshot &&
+        (!state.selectedGameId || String(state.selectedGameId) === lastGameId)
+      ) {
+        renderGame(state.lastSnapshot);
+      }
     } catch (error) {
       console.warn('Champion portrait catalog unavailable:', error);
     }
@@ -178,7 +183,12 @@
         const event = payload?.data?.event || payload?.event || payload?.data || payload;
         const game = (event?.match?.games || []).find(item => String(item?.id) === gameId);
         const vod = (game?.vods || []).find(item => {
-          return validTimestamp(item?.firstFrameTime) !== null && Number.isFinite(Number(item?.startMillis));
+          const hasOffset = item?.startMillis !== null &&
+            item?.startMillis !== undefined &&
+            item?.startMillis !== '';
+          return hasOffset &&
+            validTimestamp(item?.firstFrameTime) !== null &&
+            Number.isFinite(Number(item.startMillis));
         });
         if (!vod) return null;
 
@@ -194,10 +204,15 @@
 
   async function configureClock(snapshot) {
     const gameId = gameIdFrom(snapshot);
+    const selectionKey = `${state.selectedEventId || ''}:${state.selectedGameId || ''}`;
     const frameMs = validTimestamp(snapshot?.source?.frameTimestamp) ?? validTimestamp(snapshot?.updatedAt) ?? Date.now();
     const historical = state.selectedMatchState === 'completed' || snapshot?.match?.state === 'finished';
-    const nativeSeconds = Number.isFinite(Number(snapshot?.clockSeconds))
-      ? Number(snapshot.clockSeconds)
+    const rawClockSeconds = snapshot?.clockSeconds;
+    const nativeSeconds = rawClockSeconds !== null &&
+      rawClockSeconds !== undefined &&
+      rawClockSeconds !== '' &&
+      Number.isFinite(Number(rawClockSeconds))
+      ? Number(rawClockSeconds)
       : parseClock(snapshot?.clock);
 
     if (nativeSeconds !== null) {
@@ -206,6 +221,8 @@
     }
 
     const anchor = await vodGameAnchor(snapshot);
+    if (`${state.selectedEventId || ''}:${state.selectedGameId || ''}` !== selectionKey) return;
+
     if (anchor !== null) {
       const elapsed = Math.max(0, (frameMs - anchor) / 1000);
       startClock(elapsed, frameMs, false, historical);
@@ -235,6 +252,14 @@
     stopClock();
     baseShowWaiting(event, resolution);
   };
+
+  if (typeof showTelemetryUnavailable === 'function') {
+    const baseShowTelemetryUnavailable = showTelemetryUnavailable;
+    showTelemetryUnavailable = function enhancedShowTelemetryUnavailable(event, extra = {}) {
+      stopClock();
+      baseShowTelemetryUnavailable(event, extra);
+    };
+  }
 
   loadChampionCatalog();
 })();
