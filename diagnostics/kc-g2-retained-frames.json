@@ -1,0 +1,223 @@
+{
+  "capturedAt": "2026-07-26T19:35:50Z",
+  "games": [
+    {
+      "gameId": "115548681803406288",
+      "snapshot": {
+        "status": "pregame",
+        "updatedAt": "2026-07-26T19:35:51.503Z",
+        "source": {
+          "provider": "Riot LoL Esports web feed",
+          "gameId": "115548681803406288",
+          "matchId": "115548681803406287",
+          "live": false,
+          "frameTimestamp": "2026-07-26T17:38:45.242Z",
+          "dataAgeSeconds": 7026,
+          "historicalProbe": true
+        },
+        "match": {
+          "league": "LEC",
+          "bestOf": 3,
+          "gameNumber": 1,
+          "patch": "16.14.794.9266",
+          "state": "historical_snapshot"
+        },
+        "blue": {
+          "id": "98767991926151025",
+          "name": "G2 Esports",
+          "code": "G2",
+          "kills": null,
+          "gold": null,
+          "towers": null,
+          "inhibitors": null,
+          "winner": null
+        },
+        "red": {
+          "id": "111692118851466302",
+          "name": "Karmine Corp",
+          "code": "KC",
+          "kills": null,
+          "gold": null,
+          "towers": null,
+          "inhibitors": null,
+          "winner": null
+        },
+        "winner": null,
+        "series": {
+          "teams": [
+            {
+              "id": "111692118851466302",
+              "name": "Karmine Corp",
+              "code": "KC",
+              "image": "http://static.lolesports.com/teams/1704714951336_KC.png",
+              "wins": 0
+            },
+            {
+              "id": "98767991926151025",
+              "name": "G2 Esports",
+              "code": "G2",
+              "image": "http://static.lolesports.com/teams/G2-FullonDark.png",
+              "wins": 0
+            }
+          ]
+        }
+      },
+      "windowError": "Command '['curl', '-fsS', 'https://lol-live-analyzer-api.acchtt.workers.dev/api/window?gameId=115548681803406288&startingTime=2099-01-01T00:00:00Z&_=1785094551']' returned non-zero exit status 22."
+    },
+    {
+      "gameId": "115548681803406289",
+      "snapshot": {
+        "status": "pregame",
+        "updatedAt": "2026-07-26T19:35:52.166Z",
+        "source": {
+          "provider": "Riot LoL Esports web feed",
+          "gameId": "115548681803406289",
+          "matchId": "115548681803406287",
+          "live": false,
+          "frameTimestamp": "2026-07-26T18:38:11.347Z",
+          "dataAgeSeconds": 3461,
+          "historicalProbe": true
+        },
+        "match": {
+          "league": "LEC",
+          "bestOf": 3,
+          "gameNumber": 2,
+          "patch": "16.14.794.9266",
+          "state": "historical_snapshot"
+        },
+        "blue": {
+          "id": "111692118851466302",
+          "name": "Karmine Corp",
+          "code": "KC",
+          "kills": null,
+          "gold": null,
+          "towers": null,
+          "inhibitors": null,
+          "winner": null
+        },
+        "red": {
+          "id": "98767991926151025",
+          "name": "G2 Esports",
+          "code": "G2",
+          "kills": null,
+          "gold": null,
+          "towers": null,
+          "inhibitors": null,
+          "winner": null
+        },
+        "winner": null,
+        "series": {
+          "teams": [
+            {
+              "id": "111692118851466302",
+              "name": "Karmine Corp",
+              "code": "KC",
+              "image": "http://static.lolesports.com/teams/1704714951336_KC.png",
+              "wins": 0
+            },
+            {
+              "id": "98767991926151025",
+              "name": "G2 Esports",
+              "code": "G2",
+              "image": "http://static.lolesports.com/teams/G2-FullonDark.png",
+              "wins": 0
+            }
+          ]
+        }
+      },
+      "windowError": "Command '['curl', '-fsS', 'https://lol-live-analyzer-api.acchtt.workers.dev/api/window?gameId=115548681803406289&startingTime=2099-01-01T00:00:00Z&_=1785094552']' returned non-zero exit status 22."
+    },
+    {
+      "gameId": "115548681803406290",
+      "snapshot": {
+        "status": "pregame",
+        "updatedAt": "2026-07-26T19:35:52.722Z",
+        "source": {
+          "provider": "Riot LoL Esports web feed",
+          "gameId": "115548681803406290",
+          "matchId": "115548681803406287",
+          "live": false,
+          "frameTimestamp": "2026-07-26T19:35:13.945Z",
+          "dataAgeSeconds": 39,
+          "historicalProbe": true
+        },
+        "match": {
+          "league": "LEC",
+          "bestOf": 3,
+          "gameNumber": 3,
+          "patch": "16.14.794.9266",
+          "state": "historical_snapshot"
+        },
+        "blue": {
+          "id": "98767991926151025",
+          "name": "G2 Esports",
+          "code": "G2",
+          "kills": null,
+          "gold": null,
+          "towers": null,
+          "inhibitors": null,
+          "winner": null
+        },
+        "red": {
+          "id": "111692118851466302",
+          "name": "Karmine Corp",
+          "code": "KC",
+          "kills": null,
+          "gold": null,
+          "towers": null,
+          "inhibitors": null,
+          "winner": null
+        },
+        "winner": null,
+        "series": {
+          "teams": [
+            {
+              "id": "111692118851466302",
+              "name": "Karmine Corp",
+              "code": "KC",
+              "image": "http://static.lolesports.com/teams/1704714951336_KC.png",
+              "wins": 0
+            },
+            {
+              "id": "98767991926151025",
+              "name": "G2 Esports",
+              "code": "G2",
+              "image": "http://static.lolesports.com/teams/G2-FullonDark.png",
+              "wins": 0
+            }
+          ]
+        }
+      },
+      "windowError": "Command '['curl', '-fsS', 'https://lol-live-analyzer-api.acchtt.workers.dev/api/window?gameId=115548681803406290&startingTime=2099-01-01T00:00:00Z&_=1785094552']' returned non-zero exit status 22."
+    }
+  ],
+  "odds": {
+    "status": "ok",
+    "ageSeconds": 17,
+    "stale": false,
+    "matches": [
+      {
+        "providerMatchId": "41042094",
+        "teams": {
+          "home": {
+            "id": "190886",
+            "name": "G2 Esports",
+            "code": "G2",
+            "score": 1,
+            "image": "https://stat1-mlycdn.bmyy520.com/lol/Content/images/uploaded/team/9344d6d1-20de-43fc-b6d1-55cd04bbd0e7.png"
+          },
+          "away": {
+            "id": "209802",
+            "name": "Karmine Corp",
+            "code": "KC",
+            "score": 1,
+            "image": "https://stat1-mlycdn.bmyy520.com/lol/Content/images/uploaded/team/88feea35-136f-4231-83f7-5ea4fd654f49.png"
+          }
+        },
+        "updatedAt": "2026-07-26T15:35:28.393-04:00",
+        "live": true,
+        "providerStatus": 3
+      }
+    ]
+  }
+}
