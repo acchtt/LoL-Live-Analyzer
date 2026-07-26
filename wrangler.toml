@@ -1,6 +1,6 @@
 # Deployment managed by GitHub Actions.
 name = "lol-live-analyzer-api"
-main = "worker-v1.6.js"
+main = "worker-v1.7.js"
 compatibility_date = "2026-07-01"
 workers_dev = true
 
