@@ -1,0 +1,27 @@
+HTTP/2 200 
+date: Sun, 26 Jul 2026 16:54:45 GMT
+content-type: application/json; charset=utf-8
+content-length: 5504
+access-control-allow-origin: *
+cache-control: no-store, no-cache, must-revalidate, max-age=0
+expires: 0
+pragma: no-cache
+access-control-allow-headers: Content-Type, Accept
+access-control-allow-methods: GET, OPTIONS
+access-control-expose-headers: Content-Type, Cache-Control, X-Data-Source
+access-control-max-age: 86400
+cross-origin-resource-policy: cross-origin
+x-canonical-feed: https://lol-live-analyzer-api.acchtt.workers.dev/api/chatgpt/115548681803406194
+x-clock-source: Riot initial telemetry frame
+x-data-source: riot-feed
+x-feed-alias: path
+x-series-source: confirmed game results
+x-telemetry-state: advancing
+x-timer-version: 1.5
+x-worker-version: 1.8
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=W%2FYurtNSZ%2FQaWoNQ%2FTMMcPRWfPZtiY%2FrcWRYiSLpYMzJgHBR1rM5nzNUsIasTj1hZMcquFrEcHq77CMHO7H%2Bc7eg3eJ97vfPhhf4q0PNocbUc6Ayxlj94VzCDlNkctEHz6TTd9aYT%2FfNE4a9oFzR0SR64%2F7UO%2BlifbZ8"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+server: cloudflare
+cf-ray: a214ed8c09e98292-IAD
+alt-svc: h3=":443"; ma=86400
+

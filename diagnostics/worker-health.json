@@ -2,5 +2,6 @@
   "ok": true,
   "service": "LoL Live Analyzer API",
   "apiKeyConfigured": true,
-  "version": "1.7"
+  "version": "1.8",
+  "preferredFeedFormat": "https://lol-live-analyzer-api.acchtt.workers.dev/api/chatgpt/GAME_ID"
 }

@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "1.8",
+  "status": "ok",
+  "gameId": "115548681803406194",
+  "feedUrl": "https://lol-live-analyzer-api.acchtt.workers.dev/api/chatgpt/115548681803406194",
+  "format": "path",
+  "clock": "26:54",
+  "series": [
+    {
+      "code": "VIT",
+      "wins": 1
+    },
+    {
+      "code": "MKOI",
+      "wins": 1
+    }
+  ],
+  "message": null
+}
