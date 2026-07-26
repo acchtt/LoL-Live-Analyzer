@@ -138,34 +138,37 @@ function clearTimers() {
   state.eventRetryTimer = null;
 }
 
-function showWaiting(event) {
+function showWaiting(event, resolution = {}) {
   const teams = event?.match?.teams || [];
   const title = teams.length >= 2 ? `${teams[0].name} vs ${teams[1].name}` : 'Selected match';
-  gameContent.innerHTML = `<div class="empty hero-empty"><strong>Waiting for game to start</strong><span>${title} is listed as in progress, but Riot still marks every game as unstarted. Checking again automatically…</span></div>`;
+  const completedGames = (resolution.games || []).filter(game => game.state === 'completed').length;
+  const message = completedGames > 0
+    ? `${title} is between games. Waiting for Riot to activate the next live telemetry feed…`
+    : `${title} is listed as live, but Riot has not activated an in-game telemetry feed yet. Checking again automatically…`;
+
+  gameContent.innerHTML = `<div class="empty hero-empty"><strong>Waiting for live game data</strong><span>${message}</span></div>`;
   jsonUrl.value = '';
   copyJsonUrl.disabled = true;
   jsonPreview.textContent = JSON.stringify({
-    status: 'waiting_for_game',
-    eventId: state.selectedEventId,
-    reason: 'Riot event details report all games as unstarted'
+    status: 'waiting_for_live_feed',
+    matchId: state.selectedEventId,
+    checkedAt: resolution.checkedAt || new Date().toISOString(),
+    gameStates: (resolution.games || []).map(game => ({ id: game.id, number: game.number, state: game.state }))
   }, null, 2);
-  setConnection('Waiting for live game data', '');
+  setConnection('Waiting for live telemetry', '');
 }
 
 async function resolveEvent(id, isRetry = false) {
   if (!isRetry) {
-    gameContent.innerHTML = '<div class="empty hero-empty"><strong>Resolving game</strong><span>Loading match details…</span></div>';
+    gameContent.innerHTML = '<div class="empty hero-empty"><strong>Resolving game</strong><span>Checking Riot event, game-state and live-feed data…</span></div>';
   }
 
-  const payload = await api(`/api/match-details?matchId=${encodeURIComponent(id)}`);
-  const event = payload.data?.event || payload.event || payload.data || payload;
-  const games = event?.match?.games || event?.games || [];
-  const active = games.find(game => game.state === 'inProgress');
-  const completed = [...games].reverse().find(game => game.state === 'completed');
-  const selected = active || completed;
+  const resolution = await api(`/api/resolve-game?matchId=${encodeURIComponent(id)}`);
+  const event = resolution.event || {};
+  const selected = resolution.selectedGame;
 
   if (!selected?.id) {
-    showWaiting(event);
+    showWaiting(event, resolution);
     state.eventRetryTimer = setTimeout(() => {
       if (state.selectedEventId === String(id) && !document.hidden) {
         resolveEvent(id, true).catch(error => setConnection(error.message, 'error'));
