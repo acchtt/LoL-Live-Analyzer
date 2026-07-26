@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="description" content="Live and recent League of Legends esports statistics with a ChatGPT-readable JSON feed.">
   <title>LoL Live Analyzer</title>
-  <link rel="stylesheet" href="assets/styles.css?v=20260726-9">
+  <link rel="stylesheet" href="assets/styles.css?v=20260726-10">
 </head>
 <body>
   <header class="topbar">
@@ -37,7 +37,7 @@
       <div id="gameContent" class="game-content">
         <div class="empty hero-empty">
           <strong>Select a match</strong>
-          <span>Live matches update automatically; finished matches load their latest historical snapshot.</span>
+          <span>Live matches update automatically when Riot publishes telemetry.</span>
         </div>
       </div>
     </section>
@@ -50,7 +50,7 @@
         </div>
         <button id="copyJsonUrl" class="ghost-button" type="button" disabled>Copy URL</button>
       </div>
-      <p class="help">This endpoint exposes a compact JSON snapshot with explicit team, objective and player fields.</p>
+      <p class="help">This endpoint exposes a compact JSON snapshot with explicit team, objective and player fields when Riot telemetry is available.</p>
       <label for="jsonUrl">Public JSON URL</label>
       <input id="jsonUrl" type="text" readonly placeholder="Select a live or finished game">
       <pre id="jsonPreview" class="json-preview">{
@@ -63,6 +63,6 @@
     Unofficial community project. Riot Games does not endorse or sponsor this site.
   </footer>
 
-  <script src="assets/app.js?v=20260726-9" defer></script>
+  <script src="assets/app.js?v=20260726-10" defer></script>
 </body>
 </html>
