@@ -7,15 +7,33 @@ const VIT_ID = '99322214695067838';
 const MKOI_ID = '103461966965149786';
 const FINAL_WINS = { [VIT_ID]: 2, [MKOI_ID]: 1 };
 
+function normalized(value = '') {
+  return String(value).toUpperCase().replace(/[^A-Z0-9]+/g, '');
+}
+
+function finalWinsForTeam(team) {
+  const id = String(team?.id || team?.esportsTeamId || '');
+  if (Object.prototype.hasOwnProperty.call(FINAL_WINS, id)) return FINAL_WINS[id];
+
+  const code = normalized(team?.code || '');
+  const name = normalized(team?.name || '');
+  if (code === 'VIT' || name === 'TEAMVITALITY' || name === 'VITALITY') return 2;
+  if (code === 'MKOI' || code === 'KOI' || name === 'MOVISTARKOI') return 1;
+  return null;
+}
+
 function setTeamWins(teams) {
   if (!Array.isArray(teams)) return false;
   let changed = false;
   for (const team of teams) {
-    const id = String(team?.id || team?.esportsTeamId || '');
-    if (!Object.prototype.hasOwnProperty.call(FINAL_WINS, id)) continue;
-    const wins = FINAL_WINS[id];
+    const wins = finalWinsForTeam(team);
+    if (wins === null) continue;
     if ('wins' in team || !team.result) team.wins = wins;
-    if (team.result) team.result = { ...team.result, gameWins: wins };
+    team.result = {
+      ...(team.result || {}),
+      gameWins: wins,
+      outcome: wins === 2 ? 'win' : 'loss'
+    };
     changed = true;
   }
   return changed;
