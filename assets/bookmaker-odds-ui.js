@@ -194,17 +194,19 @@
   }
 
   function ensurePanel() {
-    let panel = document.querySelector(`#${PANEL_ID}`);
-    if (panel?.parentNode !== gameContent) {
-      panel?.remove();
-      panel = createElement('section', 'bookmaker-odds');
-      panel.id = PANEL_ID;
-      gameContent.append(panel);
-    }
-    return panel;
-  }
+  const host = gameContent?.parentElement || gameContent;
+  if (!host) return null;
 
-  function renderPanel() {
+  let panel = document.querySelector(`#${PANEL_ID}`);
+  if (!panel) {
+    panel = createElement('section', 'bookmaker-odds');
+    panel.id = PANEL_ID;
+  }
+  if (panel.parentNode !== host) host.append(panel);
+  return panel;
+}
+
+function renderPanel() {
     if (!state?.selectedEventId) {
       document.querySelector(`#${PANEL_ID}`)?.remove();
       return;
