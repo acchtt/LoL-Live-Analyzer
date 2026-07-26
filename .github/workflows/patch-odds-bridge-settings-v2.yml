@@ -1,0 +1,133 @@
+name: Retry odds bridge settings panel patch
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/patch-odds-bridge-settings-v2.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Patch userscript settings UI
+        shell: bash
+        run: |
+          python - <<'PY'
+          import re
+          from pathlib import Path
+
+          path = Path('odds-bridge.user.js')
+          source = path.read_text()
+          source = source.replace('// @version      1.1.0', '// @version      1.2.0')
+
+          replacement = r'''  function closeBridgeSettings() {
+            document.querySelector('#lol-odds-bridge-settings')?.remove();
+          }
+
+          function openBridgeSettings() {
+            closeBridgeSettings();
+            const mount = document.body || document.documentElement;
+            if (!mount) return;
+
+            const overlay = document.createElement('div');
+            overlay.id = 'lol-odds-bridge-settings';
+            overlay.style.cssText = 'all:initial;position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;padding:18px;box-sizing:border-box;background:rgba(3,7,18,.82);pointer-events:auto';
+
+            const panel = document.createElement('div');
+            panel.style.cssText = 'all:initial;display:block;box-sizing:border-box;width:min(500px,100%);padding:18px;border:1px solid #475569;border-radius:14px;background:#111827;color:#e5e7eb;font:14px/1.45 system-ui,sans-serif;box-shadow:0 18px 60px rgba(0,0,0,.65);pointer-events:auto';
+
+            const title = document.createElement('div');
+            title.textContent = 'Configure private odds bridge';
+            title.style.cssText = 'font-weight:700;font-size:17px;color:#fff;margin-bottom:7px';
+
+            const help = document.createElement('div');
+            help.textContent = 'Paste the same ODDS_BRIDGE_SECRET stored in GitHub. It stays only in Tampermonkey storage.';
+            help.style.cssText = 'color:#aab4c7;margin-bottom:14px';
+
+            const input = document.createElement('input');
+            input.type = 'password';
+            input.autocomplete = 'off';
+            input.placeholder = 'ODDS_BRIDGE_SECRET';
+            input.value = bridgeSecret();
+            input.style.cssText = 'all:initial;display:block;box-sizing:border-box;width:100%;padding:11px;border:1px solid #475569;border-radius:9px;background:#0b1220;color:#fff;font:14px/1.35 system-ui,sans-serif';
+
+            const error = document.createElement('div');
+            error.style.cssText = 'display:none;color:#fecaca;margin-top:9px';
+
+            const actions = document.createElement('div');
+            actions.style.cssText = 'display:flex;justify-content:flex-end;gap:8px;margin-top:16px';
+
+            const cancel = document.createElement('button');
+            cancel.type = 'button';
+            cancel.textContent = 'Cancel';
+            cancel.style.cssText = 'all:initial;padding:9px 12px;border-radius:9px;background:#263247;color:#fff;font:600 13px system-ui,sans-serif;cursor:pointer';
+
+            const save = document.createElement('button');
+            save.type = 'button';
+            save.textContent = 'Save and connect';
+            save.style.cssText = 'all:initial;padding:9px 12px;border-radius:9px;background:#315efb;color:#fff;font:600 13px system-ui,sans-serif;cursor:pointer';
+
+            cancel.addEventListener('click', closeBridgeSettings);
+            save.addEventListener('click', () => {
+              const secret = String(input.value || '').trim();
+              if (!secret) {
+                error.textContent = 'Paste ODDS_BRIDGE_SECRET first.';
+                error.style.display = 'block';
+                return;
+              }
+              GM_setValue(SECRET_KEY, secret);
+              setBadge('Odds bridge ready · waiting for odds', 'waiting');
+              closeBridgeSettings();
+              if (lastPayload) queueSend(lastPayload, true);
+            });
+            overlay.addEventListener('click', event => {
+              if (event.target === overlay) closeBridgeSettings();
+            });
+            panel.addEventListener('click', event => event.stopPropagation());
+
+            actions.append(cancel, save);
+            panel.append(title, help, input, error, actions);
+            overlay.appendChild(panel);
+            mount.appendChild(overlay);
+            setTimeout(() => input.focus(), 0);
+          }
+
+          function configureSecret() {
+            openBridgeSettings();
+          }
+
+          function configureWorker() {
+            openBridgeSettings();
+          }
+'''
+
+          pattern = re.compile(
+              r"  function configureSecret\(\) \{.*?\n  function configureWorker\(\) \{.*?\n  \}\n(?=\n  function finite)",
+              re.S,
+          )
+          source, count = pattern.subn(lambda _: replacement, source, count=1)
+          if count != 1:
+              raise SystemExit(f'Expected one settings block, replaced {count}')
+
+          source = source.replace("        'white-space:normal'\n", "        'white-space:normal',\n        'pointer-events:auto'\n")
+          source = source.replace("console.info('[LoL Odds Bridge] v1.1.0 installed.", "console.info('[LoL Odds Bridge] v1.2.0 installed.")
+          path.write_text(source)
+          PY
+
+          node --check odds-bridge.user.js
+
+      - name: Commit userscript fix
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add odds-bridge.user.js
+          git commit -m "Use in-page odds bridge settings [skip ci]"
+          git push
