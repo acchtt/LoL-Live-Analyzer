@@ -17,21 +17,25 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v6
 
-      - name: Query deployed Worker
+      - name: Wait for Worker v1.7 and query feed
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p diagnostics
           base="https://lol-live-analyzer-api.acchtt.workers.dev"
-          curl --retry 3 --retry-delay 2 --fail-with-body -sS "$base/" \
-            -o diagnostics/worker-health.json
-          curl --retry 3 --retry-delay 2 --fail-with-body -sS \
-            "$base/api/chatgpt?gameId=115548681803406193" \
-            -D diagnostics/chatgpt-game2.headers.txt \
-            -o diagnostics/chatgpt-game2.json
-          curl --retry 3 --retry-delay 2 --fail-with-body -sS \
-            "$base/api/chatgpt?gameId=115548681803406193&historical=1" \
-            -o diagnostics/chatgpt-game2-historical.json
+
+          for attempt in $(seq 1 30); do
+            curl --retry 2 --retry-delay 1 --fail-with-body -sS "$base/" \
+              -o diagnostics/worker-health.json
+            version=$(python -c "import json; print(json.load(open('diagnostics/worker-health.json')).get('version',''))")
+            if [ "$version" = "1.7" ]; then
+              break
+            fi
+            sleep 4
+          done
+
+          python -c "import json; v=json.load(open('diagnostics/worker-health.json')).get('version'); assert v == '1.7', f'Expected Worker 1.7, got {v}'"
+
           curl --retry 3 --retry-delay 2 --fail-with-body -sS \
             "$base/api/chatgpt?gameId=115548681803406194" \
             -D diagnostics/chatgpt-game3.headers.txt \
@@ -39,11 +43,14 @@ jobs:
           curl --retry 3 --retry-delay 2 --fail-with-body -sS \
             "$base/api/resolve-game?matchId=115548681803406191" \
             -o diagnostics/mkoi-vit-resolve.json
+          curl --retry 3 --retry-delay 2 --fail-with-body -sS \
+            "$base/api/schedule" \
+            -o diagnostics/schedule-v17.json
+
           python -m json.tool diagnostics/worker-health.json > diagnostics/worker-health.pretty.json
-          python -m json.tool diagnostics/chatgpt-game2.json > diagnostics/chatgpt-game2.pretty.json
-          python -m json.tool diagnostics/chatgpt-game2-historical.json > diagnostics/chatgpt-game2-historical.pretty.json
           python -m json.tool diagnostics/chatgpt-game3.json > diagnostics/chatgpt-game3.pretty.json
           python -m json.tool diagnostics/mkoi-vit-resolve.json > diagnostics/mkoi-vit-resolve.pretty.json
+          python -m json.tool diagnostics/schedule-v17.json > diagnostics/schedule-v17.pretty.json
 
       - name: Commit diagnostic response
         shell: bash
@@ -51,5 +58,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add diagnostics/
-          git commit -m "Refresh one-time live feed diagnostic [skip ci]"
+          git commit -m "Verify Worker v1.7 feed [skip ci]"
           git push
