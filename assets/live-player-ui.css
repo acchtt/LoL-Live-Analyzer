@@ -1,0 +1,94 @@
+.enhanced-player-row {
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+}
+
+.player-identity {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 10px;
+}
+
+.champion-portrait {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.045);
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.champion-portrait img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+}
+
+.champion-portrait.image-failed img {
+  display: none;
+}
+
+.player-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.player-copy strong,
+.player-copy small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.player-copy small {
+  color: var(--muted);
+  font-size: 11px;
+  text-transform: capitalize;
+}
+
+.player-kda,
+.player-cs {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.clock {
+  min-width: 82px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.clock.estimated-clock::after {
+  content: ' EST';
+  margin-left: 4px;
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+}
+
+@media (max-width: 720px) {
+  .enhanced-player-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .player-cs {
+    grid-column: 2;
+    font-size: 11px;
+    color: var(--muted);
+  }
+}
