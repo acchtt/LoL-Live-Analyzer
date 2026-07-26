@@ -14,6 +14,7 @@ on:
       - worker-v1.9.js
       - worker-v2.0.js
       - worker-v2.1.js
+      - worker-v2.2.js
       - wrangler.toml
       - .github/workflows/deploy-worker.yml
 
@@ -32,6 +33,7 @@ jobs:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       VSGG_API_TOKEN: ${{ secrets.VSGG_API_TOKEN }}
+      ODDS_BRIDGE_SECRET: ${{ secrets.ODDS_BRIDGE_SECRET }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v6
@@ -48,3 +50,8 @@ jobs:
         if: ${{ env.VSGG_API_TOKEN != '' }}
         shell: bash
         run: printf '%s' "$VSGG_API_TOKEN" | npx wrangler secret put VSGG_API_TOKEN
+
+      - name: Sync private odds bridge secret
+        if: ${{ env.ODDS_BRIDGE_SECRET != '' }}
+        shell: bash
+        run: printf '%s' "$ODDS_BRIDGE_SECRET" | npx wrangler secret put ODDS_BRIDGE_SECRET
