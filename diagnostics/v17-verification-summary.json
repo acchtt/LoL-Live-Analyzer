@@ -1,11 +1,12 @@
 {
   "schemaVersion": "1.7",
-  "updatedAt": "2026-07-26T16:45:13.836Z",
-  "frameTimestamp": "2026-07-26T16:44:39.991Z",
-  "clock": "17:24",
-  "clockSeconds": 1044,
+  "updatedAt": "2026-07-26T16:48:15.961Z",
+  "frameTimestamp": "2026-07-26T16:47:39.986Z",
+  "dataAgeSeconds": 36,
+  "live": true,
+  "clock": "20:24",
+  "clockSeconds": 1224,
   "clockSource": "Riot initial telemetry frame",
-  "clockAnchorTime": "2026-07-26T16:27:16.083Z",
   "matchState": "in_game",
   "series": [
     {
@@ -17,5 +18,21 @@
       "wins": 1
     }
   ],
-  "seriesSource": "confirmed game results"
+  "seriesSource": "confirmed game results",
+  "blue": {
+    "code": "MKOI",
+    "kills": 9,
+    "gold": 36836,
+    "towers": 0,
+    "dragons": 0,
+    "barons": 0
+  },
+  "red": {
+    "code": "VIT",
+    "kills": 9,
+    "gold": 38352,
+    "towers": 3,
+    "dragons": 3,
+    "barons": 0
+  }
 }
