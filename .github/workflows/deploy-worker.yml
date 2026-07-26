@@ -2,9 +2,20 @@ name: Deploy Cloudflare Worker
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - worker-v1.4.js
+      - wrangler.toml
+      - .github/workflows/deploy-worker.yml
 
 permissions:
   contents: read
+
+concurrency:
+  group: deploy-cloudflare-worker
+  cancel-in-progress: true
 
 jobs:
   deploy:
