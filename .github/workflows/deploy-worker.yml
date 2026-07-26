@@ -7,6 +7,7 @@ on:
       - main
     paths:
       - worker-v1.4.js
+      - worker-v1.5.js
       - wrangler.toml
       - .github/workflows/deploy-worker.yml
 
