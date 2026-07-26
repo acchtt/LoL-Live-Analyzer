@@ -1,0 +1,550 @@
+{
+    "event": {
+        "id": "115548681803406191",
+        "type": "match",
+        "tournament": {
+            "id": "115548681802226458"
+        },
+        "league": {
+            "id": "98767991302996019",
+            "slug": "lec",
+            "image": "http://static.lolesports.com/leagues/1592516184297_LEC-01-FullonDark.png",
+            "name": "LEC"
+        },
+        "match": {
+            "strategy": {
+                "count": 3
+            },
+            "teams": [
+                {
+                    "id": "99322214695067838",
+                    "name": "Team Vitality",
+                    "code": "VIT",
+                    "image": "http://static.lolesports.com/teams/1675865863968_Vitality_FullColor.png",
+                    "result": {
+                        "gameWins": 0
+                    }
+                },
+                {
+                    "id": "103461966965149786",
+                    "name": "Movistar KOI",
+                    "code": "MKOI",
+                    "image": "http://static.lolesports.com/teams/1734012609283_MKOI_FullColor_Blue.png",
+                    "result": {
+                        "gameWins": 0
+                    }
+                }
+            ],
+            "games": [
+                {
+                    "number": 1,
+                    "id": "115548681803406192",
+                    "state": "unstarted",
+                    "teams": [
+                        {
+                            "id": "99322214695067838",
+                            "side": "blue"
+                        },
+                        {
+                            "id": "103461966965149786",
+                            "side": "red"
+                        }
+                    ],
+                    "vods": []
+                },
+                {
+                    "number": 2,
+                    "id": "115548681803406193",
+                    "state": "unstarted",
+                    "teams": [
+                        {
+                            "id": "103461966965149786",
+                            "side": "blue"
+                        },
+                        {
+                            "id": "99322214695067838",
+                            "side": "red"
+                        }
+                    ],
+                    "vods": []
+                },
+                {
+                    "number": 3,
+                    "id": "115548681803406194",
+                    "state": "unstarted",
+                    "teams": [
+                        {
+                            "id": "99322214695067838",
+                            "side": "blue"
+                        },
+                        {
+                            "id": "103461966965149786",
+                            "side": "red"
+                        }
+                    ],
+                    "vods": []
+                }
+            ]
+        },
+        "streams": [
+            {
+                "parameter": "TL_Nero",
+                "locale": "el-GR",
+                "mediaLocale": {
+                    "locale": "el-GR",
+                    "englishName": "Greek (Greece)",
+                    "translatedName": "\u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac"
+                },
+                "provider": "twitch",
+                "countries": [],
+                "offset": -33000,
+                "statsStatus": "enabled"
+            },
+            {
+                "parameter": "nervarien",
+                "locale": "pl-PL",
+                "mediaLocale": {
+                    "locale": "pl-PL",
+                    "englishName": "Polish (Poland)",
+                    "translatedName": "Polski"
+                },
+                "provider": "twitch",
+                "countries": [],
+                "offset": -30000,
+                "statsStatus": "enabled"
+            },
+            {
+                "parameter": "esport2tv",
+                "locale": "hu-HU",
+                "mediaLocale": {
+                    "locale": "hu-HU",
+                    "englishName": "Hungarian (Hungary)",
+                    "translatedName": "Magyar"
+                },
+                "provider": "twitch",
+                "countries": [],
+                "offset": -30000,
+                "statsStatus": "enabled"
+            },
+            {
+                "parameter": "tolkin",
+                "locale": "de-DE",
+                "mediaLocale": {
+                    "locale": "de-DE",
+                    "englishName": "German (Germany)",
+                    "translatedName": "Deutsch"
+                },
+                "provider": "twitch",
+                "countries": [],
+                "offset": -38000,
+                "statsStatus": "enabled"
+            },
+            {
+                "parameter": "dO2tzo0rSbo",
+                "locale": "sr-SR",
+                "mediaLocale": {
+                    "locale": "sr-SR",
+                    "englishName": "Serbian",
+                    "translatedName": "Srpski"
+                },
+                "provider": "youtube",
+                "countries": [],
+                "offset": -47000,
+                "statsStatus": "enabled"
+            },
+            {
+                "parameter": "LES",
+                "locale": "es-ES",
+                "mediaLocale": {
+                    "locale": "es-ES",
+                    "englishName": "Spanish (Spain)",
+                    "translatedName": "Espa\u00f1ol (Espa\u00f1a)"
+                },
+                "provider": "twitch",
+                "countries": [],
+                "offset": -40000,
+                "statsStatus": "enabled"
+            },
+            {
+                "parameter": "otplol_",
+                "locale": "fr-FR",
+                "mediaLocale": {
+                    "locale": "fr-FR",
+                    "englishName": "French (France)",
+                    "translatedName": "Fran\u00e7ais"
+                },
+                "provider": "twitch",
+                "countries": [
+                    "FR"
+                ],
+                "offset": -30000,
+                "statsStatus": "enabled"
+            },
+            {
+                "parameter": "D4jmAm688f8",
+                "locale": "en-GB",
+                "mediaLocale": {
+                    "locale": "en-GB",
+                    "englishName": "English (Europe)",
+                    "translatedName": "English (Europe)"
+                },
+                "provider": "youtube",
+                "countries": [
+                    "US",
+                    "GB"
+                ],
+                "offset": -30000,
+                "statsStatus": "enabled"
+            },
+            {
+                "parameter": "lec",
+                "locale": "en-GB",
+                "mediaLocale": {
+                    "locale": "en-GB",
+                    "englishName": "English (Europe)",
+                    "translatedName": "English (Europe)"
+                },
+                "provider": "twitch",
+                "countries": [
+                    "GB",
+                    "ZW",
+                    "ZM",
+                    "YE",
+                    "EH",
+                    "WF",
+                    "VE",
+                    "VN",
+                    "VU",
+                    "VA",
+                    "UZ",
+                    "UM",
+                    "UY",
+                    "US",
+                    "AE",
+                    "UA",
+                    "UG",
+                    "VI",
+                    "TV",
+                    "TC",
+                    "TM",
+                    "TR",
+                    "TN",
+                    "TT",
+                    "TO",
+                    "TK",
+                    "TG",
+                    "TH",
+                    "TZ",
+                    "TJ",
+                    "TW",
+                    "CH",
+                    "SY",
+                    "SE",
+                    "SZ",
+                    "SJ",
+                    "SR",
+                    "SD",
+                    "LK",
+                    "ES",
+                    "SS",
+                    "ZA",
+                    "GS",
+                    "KR",
+                    "SK",
+                    "SI",
+                    "SB",
+                    "SG",
+                    "SX",
+                    "SL",
+                    "SC",
+                    "SN",
+                    "SA",
+                    "ST",
+                    "SM",
+                    "WS",
+                    "VC",
+                    "PM",
+                    "MF",
+                    "LC",
+                    "KN",
+                    "SH",
+                    "BL",
+                    "RW",
+                    "RE",
+                    "RO",
+                    "CG",
+                    "RU",
+                    "PR",
+                    "QA",
+                    "PT",
+                    "PL",
+                    "PN",
+                    "PH",
+                    "PE",
+                    "PG",
+                    "PY",
+                    "PA",
+                    "PS",
+                    "PW",
+                    "PK",
+                    "OM",
+                    "NO",
+                    "MP",
+                    "KP",
+                    "NU",
+                    "NF",
+                    "NG",
+                    "NE",
+                    "NI",
+                    "NZ",
+                    "NC",
+                    "NP",
+                    "NR",
+                    "NA",
+                    "MM",
+                    "MZ",
+                    "MA",
+                    "ME",
+                    "MS",
+                    "MN",
+                    "MC",
+                    "MD",
+                    "FM",
+                    "MX",
+                    "YT",
+                    "MU",
+                    "MR",
+                    "MQ",
+                    "MH",
+                    "MT",
+                    "ML",
+                    "MV",
+                    "MY",
+                    "MW",
+                    "MG",
+                    "MK",
+                    "MO",
+                    "LU",
+                    "LT",
+                    "LI",
+                    "LY",
+                    "LR",
+                    "LS",
+                    "LV",
+                    "LB",
+                    "LA",
+                    "KG",
+                    "KW",
+                    "KI",
+                    "XK",
+                    "JE",
+                    "JO",
+                    "KZ",
+                    "KE",
+                    "JP",
+                    "JM",
+                    "CI",
+                    "IT",
+                    "IL",
+                    "IE",
+                    "IM",
+                    "IQ",
+                    "IR",
+                    "ID",
+                    "IN",
+                    "IS",
+                    "HU",
+                    "HK",
+                    "HN",
+                    "HM",
+                    "GY",
+                    "GW",
+                    "HT",
+                    "GN",
+                    "GG",
+                    "GT",
+                    "GU",
+                    "GD",
+                    "GP",
+                    "GL",
+                    "GR",
+                    "GI",
+                    "GH",
+                    "DE",
+                    "GE",
+                    "GM",
+                    "GA",
+                    "TF",
+                    "PF",
+                    "GF",
+                    "FR",
+                    "FI",
+                    "FJ",
+                    "FO",
+                    "FK",
+                    "ET",
+                    "EE",
+                    "ER",
+                    "GQ",
+                    "SV",
+                    "EG",
+                    "EC",
+                    "TL",
+                    "DO",
+                    "DM",
+                    "DJ",
+                    "DK",
+                    "CD",
+                    "CZ",
+                    "CY",
+                    "CW",
+                    "CU",
+                    "HR",
+                    "CR",
+                    "KM",
+                    "CK",
+                    "CO",
+                    "CC",
+                    "CX",
+                    "CN",
+                    "CL",
+                    "TD",
+                    "CF",
+                    "KY",
+                    "CA",
+                    "CM",
+                    "CV",
+                    "KH",
+                    "BF",
+                    "BI",
+                    "BG",
+                    "BN",
+                    "VG",
+                    "IO",
+                    "BR",
+                    "BV",
+                    "BW",
+                    "BA",
+                    "BQ",
+                    "BO",
+                    "BT",
+                    "BM",
+                    "BJ",
+                    "BZ",
+                    "BY",
+                    "BB",
+                    "BD",
+                    "BH",
+                    "BS",
+                    "AT",
+                    "AZ",
+                    "AU",
+                    "AW",
+                    "AM",
+                    "AR",
+                    "AG",
+                    "AQ",
+                    "AI",
+                    "AO",
+                    "AD",
+                    "AS",
+                    "DZ",
+                    "AL",
+                    "AF",
+                    "AX"
+                ],
+                "offset": -30000,
+                "statsStatus": "enabled"
+            }
+        ]
+    },
+    "games": [
+        {
+            "number": 1,
+            "id": "115548681803406192",
+            "state": "unstarted",
+            "teams": [
+                {
+                    "id": "99322214695067838",
+                    "side": "blue"
+                },
+                {
+                    "id": "103461966965149786",
+                    "side": "red"
+                }
+            ],
+            "vods": []
+        },
+        {
+            "number": 2,
+            "id": "115548681803406193",
+            "state": "unstarted",
+            "teams": [
+                {
+                    "id": "103461966965149786",
+                    "side": "blue"
+                },
+                {
+                    "id": "99322214695067838",
+                    "side": "red"
+                }
+            ],
+            "vods": []
+        },
+        {
+            "number": 3,
+            "id": "115548681803406194",
+            "state": "unstarted",
+            "teams": [
+                {
+                    "id": "99322214695067838",
+                    "side": "blue"
+                },
+                {
+                    "id": "103461966965149786",
+                    "side": "red"
+                }
+            ],
+            "vods": []
+        }
+    ],
+    "selectedGame": {
+        "number": 3,
+        "id": "115548681803406194",
+        "state": "inProgress",
+        "teams": [
+            {
+                "id": "99322214695067838",
+                "side": "blue"
+            },
+            {
+                "id": "103461966965149786",
+                "side": "red"
+            }
+        ],
+        "vods": []
+    },
+    "selectedPhase": "pregame",
+    "series": {
+        "teams": [
+            {
+                "id": "99322214695067838",
+                "name": "Team Vitality",
+                "code": "VIT",
+                "image": "http://static.lolesports.com/teams/1675865863968_Vitality_FullColor.png",
+                "wins": 0
+            },
+            {
+                "id": "103461966965149786",
+                "name": "Movistar KOI",
+                "code": "MKOI",
+                "image": "http://static.lolesports.com/teams/1734012609283_MKOI_FullColor_Blue.png",
+                "wins": 0
+            }
+        ]
+    },
+    "broadcastLive": true,
+    "telemetryAvailable": true,
+    "checkedAt": "2026-07-26T16:31:37.693Z",
+    "diagnostics": {}
+}

@@ -1,0 +1,231 @@
+{
+  "schemaVersion": "1.6",
+  "updatedAt": "2026-07-26T16:31:36.004Z",
+  "source": {
+    "provider": "Riot LoL Esports web feed",
+    "gameId": "115548681803406193",
+    "matchId": "115548681803406191",
+    "live": false,
+    "frameTimestamp": "2026-07-26T16:05:58.683Z",
+    "dataAgeSeconds": 1537,
+    "historicalProbe": false,
+    "telemetryAdvancing": false,
+    "staleFinalFrame": true
+  },
+  "match": {
+    "league": "LEC",
+    "bestOf": 3,
+    "gameNumber": 2,
+    "patch": "16.14.794.9266",
+    "state": "stale_frame"
+  },
+  "series": {
+    "teams": [
+      {
+        "id": "99322214695067838",
+        "name": "Team Vitality",
+        "code": "VIT",
+        "image": "http://static.lolesports.com/teams/1675865863968_Vitality_FullColor.png",
+        "wins": 0
+      },
+      {
+        "id": "103461966965149786",
+        "name": "Movistar KOI",
+        "code": "MKOI",
+        "image": "http://static.lolesports.com/teams/1734012609283_MKOI_FullColor_Blue.png",
+        "wins": 0
+      }
+    ]
+  },
+  "status": "ok",
+  "clock": null,
+  "clockSeconds": null,
+  "blue": {
+    "id": "103461966965149786",
+    "side": "blue",
+    "name": "Movistar KOI",
+    "code": "MKOI",
+    "image": "http://static.lolesports.com/teams/1734012609283_MKOI_FullColor_Blue.png",
+    "gold": 58853,
+    "kills": 12,
+    "towers": 3,
+    "inhibitors": 0,
+    "barons": 0,
+    "heralds": 0,
+    "dragons": [
+      "infernal",
+      "mountain",
+      "mountain"
+    ],
+    "players": [
+      {
+        "participantId": 1,
+        "name": "MKOI Myrwn",
+        "champion": "Ambessa",
+        "role": "top",
+        "level": 17,
+        "kills": 0,
+        "deaths": 5,
+        "assists": 3,
+        "creepScore": 247,
+        "totalGold": 10101,
+        "currentGold": 0,
+        "items": []
+      },
+      {
+        "participantId": 2,
+        "name": "MKOI Elyoya",
+        "champion": "LeeSin",
+        "role": "jungle",
+        "level": 16,
+        "kills": 3,
+        "deaths": 5,
+        "assists": 6,
+        "creepScore": 228,
+        "totalGold": 11715,
+        "currentGold": 0,
+        "items": []
+      },
+      {
+        "participantId": 3,
+        "name": "MKOI Jojopyun",
+        "champion": "Viktor",
+        "role": "mid",
+        "level": 18,
+        "kills": 5,
+        "deaths": 4,
+        "assists": 4,
+        "creepScore": 301,
+        "totalGold": 15231,
+        "currentGold": 0,
+        "items": []
+      },
+      {
+        "participantId": 4,
+        "name": "MKOI Supa",
+        "champion": "Xayah",
+        "role": "bottom",
+        "level": 15,
+        "kills": 2,
+        "deaths": 5,
+        "assists": 4,
+        "creepScore": 282,
+        "totalGold": 13600,
+        "currentGold": 0,
+        "items": []
+      },
+      {
+        "participantId": 5,
+        "name": "MKOI Alvaro",
+        "champion": "Rakan",
+        "role": "support",
+        "level": 13,
+        "kills": 2,
+        "deaths": 6,
+        "assists": 6,
+        "creepScore": 35,
+        "totalGold": 8206,
+        "currentGold": 0,
+        "items": []
+      }
+    ]
+  },
+  "red": {
+    "id": "99322214695067838",
+    "side": "red",
+    "name": "Team Vitality",
+    "code": "VIT",
+    "image": "http://static.lolesports.com/teams/1675865863968_Vitality_FullColor.png",
+    "gold": 73097,
+    "kills": 25,
+    "towers": 11,
+    "inhibitors": 2,
+    "barons": 2,
+    "heralds": 0,
+    "dragons": [
+      "cloud",
+      "mountain"
+    ],
+    "players": [
+      {
+        "participantId": 6,
+        "name": "VIT Naak Nako",
+        "champion": "Renekton",
+        "role": "top",
+        "level": 19,
+        "kills": 3,
+        "deaths": 2,
+        "assists": 9,
+        "creepScore": 326,
+        "totalGold": 14928,
+        "currentGold": 0,
+        "items": []
+      },
+      {
+        "participantId": 7,
+        "name": "VIT Lyncas",
+        "champion": "Pantheon",
+        "role": "jungle",
+        "level": 17,
+        "kills": 5,
+        "deaths": 0,
+        "assists": 13,
+        "creepScore": 205,
+        "totalGold": 13696,
+        "currentGold": 0,
+        "items": []
+      },
+      {
+        "participantId": 8,
+        "name": "VIT FIESTA",
+        "champion": "Orianna",
+        "role": "mid",
+        "level": 17,
+        "kills": 1,
+        "deaths": 5,
+        "assists": 15,
+        "creepScore": 244,
+        "totalGold": 12419,
+        "currentGold": 0,
+        "items": []
+      },
+      {
+        "participantId": 9,
+        "name": "VIT Carzzy",
+        "champion": "Lucian",
+        "role": "bottom",
+        "level": 17,
+        "kills": 14,
+        "deaths": 5,
+        "assists": 9,
+        "creepScore": 326,
+        "totalGold": 21376,
+        "currentGold": 0,
+        "items": []
+      },
+      {
+        "participantId": 10,
+        "name": "VIT Fleshy",
+        "champion": "Milio",
+        "role": "support",
+        "level": 15,
+        "kills": 2,
+        "deaths": 0,
+        "assists": 22,
+        "creepScore": 42,
+        "totalGold": 10678,
+        "currentGold": 0,
+        "items": []
+      }
+    ]
+  },
+  "differences": {
+    "gold": -14244,
+    "kills": -13,
+    "towers": -8,
+    "dragons": 1,
+    "barons": -2
+  },
+  "summary": "Team Vitality leads by 14,244 gold. Kills are 12-25; towers are 3-11.",
+  "message": "The last Riot frame is no longer advancing. Treat this game as ended and resolve the next game in the series."
+}
