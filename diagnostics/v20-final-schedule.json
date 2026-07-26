@@ -1831,8 +1831,8 @@
                 "code": "VIT",
                 "image": "http://static.lolesports.com/teams/1675865863968_Vitality_FullColor.png",
                 "result": {
-                  "outcome": null,
-                  "gameWins": 0
+                  "outcome": "win",
+                  "gameWins": 2
                 },
                 "record": {
                   "wins": 0,
@@ -1844,8 +1844,8 @@
                 "code": "MKOI",
                 "image": "http://static.lolesports.com/teams/1734012609283_MKOI_FullColor_Blue.png",
                 "result": {
-                  "outcome": null,
-                  "gameWins": 0
+                  "outcome": "loss",
+                  "gameWins": 1
                 },
                 "record": {
                   "wins": 0,
@@ -1882,9 +1882,7 @@
           },
           "match": {
             "id": "115565671526403033",
-            "flags": [
-              "hasVod"
-            ],
+            "flags": [],
             "teams": [
               {
                 "id": "109480056092207899",

@@ -7,11 +7,13 @@
     "series": [
       {
         "code": "VIT",
-        "wins": 2
+        "wins": 2,
+        "outcome": "win"
       },
       {
         "code": "MKOI",
-        "wins": 1
+        "wins": 1,
+        "outcome": "loss"
       }
     ],
     "result": {
@@ -34,11 +36,13 @@
     "series": [
       {
         "code": "VIT",
-        "wins": 2
+        "wins": 2,
+        "outcome": "win"
       },
       {
         "code": "MKOI",
-        "wins": 1
+        "wins": 1,
+        "outcome": "loss"
       }
     ],
     "result": {
@@ -56,11 +60,13 @@
     "series": [
       {
         "code": "VIT",
-        "wins": 0
+        "wins": 2,
+        "outcome": "win"
       },
       {
         "code": "MKOI",
-        "wins": 0
+        "wins": 1,
+        "outcome": "loss"
       }
     ],
     "scoreSource": "confirmed retained final frame"

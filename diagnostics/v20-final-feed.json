@@ -1,13 +1,13 @@
 {
   "schemaVersion": "2.0",
-  "updatedAt": "2026-07-26T17:13:25.054Z",
+  "updatedAt": "2026-07-26T17:16:54.698Z",
   "source": {
     "provider": "Riot LoL Esports web feed",
     "gameId": "115548681803406194",
     "matchId": "115548681803406191",
     "live": false,
     "frameTimestamp": "2026-07-26T17:01:10.005Z",
-    "dataAgeSeconds": 735,
+    "dataAgeSeconds": 945,
     "historicalProbe": false,
     "telemetryAdvancing": false,
     "staleFinalFrame": true,
@@ -36,14 +36,22 @@
         "name": "Team Vitality",
         "code": "VIT",
         "image": "http://static.lolesports.com/teams/1675865863968_Vitality_FullColor.png",
-        "wins": 2
+        "wins": 2,
+        "result": {
+          "gameWins": 2,
+          "outcome": "win"
+        }
       },
       {
         "id": "103461966965149786",
         "name": "Movistar KOI",
         "code": "MKOI",
         "image": "http://static.lolesports.com/teams/1734012609283_MKOI_FullColor_Blue.png",
-        "wins": 1
+        "wins": 1,
+        "result": {
+          "gameWins": 1,
+          "outcome": "loss"
+        }
       }
     ],
     "source": "confirmed retained final frame",
@@ -243,9 +251,9 @@
   "message": "Match finished: Team Vitality defeated Movistar KOI 2-1.",
   "request": {
     "gameId": "115548681803406194",
-    "feedUrl": "https://lol-live-analyzer-api.acchtt.workers.dev/api/chatgpt/115548681803406194/final-1785086004",
+    "feedUrl": "https://lol-live-analyzer-api.acchtt.workers.dev/api/chatgpt/115548681803406194/final-1785086213",
     "format": "rotating-path",
-    "freshToken": "final-1785086004",
+    "freshToken": "final-1785086213",
     "cachePolicy": "unique path token plus no-store headers"
   },
   "result": {
