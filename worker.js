@@ -1,6 +1,7 @@
 const PERSISTED_BASE = 'https://esports-api.lolesports.com/persisted/gw';
 const LIVE_BASE = 'https://feed.lolesports.com/livestats/v1';
 const DEFAULT_LOCALE = 'en-US';
+const LIVE_FRAME_MAX_AGE_MS = 30 * 60 * 1000;
 
 function cors() {
   return {
@@ -59,7 +60,9 @@ async function riotPersisted(path, params, env) {
 }
 
 async function riotLive(path) {
-  const response = await fetch(`${LIVE_BASE}/${path}`, { headers: { Accept: 'application/json' } });
+  const response = await fetch(`${LIVE_BASE}/${path}`, {
+    headers: { Accept: 'application/json' }
+  });
   const text = await response.text();
   if (!response.ok) throw new Error(`Riot live feed returned ${response.status}: ${text.slice(0, 180)}`);
   return JSON.parse(text);
@@ -67,13 +70,55 @@ async function riotLive(path) {
 
 function latestFrame(payload) {
   const frames = payload?.frames || payload?.window?.frames || payload?.data?.frames || [];
-  return Array.isArray(frames) && frames.length ? frames[frames.length - 1] : payload?.frame || payload;
+  return Array.isArray(frames) && frames.length
+    ? frames[frames.length - 1]
+    : payload?.frame || payload;
 }
 
-function hasLiveFrame(payload) {
+function parseTimestamp(value) {
+  if (value === undefined || value === null || value === '') return null;
+
+  if (typeof value === 'number') {
+    const millis = value > 1e12 ? value : value * 1000;
+    return Number.isFinite(millis) ? millis : null;
+  }
+
+  const numeric = Number(value);
+  if (Number.isFinite(numeric) && String(value).trim() !== '') {
+    return numeric > 1e12 ? numeric : numeric * 1000;
+  }
+
+  const parsed = Date.parse(String(value));
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function liveFrameInfo(payload) {
+  const frame = latestFrame(payload);
   const frames = payload?.frames || payload?.window?.frames || payload?.data?.frames;
-  if (Array.isArray(frames)) return frames.length > 0;
-  return Boolean(payload?.gameMetadata || payload?.esportsGameId || payload?.frame);
+  const hasFrame = Array.isArray(frames)
+    ? frames.length > 0
+    : Boolean(payload?.frame || frame?.rfc460Timestamp || frame?.timestamp);
+
+  const timestampMs = parseTimestamp(
+    frame?.rfc460Timestamp ??
+    frame?.timestamp ??
+    payload?.rfc460Timestamp ??
+    payload?.timestamp
+  );
+
+  const ageMs = timestampMs === null ? null : Math.max(0, Date.now() - timestampMs);
+  const fresh = Boolean(
+    hasFrame &&
+    timestampMs !== null &&
+    ageMs <= LIVE_FRAME_MAX_AGE_MS
+  );
+
+  return {
+    hasFrame,
+    fresh,
+    timestamp: timestampMs === null ? null : new Date(timestampMs).toISOString(),
+    ageSeconds: ageMs === null ? null : Math.round(ageMs / 1000)
+  };
 }
 
 function number(value) {
@@ -94,7 +139,9 @@ function participantList(frame) {
 }
 
 function participantTeamId(player, index) {
-  return player?.teamID || player?.teamId || (number(player?.participantID || player?.participantId || index + 1) <= 5 ? 100 : 200);
+  return player?.teamID ||
+    player?.teamId ||
+    (number(player?.participantID || player?.participantId || index + 1) <= 5 ? 100 : 200);
 }
 
 function normalizePlayer(player, index) {
@@ -115,7 +162,9 @@ function normalizePlayer(player, index) {
 
 function findTeam(frame, id, side) {
   const teams = frame?.teams || frame?.teamStats || [];
-  return teams.find(team => String(team?.teamID ?? team?.teamId ?? team?.id) === String(id)) || teams[side === 'blue' ? 0 : 1] || {};
+  return teams.find(team => String(team?.teamID ?? team?.teamId ?? team?.id) === String(id)) ||
+    teams[side === 'blue' ? 0 : 1] ||
+    {};
 }
 
 function objectiveCount(team, names) {
@@ -149,7 +198,9 @@ function normalizeSide(frame, side, metadata = {}) {
     inhibitors: objectiveCount(team, ['inhibitors', 'inhibitorKills']),
     barons: objectiveCount(team, ['barons', 'baronKills']),
     heralds: objectiveCount(team, ['heralds', 'riftHeraldKills']),
-    dragons: Array.isArray(dragons) ? dragons : objectiveCount(team, ['dragonKills', 'dragons']),
+    dragons: Array.isArray(dragons)
+      ? dragons
+      : objectiveCount(team, ['dragonKills', 'dragons']),
     players
   };
 }
@@ -159,13 +210,18 @@ function summarize(blue, red) {
   const leader = goldDiff === 0 ? null : goldDiff > 0 ? blue : red;
   const towerDiff = blue.towers - red.towers;
   const killDiff = blue.kills - red.kills;
-  if (!leader) return `Gold is even. The kill score is ${blue.kills}-${red.kills} and towers are ${blue.towers}-${red.towers}.`;
+
+  if (!leader) {
+    return `Gold is even. The kill score is ${blue.kills}-${red.kills} and towers are ${blue.towers}-${red.towers}.`;
+  }
+
   return `${leader.name} leads by ${Math.abs(goldDiff).toLocaleString('en-US')} gold. Kill difference: ${Math.abs(killDiff)}; tower difference: ${Math.abs(towerDiff)}.`;
 }
 
 async function buildChatGptSnapshot(gameId) {
   const windowPayload = await riotLive(`window/${encodeURIComponent(gameId)}`);
   const frame = latestFrame(windowPayload);
+  const telemetry = liveFrameInfo(windowPayload);
   const gameMetadata = windowPayload?.gameMetadata || windowPayload?.metadata || frame?.gameMetadata || {};
   const blueMeta = gameMetadata?.blueTeamMetadata || gameMetadata?.teams?.[0] || {};
   const redMeta = gameMetadata?.redTeamMetadata || gameMetadata?.teams?.[1] || {};
@@ -181,20 +237,23 @@ async function buildChatGptSnapshot(gameId) {
     image: redMeta?.image
   });
 
-  const gameTime = frame?.gameTime ?? frame?.rfc460Timestamp ?? frame?.timestamp ?? 0;
+  const gameTime = frame?.gameTime ?? 0;
   return {
-    schemaVersion: '1.0',
+    schemaVersion: '1.1',
     updatedAt: new Date().toISOString(),
     source: {
       provider: 'Riot LoL Esports web feed',
       gameId: String(gameId),
-      unofficialIntegration: true
+      unofficialIntegration: true,
+      live: telemetry.fresh,
+      frameTimestamp: telemetry.timestamp,
+      dataAgeSeconds: telemetry.ageSeconds
     },
     match: {
       league: gameMetadata?.league || gameMetadata?.leagueName || null,
       gameNumber: number(gameMetadata?.gameNumber) || null,
       patch: gameMetadata?.patchVersion || null,
-      state: 'in_game'
+      state: telemetry.fresh ? 'in_game' : 'historical_snapshot'
     },
     clock: durationClock(gameTime),
     blue,
@@ -203,7 +262,8 @@ async function buildChatGptSnapshot(gameId) {
       gold: blue.gold - red.gold,
       kills: blue.kills - red.kills,
       towers: blue.towers - red.towers,
-      dragons: (Array.isArray(blue.dragons) ? blue.dragons.length : blue.dragons) - (Array.isArray(red.dragons) ? red.dragons.length : red.dragons),
+      dragons: (Array.isArray(blue.dragons) ? blue.dragons.length : blue.dragons) -
+        (Array.isArray(red.dragons) ? red.dragons.length : red.dragons),
       barons: blue.barons - red.barons
     },
     summary: summarize(blue, red)
@@ -223,7 +283,9 @@ async function resolveActiveGame(matchId, env) {
     try {
       const ids = games.map(game => game.id).filter(Boolean);
       const gamePayload = await riotPersisted('getGames', { id: ids }, env);
-      const refreshedGames = Array.isArray(gamePayload?.data?.games) ? gamePayload.data.games : [];
+      const refreshedGames = Array.isArray(gamePayload?.data?.games)
+        ? gamePayload.data.games
+        : [];
       const byId = new Map(refreshedGames.map(game => [String(game.id), game]));
       games = games.map(game => ({ ...game, ...(byId.get(String(game.id)) || {}) }));
       selectedGame = games.find(game => game.state === 'inProgress') || null;
@@ -234,17 +296,38 @@ async function resolveActiveGame(matchId, env) {
   }
 
   if (!selectedGame && games.length) {
-    const probeCandidate = games.find(game => game.state !== 'completed') || games[games.length - 1];
-    if (probeCandidate?.id) {
+    diagnostics.liveWindowProbe = {};
+    let freshest = null;
+
+    for (const candidate of [...games].reverse()) {
+      if (!candidate?.id) continue;
+
       try {
-        const probe = await riotLive(`window/${encodeURIComponent(probeCandidate.id)}`);
-        if (hasLiveFrame(probe)) {
-          selectedGame = { ...probeCandidate, state: 'inProgress' };
-          resolutionSource = 'liveWindowProbe';
+        const probe = await riotLive(`window/${encodeURIComponent(candidate.id)}`);
+        const info = liveFrameInfo(probe);
+        diagnostics.liveWindowProbe[String(candidate.id)] = info;
+
+        if (
+          info.fresh &&
+          (!freshest || Date.parse(info.timestamp) > Date.parse(freshest.info.timestamp))
+        ) {
+          freshest = { candidate, info };
         }
       } catch (error) {
-        diagnostics.liveWindowProbe = error instanceof Error ? error.message : 'Unknown live-window error';
+        diagnostics.liveWindowProbe[String(candidate.id)] = {
+          error: error instanceof Error ? error.message : 'Unknown live-window error'
+        };
       }
+    }
+
+    if (freshest) {
+      selectedGame = {
+        ...freshest.candidate,
+        state: 'inProgress',
+        telemetryTimestamp: freshest.info.timestamp,
+        telemetryAgeSeconds: freshest.info.ageSeconds
+      };
+      resolutionSource = 'liveWindowProbe';
     }
   }
 
@@ -260,24 +343,40 @@ async function resolveActiveGame(matchId, env) {
 
 export default {
   async fetch(request, env) {
-    if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors() });
-    if (request.method !== 'GET') return json({ error: 'Method not allowed' }, 405);
+    if (request.method === 'OPTIONS') {
+      return new Response(null, { status: 204, headers: cors() });
+    }
+    if (request.method !== 'GET') {
+      return json({ error: 'Method not allowed' }, 405);
+    }
 
     const url = new URL(request.url);
+
     try {
       if (url.pathname === '/' || url.pathname === '/health') {
-        return json({ ok: true, service: 'LoL Live Analyzer API', apiKeyConfigured: Boolean(env.LOL_ESPORTS_API_KEY) });
+        return json({
+          ok: true,
+          service: 'LoL Live Analyzer API',
+          apiKeyConfigured: Boolean(env.LOL_ESPORTS_API_KEY),
+          version: '1.1'
+        });
       }
 
       if (url.pathname === '/api/schedule') {
-        const data = await riotPersisted('getSchedule', { leagueId: url.searchParams.get('leagueId') || undefined }, env);
+        const data = await riotPersisted(
+          'getSchedule',
+          { leagueId: url.searchParams.get('leagueId') || undefined },
+          env
+        );
         return json(data, 200, { 'Cache-Control': 'public, max-age=30' });
       }
 
       if (url.pathname === '/api/event' || url.pathname === '/api/match-details') {
-        const id = required(url.searchParams.get('matchId') || url.searchParams.get('id'), 'match id');
-        const data = await riotPersisted('getEventDetails', { id }, env);
-        return json(data);
+        const id = required(
+          url.searchParams.get('matchId') || url.searchParams.get('id'),
+          'match id'
+        );
+        return json(await riotPersisted('getEventDetails', { id }, env));
       }
 
       if (url.pathname === '/api/resolve-game') {
