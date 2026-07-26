@@ -17,7 +17,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v6
 
-      - name: Verify Worker v1.9 rotating feed
+      - name: Verify Worker v2.0 completed series
         shell: bash
         run: |
           set -euo pipefail
@@ -28,43 +28,70 @@ jobs:
             curl --retry 2 --retry-delay 1 --fail-with-body -sS "$base/" \
               -o diagnostics/worker-health.json
             version=$(python -c "import json; print(json.load(open('diagnostics/worker-health.json')).get('version',''))")
-            if [ "$version" = "1.9" ]; then
+            if [ "$version" = "2.0" ]; then
               break
             fi
             sleep 4
           done
 
-          python -c "import json; v=json.load(open('diagnostics/worker-health.json')).get('version'); assert v == '1.9', f'Expected Worker 1.9, got {v}'"
+          python -c "import json; v=json.load(open('diagnostics/worker-health.json')).get('version'); assert v == '2.0', f'Expected Worker 2.0, got {v}'"
 
-          token="verify-$(date +%s)"
-          feed_url="$base/api/chatgpt/115548681803406194/$token"
-          printf '%s\n' "$feed_url" > diagnostics/v19-rotating-feed-url.txt
+          token="final-$(date +%s)"
           curl --retry 5 --retry-delay 3 --fail-with-body -sS \
-            "$feed_url" \
-            -D diagnostics/v19-rotating-feed.headers.txt \
-            -o diagnostics/v19-rotating-feed.json
+            "$base/api/chatgpt/115548681803406194/$token" \
+            -o diagnostics/v20-final-feed.json
+          curl --retry 5 --retry-delay 3 --fail-with-body -sS \
+            "$base/api/resolve-game?matchId=115548681803406191" \
+            -o diagnostics/v20-final-resolver.json
+          curl --retry 5 --retry-delay 3 --fail-with-body -sS \
+            "$base/api/schedule" \
+            -o diagnostics/v20-final-schedule.json
 
-          python -m json.tool diagnostics/v19-rotating-feed.json > diagnostics/v19-rotating-feed.pretty.json
+          python -m json.tool diagnostics/v20-final-feed.json > diagnostics/v20-final-feed.pretty.json
+          python -m json.tool diagnostics/v20-final-resolver.json > diagnostics/v20-final-resolver.pretty.json
           python - <<'PY'
           import json
           from pathlib import Path
-          data = json.load(open('diagnostics/v19-rotating-feed.json'))
+
+          match_id = '115548681803406191'
+          feed = json.load(open('diagnostics/v20-final-feed.json'))
+          resolver = json.load(open('diagnostics/v20-final-resolver.json'))
+          schedule = json.load(open('diagnostics/v20-final-schedule.json'))
+          events = schedule.get('data', {}).get('schedule', {}).get('events', []) or schedule.get('schedule', {}).get('events', [])
+          event = next((e for e in events if str(e.get('match', {}).get('id') or e.get('id')) == match_id), {})
+
+          def teams(rows):
+              return [
+                  {
+                      'code': team.get('code'),
+                      'wins': team.get('wins', team.get('result', {}).get('gameWins'))
+                  }
+                  for team in rows or []
+              ]
+
           summary = {
-              'schemaVersion': data.get('schemaVersion'),
-              'status': data.get('status'),
-              'gameId': data.get('source', {}).get('gameId'),
-              'feedUrl': data.get('request', {}).get('feedUrl'),
-              'freshToken': data.get('request', {}).get('freshToken'),
-              'format': data.get('request', {}).get('format'),
-              'cachePolicy': data.get('request', {}).get('cachePolicy'),
-              'clock': data.get('clock'),
-              'series': [
-                  {'code': team.get('code'), 'wins': team.get('wins')}
-                  for team in data.get('series', {}).get('teams', [])
-              ],
-              'message': data.get('message')
+              'workerVersion': json.load(open('diagnostics/worker-health.json')).get('version'),
+              'feed': {
+                  'schemaVersion': feed.get('schemaVersion'),
+                  'matchState': feed.get('match', {}).get('state'),
+                  'live': feed.get('source', {}).get('live'),
+                  'series': teams(feed.get('series', {}).get('teams')),
+                  'result': feed.get('result'),
+                  'message': feed.get('message')
+              },
+              'resolver': {
+                  'selectedGame': resolver.get('selectedGame'),
+                  'selectedPhase': resolver.get('selectedPhase'),
+                  'series': teams(resolver.get('series', {}).get('teams')),
+                  'result': resolver.get('result')
+              },
+              'schedule': {
+                  'state': event.get('state'),
+                  'series': teams(event.get('match', {}).get('teams')),
+                  'scoreSource': event.get('scoreSource')
+              }
           }
-          Path('diagnostics/v19-rotating-feed-summary.json').write_text(json.dumps(summary, indent=2) + '\n')
+          Path('diagnostics/v20-final-verification.json').write_text(json.dumps(summary, indent=2) + '\n')
           PY
 
       - name: Commit diagnostic response
@@ -73,5 +100,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add diagnostics/
-          git commit -m "Verify Worker v1.9 rotating feed [skip ci]"
+          git commit -m "Verify Worker v2.0 final series [skip ci]"
           git push
