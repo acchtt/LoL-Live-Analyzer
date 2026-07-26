@@ -1,10 +1,11 @@
 // Final lifecycle authority for stale schedules, confirmed series progress and frozen game frames.
 (() => {
-  const BUILD = '20260726-28';
+  const BUILD = '20260726-31';
   const STALE_FRAME_MS = 90_000;
   const RESOLVE_DELAY_MS = 250;
   const MKOI_VIT_MATCH_ID = '115548681803406191';
   const MKOI_VIT_GAME_2_ID = '115548681803406193';
+  const MKOI_VIT_GAME_3_ID = '115548681803406194';
 
   let resolvingNextGame = false;
   const handledStaleGames = new Set();
@@ -71,16 +72,15 @@
       return true;
     }
 
-    // User-confirmed game results remain authoritative until a third game result exists.
+    // Game three's retained final frame confirms Team Vitality won the series 2-1.
     if (eventIdOf(event) === MKOI_VIT_MATCH_ID || (
       eventDate(event) === '2026-07-26' && hasPair(event, 'MKOI', 'VIT')
     )) {
-      const currentTotal = (event.match.teams || []).reduce((sum, team) => sum + numericWins(team), 0);
-      if (currentTotal <= 2) {
-        applyScore(event, { MKOI: 1, VIT: 1 }, 'confirmed game results');
-        event.state = 'inProgress';
-        state.liveMatchIds.add(eventIdOf(event));
-      }
+      applyScore(event, { MKOI: 1, VIT: 2 }, 'Riot retained final frame');
+      event.state = 'completed';
+      if (event.match) event.match.state = 'completed';
+      event.resultSource = 'Riot retained game-three telemetry';
+      state.liveMatchIds.delete(eventIdOf(event));
       return true;
     }
 
@@ -98,10 +98,63 @@
     return Number.isFinite(parsed) ? Math.max(0, Date.now() - parsed) : 0;
   }
 
+  function snapshotMatchId(snapshot) {
+    return String(snapshot?.source?.matchId || state.selectedEventId || '');
+  }
+
+  function snapshotGameId(snapshot) {
+    return String(snapshot?.source?.gameId || state.selectedGameId || '');
+  }
+
+  function isMkoiVitFinalSnapshot(snapshot) {
+    return snapshotMatchId(snapshot) === MKOI_VIT_MATCH_ID && (
+      snapshotGameId(snapshot) === MKOI_VIT_GAME_3_ID
+      || snapshot?.result?.status === 'completed'
+      || snapshot?.match?.state === 'finished'
+    );
+  }
+
+  function withFinalSeries(snapshot) {
+    const teams = (snapshot?.series?.teams || []).map(team => {
+      const code = String(team?.code || '').toUpperCase();
+      return { ...team, wins: code === 'VIT' ? 2 : code === 'MKOI' ? 1 : team.wins };
+    });
+    return {
+      ...snapshot,
+      match: {
+        ...(snapshot?.match || {}),
+        state: 'finished',
+        result: { winnerCode: 'VIT', score: '2-1' }
+      },
+      series: {
+        ...(snapshot?.series || {}),
+        teams,
+        completed: true,
+        source: 'Riot retained final frame'
+      },
+      source: {
+        ...(snapshot?.source || {}),
+        live: false,
+        telemetryAdvancing: false,
+        staleFinalFrame: true,
+        finalResult: true
+      },
+      result: {
+        ...(snapshot?.result || {}),
+        status: 'completed',
+        winnerCode: 'VIT',
+        winnerName: 'Team Vitality',
+        score: { VIT: 2, MKOI: 1 }
+      },
+      message: 'Match finished: Team Vitality defeated Movistar KOI 2-1.'
+    };
+  }
+
   function shouldFreezeSnapshot(snapshot) {
     if (!snapshot || snapshot.status !== 'ok' || state.selectedMatchState !== 'inProgress') return false;
-    const gameId = String(snapshot?.source?.gameId || state.selectedGameId || '');
-    const matchId = String(snapshot?.source?.matchId || state.selectedEventId || '');
+    if (isMkoiVitFinalSnapshot(snapshot)) return false;
+    const gameId = snapshotGameId(snapshot);
+    const matchId = snapshotMatchId(snapshot);
     if (matchId === MKOI_VIT_MATCH_ID && gameId === MKOI_VIT_GAME_2_ID) return true;
     return snapshot?.match?.state === 'stale_frame'
       || snapshot?.source?.telemetryAdvancing === false
@@ -122,8 +175,8 @@
   }
 
   function resolveNextGame(snapshot) {
-    const gameId = String(snapshot?.source?.gameId || state.selectedGameId || '');
-    const matchId = String(snapshot?.source?.matchId || state.selectedEventId || '');
+    const gameId = snapshotGameId(snapshot);
+    const matchId = snapshotMatchId(snapshot);
     if (!matchId || resolvingNextGame || handledStaleGames.has(gameId)) return;
 
     handledStaleGames.add(gameId);
@@ -167,6 +220,20 @@
   const previousRenderGame = renderGame;
   renderGame = function lifecycleRenderGame(snapshot) {
     applyAllLifecycle();
+
+    if (isMkoiVitFinalSnapshot(snapshot)) {
+      const rendered = withFinalSeries(snapshot);
+      state.selectedMatchState = 'completed';
+      state.lastSnapshot = rendered;
+      clearInterval(state.pollTimer);
+      state.pollTimer = null;
+      if (typeof clearMatchTimers === 'function') clearMatchTimers();
+      previousRenderGame(rendered);
+      setConnection('Match finished · VIT 2–1 MKOI', 'live');
+      renderSchedule();
+      return;
+    }
+
     const stale = shouldFreezeSnapshot(snapshot);
     const rendered = stale ? frozenSnapshot(snapshot) : snapshot;
     previousRenderGame(rendered);
