@@ -1,0 +1,78 @@
+name: Test odds bridge once
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/test-odds-bridge-once.yml
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Read Worker and bridge
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p diagnostics
+          base="https://lol-live-analyzer-api.acchtt.workers.dev"
+          sleep 20
+
+          health_status=$(curl -sS -o diagnostics/bridge-health.json -w '%{http_code}' "$base/?t=$(date +%s)" || true)
+          latest_status=$(curl -sS -o diagnostics/bridge-latest.json -w '%{http_code}' "$base/api/odds/bridge/latest?t=$(date +%s)" || true)
+
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          def load(path):
+              try:
+                  return json.loads(Path(path).read_text())
+              except Exception as exc:
+                  return {'parseError': str(exc), 'raw': Path(path).read_text(errors='replace')[:1000] if Path(path).exists() else ''}
+
+          health = load('diagnostics/bridge-health.json')
+          latest = load('diagnostics/bridge-latest.json')
+          summary = {
+              'health': {
+                  'version': health.get('version'),
+                  'bridgeConfigured': (health.get('bookmakerBridge') or {}).get('configured'),
+                  'rawStatus': health.get('status')
+              },
+              'latest': {
+                  'status': latest.get('status'),
+                  'provider': latest.get('provider'),
+                  'ageSeconds': latest.get('ageSeconds'),
+                  'stale': latest.get('stale'),
+                  'matchCount': len(latest.get('matches') or []),
+                  'matches': [
+                      {
+                          'providerMatchId': match.get('providerMatchId'),
+                          'league': match.get('league'),
+                          'home': (match.get('teams') or {}).get('home', {}).get('name'),
+                          'away': (match.get('teams') or {}).get('away', {}).get('name'),
+                          'marketCount': len(match.get('markets') or [])
+                      }
+                      for match in (latest.get('matches') or [])[:10]
+                  ],
+                  'message': latest.get('message'),
+                  'error': latest.get('error')
+              }
+          }
+          Path('diagnostics/bridge-verification.json').write_text(json.dumps(summary, indent=2) + '\n')
+          PY
+
+      - name: Commit diagnostic response
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add diagnostics/bridge-health.json diagnostics/bridge-latest.json diagnostics/bridge-verification.json
+          git commit -m "Verify bookmaker odds bridge [skip ci]" || exit 0
+          git push
