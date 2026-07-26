@@ -1,0 +1,17 @@
+{
+  "name": "RiftPulse",
+  "short_name": "RiftPulse",
+  "description": "Live esports stats, odds, and match intelligence.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#050913",
+  "theme_color": "#228BFF",
+  "icons": [
+    {
+      "src": "assets/riftpulse-mark.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
