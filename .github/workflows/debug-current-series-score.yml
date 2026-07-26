@@ -1,0 +1,88 @@
+name: Debug current series score
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/debug-current-series-score.yml
+
+permissions:
+  contents: write
+
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Capture active series data
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://lol-live-analyzer-api.acchtt.workers.dev'
+          schedule=$(curl -fsS "$base/api/schedule?_=$(date +%s)")
+          printf '%s' "$schedule" > /tmp/schedule.json
+          python - <<'PY'
+          import json, subprocess, time
+          from pathlib import Path
+
+          schedule = json.loads(Path('/tmp/schedule.json').read_text())
+          events = (((schedule.get('data') or {}).get('schedule') or {}).get('events')
+                    or (schedule.get('schedule') or {}).get('events')
+                    or schedule.get('events') or [])
+          active = []
+          for event in events:
+              state = event.get('state')
+              if state not in ('inProgress', 'unstarted'):
+                  continue
+              match = event.get('match') or {}
+              match_id = str(match.get('id') or event.get('id') or '')
+              if not match_id:
+                  continue
+              teams = []
+              for team in match.get('teams') or []:
+                  teams.append({
+                      'id': team.get('id'),
+                      'name': team.get('name'),
+                      'code': team.get('code'),
+                      'result': team.get('result'),
+                  })
+              try:
+                  raw = subprocess.check_output([
+                      'curl', '-fsS',
+                      f'https://lol-live-analyzer-api.acchtt.workers.dev/api/resolve-game?matchId={match_id}&_={int(time.time())}'
+                  ], text=True)
+                  resolution = json.loads(raw)
+              except Exception as exc:
+                  resolution = {'error': str(exc)}
+              games = resolution.get('games') or (((resolution.get('event') or {}).get('match') or {}).get('games')) or []
+              active.append({
+                  'eventId': match_id,
+                  'state': state,
+                  'startTime': event.get('startTime'),
+                  'league': (event.get('league') or {}).get('name') or (event.get('league') or {}).get('slug'),
+                  'strategy': match.get('strategy'),
+                  'scheduleTeams': teams,
+                  'resolutionTeams': (((resolution.get('event') or {}).get('match') or {}).get('teams')),
+                  'selectedGame': resolution.get('selectedGame'),
+                  'broadcastLive': resolution.get('broadcastLive'),
+                  'games': [{
+                      'id': g.get('id'),
+                      'number': g.get('number') or g.get('gameNumber'),
+                      'state': g.get('state'),
+                      'teams': g.get('teams'),
+                      'vods': g.get('vods'),
+                  } for g in games],
+              })
+          Path('diagnostics/current-series-score-debug.json').write_text(json.dumps({
+              'capturedAt': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
+              'active': active,
+          }, indent=2))
+          PY
+      - name: Commit diagnostic
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add diagnostics/current-series-score-debug.json
+          git commit -m 'Record current series score debug [skip ci]' || exit 0
+          git push
