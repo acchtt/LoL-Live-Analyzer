@@ -1,0 +1,95 @@
+name: Debug KC G2 retained frames
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/debug-kc-g2-retained-frames.yml
+
+permissions:
+  contents: write
+
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Capture frames and odds
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, subprocess, time
+          from pathlib import Path
+
+          base = 'https://lol-live-analyzer-api.acchtt.workers.dev'
+          game_ids = ['115548681803406288','115548681803406289','115548681803406290']
+          output = {'capturedAt': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()), 'games': []}
+
+          def get(url):
+              raw = subprocess.check_output(['curl','-fsS',url], text=True)
+              return json.loads(raw)
+
+          for game_id in game_ids:
+              game = {'gameId': game_id}
+              try:
+                  snap = get(f'{base}/api/chatgpt?gameId={game_id}&historical=1&_={int(time.time())}')
+                  game['snapshot'] = {
+                      'status': snap.get('status'),
+                      'updatedAt': snap.get('updatedAt'),
+                      'source': snap.get('source'),
+                      'match': snap.get('match'),
+                      'blue': {k:(snap.get('blue') or {}).get(k) for k in ['id','name','code','kills','gold','towers','inhibitors','winner']},
+                      'red': {k:(snap.get('red') or {}).get(k) for k in ['id','name','code','kills','gold','towers','inhibitors','winner']},
+                      'winner': snap.get('winner'),
+                      'series': snap.get('series'),
+                  }
+              except Exception as exc:
+                  game['snapshotError'] = str(exc)
+              try:
+                  future = '2099-01-01T00:00:00Z'
+                  window = get(f'{base}/api/window?gameId={game_id}&startingTime={future}&_={int(time.time())}')
+                  frames = window.get('frames') or ((window.get('window') or {}).get('frames')) or ((window.get('data') or {}).get('frames')) or []
+                  frame = frames[-1] if frames else window.get('frame')
+                  if frame:
+                      blue = frame.get('blueTeam') or {}
+                      red = frame.get('redTeam') or {}
+                      game['lastFrame'] = {
+                          'timestamp': frame.get('rfc460Timestamp') or frame.get('timestamp'),
+                          'gameState': frame.get('gameState') or ((frame.get('gameMetadata') or {}).get('gameState')),
+                          'winner': frame.get('winner') or frame.get('winningTeam') or ((frame.get('gameMetadata') or {}).get('winner')),
+                          'blue': {k:blue.get(k) for k in ['totalKills','kills','totalGold','gold','towers','inhibitors','winner']},
+                          'red': {k:red.get(k) for k in ['totalKills','kills','totalGold','gold','towers','inhibitors','winner']},
+                      }
+                  game['frameCount'] = len(frames)
+              except Exception as exc:
+                  game['windowError'] = str(exc)
+              output['games'].append(game)
+
+          try:
+              odds = get(f'{base}/api/odds/bridge/latest?_={int(time.time())}')
+              output['odds'] = {
+                  'status': odds.get('status'),
+                  'ageSeconds': odds.get('ageSeconds'),
+                  'stale': odds.get('stale'),
+                  'matches': [{
+                      'providerMatchId': m.get('providerMatchId'),
+                      'teams': m.get('teams'),
+                      'updatedAt': m.get('updatedAt'),
+                      'live': m.get('live'),
+                      'providerStatus': m.get('providerStatus'),
+                  } for m in (odds.get('matches') or [])]
+              }
+          except Exception as exc:
+              output['oddsError'] = str(exc)
+
+          Path('diagnostics/kc-g2-retained-frames.json').write_text(json.dumps(output, indent=2))
+          PY
+      - name: Commit diagnostic
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add diagnostics/kc-g2-retained-frames.json
+          git commit -m 'Record KC G2 retained frames [skip ci]' || exit 0
+          git push
