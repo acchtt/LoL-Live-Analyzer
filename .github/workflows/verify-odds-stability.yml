@@ -1,0 +1,84 @@
+name: Verify odds stability
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/verify-odds-stability.yml
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Wait for Worker v2.3 and sample odds endpoint
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json, time, urllib.request, urllib.error
+          from pathlib import Path
+
+          base = 'https://lol-live-analyzer-api.acchtt.workers.dev'
+
+          def get(path):
+              request = urllib.request.Request(base + path, headers={'User-Agent': 'odds-stability-check/1.0'})
+              try:
+                  with urllib.request.urlopen(request, timeout=20) as response:
+                      return response.status, json.loads(response.read().decode())
+              except urllib.error.HTTPError as error:
+                  try:
+                      body = json.loads(error.read().decode())
+                  except Exception:
+                      body = {'error': str(error)}
+                  return error.code, body
+              except Exception as error:
+                  return None, {'error': str(error)}
+
+          health_status = None
+          health = {}
+          for _ in range(30):
+              health_status, health = get('/health?_=' + str(time.time_ns()))
+              bridge = health.get('bookmakerBridge') or {}
+              if str(health.get('version')) == '2.3' and bridge.get('durable') is True:
+                  break
+              time.sleep(4)
+
+          samples = []
+          for _ in range(10):
+              status, payload = get('/api/odds/bridge/latest?_=' + str(time.time_ns()))
+              samples.append({
+                  'httpStatus': status,
+                  'status': payload.get('status'),
+                  'ageSeconds': payload.get('ageSeconds'),
+                  'stale': payload.get('stale'),
+                  'matchCount': len(payload.get('matches') or ([] if payload.get('match') is None else [payload.get('match')])),
+                  'error': payload.get('error')
+              })
+              time.sleep(2)
+
+          report = {
+              'healthHttpStatus': health_status,
+              'workerVersion': health.get('version'),
+              'bridgeConfigured': (health.get('bookmakerBridge') or {}).get('configured'),
+              'storage': (health.get('bookmakerBridge') or {}).get('storage'),
+              'durable': (health.get('bookmakerBridge') or {}).get('durable'),
+              'samples': samples
+          }
+          Path('diagnostics').mkdir(exist_ok=True)
+          Path('diagnostics/odds-stability-check.json').write_text(json.dumps(report, indent=2) + '\n')
+          PY
+
+      - name: Commit diagnostic report
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add diagnostics/odds-stability-check.json
+          git commit -m "Record odds stability verification [skip ci]"
+          git push
