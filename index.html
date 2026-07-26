@@ -3,20 +3,30 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="Live and recent League of Legends esports statistics with a ChatGPT-readable JSON feed.">
-  <title>LoL Live Analyzer</title>
+  <meta name="description" content="RiftPulse combines live League of Legends esports telemetry, series context, and private odds data in one analysis dashboard.">
+  <meta name="theme-color" content="#228BFF">
+  <meta property="og:title" content="RiftPulse · Live Esports Intelligence">
+  <meta property="og:description" content="Live stats, odds, and match intelligence in one compact dashboard.">
+  <meta property="og:type" content="website">
+  <title>RiftPulse · Live Esports Intelligence</title>
+  <link rel="icon" href="assets/riftpulse-mark.svg" type="image/svg+xml">
+  <link rel="manifest" href="site.webmanifest">
   <link rel="preconnect" href="https://lol-live-analyzer-api.acchtt.workers.dev" crossorigin>
   <link rel="preconnect" href="https://lol.fandom.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="assets/styles.css?v=20260726-32">
   <link rel="stylesheet" href="assets/live-player-ui.css?v=20260726-32">
   <link rel="stylesheet" href="assets/bookmaker-odds-ui.css?v=20260727-2">
   <link rel="stylesheet" href="assets/compact-stats-board.css?v=20260727-2">
+  <link rel="stylesheet" href="assets/riftpulse-brand.css?v=20260727-1">
 </head>
 <body>
   <header class="topbar">
-    <div>
-      <p class="eyebrow">Riot LoL Esports live feed</p>
-      <h1>LoL Live Analyzer</h1>
+    <div class="brand-lockup">
+      <img class="brand-logo" src="assets/riftpulse-logo.svg" alt="RiftPulse">
+      <span class="brand-mode">LIVE ANALYZER</span>
+      <h1 class="sr-only">RiftPulse Live Esports Analyzer</h1>
     </div>
     <div class="status-wrap">
       <span id="connectionDot" class="dot"></span>
@@ -28,7 +38,7 @@
     <aside class="panel schedule-panel">
       <div class="panel-heading">
         <div>
-          <p class="eyebrow">Matches</p>
+          <p class="eyebrow">Live esports</p>
           <h2>Matches</h2>
         </div>
         <button id="refreshSchedule" class="ghost-button" type="button">Refresh</button>
@@ -51,7 +61,7 @@
       <div class="panel-heading">
         <div>
           <p class="eyebrow">Machine-readable</p>
-          <h2>ChatGPT feed</h2>
+          <h2>ChatGPT Feed</h2>
         </div>
         <button id="copyJsonUrl" class="ghost-button" type="button" disabled>Copy URL</button>
       </div>
@@ -65,7 +75,9 @@
   </main>
 
   <footer>
-    Unofficial community project. Riot Games does not endorse or sponsor this site.
+    <img class="footer-pulse" src="assets/riftpulse-mark.svg" alt="">
+    <span class="footer-essence">Real-time <strong>clarity</strong>. Data-driven <strong>edge</strong>. Built for every play, every pick, every <em>win</em>.</span>
+    <span class="footer-disclaimer">Unofficial community project. Riot Games does not endorse or sponsor this site.</span>
   </footer>
 
   <script src="assets/app.js?v=20260726-32" defer></script>
