@@ -1,0 +1,61 @@
+name: Check bookmaker bridge once
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/check-bookmaker-bridge-once.yml
+
+permissions:
+  contents: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Fetch bridge latest snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p diagnostics
+          base="https://lol-live-analyzer-api.acchtt.workers.dev"
+          sleep 5
+          curl -sS "$base/api/odds/bridge/latest?t=$(date +%s)" -o /tmp/latest.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          data=json.load(open('/tmp/latest.json'))
+          matches=data.get('matches') or []
+          if data.get('match'):
+              matches=[data['match']]
+          summary={
+              'status': data.get('status'),
+              'provider': data.get('provider'),
+              'ageSeconds': data.get('ageSeconds'),
+              'stale': data.get('stale'),
+              'matchCount': len(matches),
+              'matches': [
+                  {
+                      'providerMatchId': m.get('providerMatchId'),
+                      'league': m.get('league'),
+                      'home': (m.get('teams') or {}).get('home',{}).get('name'),
+                      'away': (m.get('teams') or {}).get('away',{}).get('name'),
+                      'marketCount': len(m.get('markets') or [])
+                  }
+                  for m in matches[:10]
+              ],
+              'message': data.get('message'),
+              'error': data.get('error')
+          }
+          Path('diagnostics/bookmaker-bridge-latest.json').write_text(json.dumps(summary,indent=2)+'\n')
+          PY
+      - name: Commit bridge diagnostic
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add diagnostics/bookmaker-bridge-latest.json
+          git commit -m "Record bookmaker bridge snapshot [skip ci]" || exit 0
+          git push
