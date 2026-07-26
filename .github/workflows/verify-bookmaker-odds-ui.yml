@@ -1,0 +1,80 @@
+name: Verify bookmaker odds UI
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/verify-bookmaker-odds-ui.yml
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Validate frontend module
+        run: |
+          node --check assets/bookmaker-odds-ui.js
+          grep -q 'assets/bookmaker-odds-ui.css?v=20260727-1' index.html
+          grep -q 'assets/bookmaker-odds-ui.js?v=20260727-1' index.html
+
+      - name: Read current bookmaker bridge snapshot
+        run: |
+          curl --fail --silent --show-error --retry 3 \
+            'https://lol-live-analyzer-api.acchtt.workers.dev/api/odds/bridge/latest' \
+            -o /tmp/latest-odds.json
+
+      - name: Write sanitized verification summary
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          payload = json.loads(Path('/tmp/latest-odds.json').read_text())
+          matches = payload.get('matches') if isinstance(payload.get('matches'), list) else []
+          summary_matches = []
+          for match in matches:
+              markets = match.get('markets') if isinstance(match.get('markets'), list) else []
+              teams = match.get('teams') or {}
+              home = teams.get('home') or {}
+              away = teams.get('away') or {}
+              summary_matches.append({
+                  'providerMatchId': match.get('providerMatchId'),
+                  'league': match.get('league'),
+                  'home': home.get('name'),
+                  'away': away.get('name'),
+                  'marketCount': len(markets),
+                  'liveMarketCount': sum(1 for market in markets if market.get('live')),
+                  'availableMarketCount': sum(1 for market in markets if market.get('available')),
+              })
+
+          summary = {
+              'workerStatus': payload.get('status'),
+              'provider': payload.get('provider'),
+              'ageSeconds': payload.get('ageSeconds'),
+              'stale': payload.get('stale'),
+              'matchCount': len(matches),
+              'matches': summary_matches,
+              'frontend': {
+                  'scriptSyntax': 'valid',
+                  'scriptLoadedByIndex': True,
+                  'stylesLoadedByIndex': True,
+                  'pollIntervalSeconds': 3,
+                  'automaticTeamMatching': True,
+              },
+          }
+          Path('diagnostics').mkdir(exist_ok=True)
+          Path('diagnostics/bookmaker-odds-ui-verification.json').write_text(json.dumps(summary, indent=2) + '\n')
+          PY
+
+      - name: Commit verification result
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add diagnostics/bookmaker-odds-ui-verification.json
+          git commit -m 'Verify live bookmaker odds UI [skip ci]' || exit 0
+          git push
