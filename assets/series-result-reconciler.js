@@ -129,7 +129,8 @@
     inFlight = true;
     try {
       const resolution = await api(`/api/resolve-game?matchId=${encodeURIComponent(state.selectedEventId)}`);
-      const event = resolution?.event || selectedScheduleEvent();
+      const scheduleEvent = selectedScheduleEvent();
+      const event = resolution?.event || scheduleEvent;
       const games = Array.isArray(resolution?.games)
         ? resolution.games
         : (Array.isArray(event?.match?.games) ? event.match.games : []);
@@ -166,6 +167,7 @@
         wins: Math.max(num(team.result?.gameWins), derivedWins.get(String(team.id)) || 0)
       }));
       applyScore(event, scoreTeams);
+      if (scheduleEvent && scheduleEvent !== event) applyScore(scheduleEvent, scoreTeams);
 
       const bestOf = num(event.match.strategy?.count) || games.length || 1;
       const targetWins = Math.floor(bestOf / 2) + 1;
@@ -174,6 +176,7 @@
 
       if (seriesFinished) {
         event.state = 'completed';
+        if (scheduleEvent) scheduleEvent.state = 'completed';
         state.liveMatchIds.delete(String(state.selectedEventId));
         state.selectedMatchState = 'completed';
         clearMatchTimers();
@@ -182,7 +185,10 @@
         return;
       }
 
-      if (!isLive) state.liveMatchIds.delete(String(state.selectedEventId));
+      if (!isLive) {
+        state.liveMatchIds.delete(String(state.selectedEventId));
+        if (scheduleEvent?.state === 'inProgress') scheduleEvent.state = 'unstarted';
+      }
       renderSchedule();
     } catch (error) {
       console.warn('Series result reconciliation failed:', error);
