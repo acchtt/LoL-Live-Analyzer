@@ -13,6 +13,7 @@ on:
       - worker-v1.8.js
       - worker-v1.9.js
       - worker-v2.0.js
+      - worker-v2.1.js
       - wrangler.toml
       - .github/workflows/deploy-worker.yml
 
@@ -27,6 +28,10 @@ jobs:
   deploy:
     name: Deploy Worker
     runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      VSGG_API_TOKEN: ${{ secrets.VSGG_API_TOKEN }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v6
@@ -38,3 +43,8 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           wranglerVersion: "4"
           command: deploy
+
+      - name: Sync VSGG token to Worker secret
+        if: ${{ env.VSGG_API_TOKEN != '' }}
+        shell: bash
+        run: printf '%s' "$VSGG_API_TOKEN" | npx wrangler secret put VSGG_API_TOKEN
