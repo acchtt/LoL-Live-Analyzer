@@ -1,0 +1,123 @@
+.bookmaker-odds {
+  margin: 4px 20px 20px;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: linear-gradient(180deg, #101f2bee, #0a141dee);
+}
+.bookmaker-odds-header,
+.bookmaker-market-header,
+.bookmaker-match-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+.bookmaker-odds-header { margin-bottom: 14px; }
+.bookmaker-odds-header h3,
+.bookmaker-market h4 { margin: 0; }
+.bookmaker-odds-header h3 { font-size: 19px; }
+.bookmaker-odds-status {
+  flex: 0 0 auto;
+  padding: 5px 8px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--muted);
+  background: #ffffff08;
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: .05em;
+}
+.bookmaker-odds-status.live {
+  color: var(--accent-2);
+  border-color: #7cf7c744;
+  background: #7cf7c70d;
+}
+.bookmaker-odds-status.stale {
+  color: #ffd28a;
+  border-color: #ffd28a44;
+  background: #ffd28a0d;
+}
+.bookmaker-match-meta {
+  margin-bottom: 14px;
+  padding: 11px 12px;
+  border-radius: 11px;
+  border: 1px solid var(--border);
+  background: #ffffff05;
+}
+.bookmaker-match-meta span {
+  color: var(--muted);
+  font-size: 12px;
+  text-align: right;
+}
+.bookmaker-market-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.bookmaker-market {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--panel-2);
+}
+.bookmaker-market.suspended { opacity: .62; }
+.bookmaker-market h4 {
+  overflow: hidden;
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bookmaker-market-lines { display: grid; gap: 7px; margin-top: 10px; }
+.bookmaker-line {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+}
+.bookmaker-selection {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 9px;
+  border-radius: 9px;
+  background: #071018aa;
+  border: 1px solid #ffffff0a;
+}
+.bookmaker-selection.locked { opacity: .48; }
+.bookmaker-selection-name {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bookmaker-selection-price {
+  flex: 0 0 auto;
+  color: var(--accent);
+  font-size: 14px;
+}
+.bookmaker-show-all { display: block; margin: 14px auto 0; }
+.bookmaker-odds-message {
+  padding: 18px;
+  border: 1px dashed var(--border);
+  border-radius: 11px;
+  color: var(--muted);
+  text-align: center;
+}
+.bookmaker-odds-note {
+  margin: 13px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.45;
+}
+@media (max-width: 760px) {
+  .bookmaker-odds { margin: 4px 12px 14px; padding: 14px; }
+  .bookmaker-market-grid { grid-template-columns: 1fr; }
+  .bookmaker-match-meta { align-items: flex-start; flex-direction: column; }
+  .bookmaker-match-meta span { text-align: left; }
+}
