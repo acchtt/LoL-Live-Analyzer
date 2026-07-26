@@ -21,6 +21,14 @@
   gap: 12px;
 }
 
+.game-title.clock-moved {
+  justify-content: flex-start;
+}
+
+.game-title.clock-moved > div {
+  width: 100%;
+}
+
 .game-title h2 {
   font-size: 18px;
 }
@@ -31,12 +39,36 @@
 }
 
 .score-grid {
+  grid-template-columns: minmax(0, 1fr) 82px minmax(0, 1fr);
+  align-items: stretch;
   gap: 12px;
   padding: 16px;
 }
 
 .team-summary {
+  grid-template-rows: 38px 24px 40px 18px;
+  align-items: center;
   gap: 5px;
+}
+
+.team-summary > img {
+  grid-row: 1;
+}
+
+.team-summary > h3 {
+  grid-row: 2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.team-summary > .big-score {
+  grid-row: 3;
+  align-self: center;
+}
+
+.team-summary > span {
+  grid-row: 4;
 }
 
 .team-summary h3 {
@@ -50,11 +82,39 @@
 
 .big-score {
   font-size: 28px;
+  line-height: 40px;
 }
 
-.vs {
-  padding-top: 36px;
-  font-size: 12px;
+.vs,
+.score-center {
+  padding-top: 0;
+}
+
+.score-center {
+  display: grid;
+  grid-template-rows: 38px 24px 40px 18px;
+  align-items: center;
+  justify-items: center;
+  min-width: 82px;
+}
+
+.score-center .clock {
+  grid-row: 1 / span 2;
+  align-self: center;
+  min-width: 0;
+  text-align: center;
+  font-size: 23px;
+  line-height: 1;
+}
+
+.score-center .kills-label {
+  grid-row: 3;
+  align-self: center;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: .12em;
+  line-height: 40px;
 }
 
 .metrics {
@@ -93,54 +153,34 @@
   font-size: 12px;
 }
 
-.player-identity {
-  gap: 8px;
-}
-
-.champion-portrait {
-  width: 31px;
-  height: 31px;
-  flex-basis: 31px;
-  border-radius: 8px;
-  font-size: 11px;
-}
-
-.player-copy small {
-  font-size: 10px;
-}
-
-.authority-message {
-  padding: 20px !important;
-}
-
-.authority-lineups {
-  gap: 10px !important;
-  margin-top: 15px !important;
-}
-
-.authority-lineup {
-  padding: 9px !important;
-}
-
 @media (max-width: 760px) {
-  .game-content,
-  .hero-empty {
-    min-height: 410px;
-  }
-
-  .game-header {
-    padding: 13px 14px;
-  }
-
   .score-grid {
-    padding: 14px;
+    grid-template-columns: 1fr;
   }
 
-  .metrics {
-    padding: 0 14px 14px;
+  .team-summary {
+    grid-template-rows: auto;
   }
 
-  .players {
-    padding: 0 14px 14px;
+  .team-summary > img,
+  .team-summary > h3,
+  .team-summary > .big-score,
+  .team-summary > span {
+    grid-row: auto;
+  }
+
+  .score-center {
+    grid-template-rows: auto auto;
+    gap: 5px;
+    padding: 4px 0;
+  }
+
+  .score-center .clock {
+    grid-row: 1;
+  }
+
+  .score-center .kills-label {
+    grid-row: 2;
+    line-height: 1.2;
   }
 }
