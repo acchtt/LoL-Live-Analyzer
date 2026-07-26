@@ -1,7 +1,7 @@
 HTTP/2 200 
-date: Sun, 26 Jul 2026 16:40:41 GMT
+date: Sun, 26 Jul 2026 16:42:02 GMT
 content-type: application/json; charset=utf-8
-content-length: 5138
+content-length: 5144
 access-control-allow-origin: *
 cache-control: public, max-age=5
 access-control-allow-headers: Content-Type, Accept
@@ -15,9 +15,9 @@ x-series-source: confirmed game results
 x-telemetry-state: advancing
 x-timer-version: 1.5
 x-worker-version: 1.7
-report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=IMoJc9HqzUZngAULkQRtK6PjkE%2FzsHCwdrUKUL4nuSNguAyQd9WIcrOdHkkRrAtKtaFvjWcETPjhcA40u6R9sRFizU1e09YhgBQ26l6%2FhlymnzImvaAncqZfUK7P%2FEkfZynpNFPz4Jp%2BE4mnpU7d7mE5uY0HWctKSeon"}]}
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=ZMmqP%2BzrkmkgpBVCyeYSfPn7T3%2BKF7CyNhf54NeR0TPaLRCYi8CFxryRHGxeBveoaFFVxQyxpqAlbaSxV9F0pGVOMrPEG0pvIrfM84BGjJWWMNXzS0YERTVmKk1JsSrbiyqFO1Ia22ZIf0dCoy7kwovGXPysYJT3QQic"}]}
 nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
 server: cloudflare
-cf-ray: a214d8f7faa54973-SJC
+cf-ray: a214daf089c5f606-ORD
 alt-svc: h3=":443"; ma=86400
 
