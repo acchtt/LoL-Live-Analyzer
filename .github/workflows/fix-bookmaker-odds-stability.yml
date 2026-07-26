@@ -1,0 +1,65 @@
+name: Fix bookmaker odds panel stability
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/fix-bookmaker-odds-stability.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Move odds panel outside replaceable game content
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          path = Path('assets/bookmaker-odds-ui.js')
+          source = path.read_text()
+          pattern = re.compile(r"  function ensurePanel\(\) \{.*?\n  \}\n\n  function renderPanel\(\) \{", re.S)
+          replacement = '''  function ensurePanel() {
+            const host = gameContent?.parentElement || gameContent;
+            if (!host) return null;
+
+            let panel = document.querySelector(`#${PANEL_ID}`);
+            if (!panel) {
+              panel = createElement('section', 'bookmaker-odds');
+              panel.id = PANEL_ID;
+            }
+            if (panel.parentNode !== host) host.append(panel);
+            return panel;
+          }
+
+          function renderPanel() {'''
+          updated, count = pattern.subn(replacement, source, count=1)
+          if count != 1:
+            raise SystemExit(f'Expected one ensurePanel block, replaced {count}')
+          path.write_text(updated)
+
+          index = Path('index.html')
+          html = index.read_text()
+          html = html.replace('assets/bookmaker-odds-ui.css?v=20260727-1', 'assets/bookmaker-odds-ui.css?v=20260727-2')
+          html = html.replace('assets/bookmaker-odds-ui.js?v=20260727-1', 'assets/bookmaker-odds-ui.js?v=20260727-2')
+          index.write_text(html)
+          PY
+
+          node --check assets/bookmaker-odds-ui.js
+
+      - name: Commit stability fix
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/bookmaker-odds-ui.js index.html
+          git commit -m "Keep live odds visible during telemetry refresh [skip ci]"
+          git push
