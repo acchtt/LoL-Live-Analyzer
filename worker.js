@@ -32,14 +32,19 @@ function required(value, name) {
 
 async function riotPersisted(path, params, env) {
   const key = env.LOL_ESPORTS_API_KEY;
-  if (!key) {
-    throw new Error('LOL_ESPORTS_API_KEY is not configured in the Worker.');
-  }
+  if (!key) throw new Error('LOL_ESPORTS_API_KEY is not configured in the Worker.');
 
   const url = new URL(`${PERSISTED_BASE}/${path}`);
   url.searchParams.set('hl', DEFAULT_LOCALE);
+
   for (const [name, value] of Object.entries(params || {})) {
-    if (value !== undefined && value !== null && value !== '') url.searchParams.set(name, value);
+    if (Array.isArray(value)) {
+      value
+        .filter(item => item !== undefined && item !== null && item !== '')
+        .forEach(item => url.searchParams.append(name, String(item)));
+    } else if (value !== undefined && value !== null && value !== '') {
+      url.searchParams.set(name, String(value));
+    }
   }
 
   const response = await fetch(url, {
@@ -63,6 +68,12 @@ async function riotLive(path) {
 function latestFrame(payload) {
   const frames = payload?.frames || payload?.window?.frames || payload?.data?.frames || [];
   return Array.isArray(frames) && frames.length ? frames[frames.length - 1] : payload?.frame || payload;
+}
+
+function hasLiveFrame(payload) {
+  const frames = payload?.frames || payload?.window?.frames || payload?.data?.frames;
+  if (Array.isArray(frames)) return frames.length > 0;
+  return Boolean(payload?.gameMetadata || payload?.esportsGameId || payload?.frame);
 }
 
 function number(value) {
@@ -199,6 +210,54 @@ async function buildChatGptSnapshot(gameId) {
   };
 }
 
+async function resolveActiveGame(matchId, env) {
+  const detailsPayload = await riotPersisted('getEventDetails', { id: matchId }, env);
+  const event = detailsPayload?.data?.event || detailsPayload?.event || detailsPayload?.data || detailsPayload;
+  const eventGames = Array.isArray(event?.match?.games) ? event.match.games : [];
+  let games = eventGames.map(game => ({ ...game }));
+  let selectedGame = games.find(game => game.state === 'inProgress') || null;
+  let resolutionSource = selectedGame ? 'eventDetails' : null;
+  const diagnostics = {};
+
+  if (!selectedGame && games.length) {
+    try {
+      const ids = games.map(game => game.id).filter(Boolean);
+      const gamePayload = await riotPersisted('getGames', { id: ids }, env);
+      const refreshedGames = Array.isArray(gamePayload?.data?.games) ? gamePayload.data.games : [];
+      const byId = new Map(refreshedGames.map(game => [String(game.id), game]));
+      games = games.map(game => ({ ...game, ...(byId.get(String(game.id)) || {}) }));
+      selectedGame = games.find(game => game.state === 'inProgress') || null;
+      if (selectedGame) resolutionSource = 'getGames';
+    } catch (error) {
+      diagnostics.getGames = error instanceof Error ? error.message : 'Unknown getGames error';
+    }
+  }
+
+  if (!selectedGame && games.length) {
+    const probeCandidate = games.find(game => game.state !== 'completed') || games[games.length - 1];
+    if (probeCandidate?.id) {
+      try {
+        const probe = await riotLive(`window/${encodeURIComponent(probeCandidate.id)}`);
+        if (hasLiveFrame(probe)) {
+          selectedGame = { ...probeCandidate, state: 'inProgress' };
+          resolutionSource = 'liveWindowProbe';
+        }
+      } catch (error) {
+        diagnostics.liveWindowProbe = error instanceof Error ? error.message : 'Unknown live-window error';
+      }
+    }
+  }
+
+  return {
+    event,
+    games,
+    selectedGame,
+    resolutionSource,
+    checkedAt: new Date().toISOString(),
+    diagnostics
+  };
+}
+
 export default {
   async fetch(request, env) {
     if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors() });
@@ -218,7 +277,12 @@ export default {
       if (url.pathname === '/api/event' || url.pathname === '/api/match-details') {
         const id = required(url.searchParams.get('matchId') || url.searchParams.get('id'), 'match id');
         const data = await riotPersisted('getEventDetails', { id }, env);
-        return json(data, 200, { 'Cache-Control': 'no-store' });
+        return json(data);
+      }
+
+      if (url.pathname === '/api/resolve-game') {
+        const matchId = required(url.searchParams.get('matchId'), 'match id');
+        return json(await resolveActiveGame(matchId, env));
       }
 
       if (url.pathname === '/api/window') {
