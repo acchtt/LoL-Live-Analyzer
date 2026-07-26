@@ -1,0 +1,3993 @@
+{
+  "capturedAt": "2026-07-26T19:34:32Z",
+  "active": [
+    {
+      "eventId": "116566854547835316",
+      "state": "unstarted",
+      "startTime": "2026-07-26T07:00:00Z",
+      "league": "LPL",
+      "strategy": {
+        "type": "bestOf",
+        "count": 3
+      },
+      "scheduleTeams": [
+        {
+          "id": null,
+          "name": "Suzhou LNG Esports",
+          "code": "LNG",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        },
+        {
+          "id": null,
+          "name": "Shenzhen NINJAS IN PYJAMAS",
+          "code": "NIP",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        }
+      ],
+      "resolutionTeams": [
+        {
+          "id": "99566404850008779",
+          "name": "Suzhou LNG Esports",
+          "code": "LNG",
+          "image": "http://static.lolesports.com/teams/1717487697003_LNGlogo.png",
+          "result": {
+            "gameWins": 0
+          }
+        },
+        {
+          "id": "101388912914513220",
+          "name": "Shenzhen NINJAS IN PYJAMAS",
+          "code": "NIP",
+          "image": "http://static.lolesports.com/teams/1673425724696_NIP-Symbol-RGB-NeonYellow1.png",
+          "result": {
+            "gameWins": 0
+          }
+        }
+      ],
+      "selectedGame": null,
+      "broadcastLive": false,
+      "games": [
+        {
+          "id": "116566854547835317",
+          "number": 1,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "99566404850008779",
+              "side": "blue"
+            },
+            {
+              "id": "101388912914513220",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "116566854547835318",
+          "number": 2,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "99566404850008779",
+              "side": "blue"
+            },
+            {
+              "id": "101388912914513220",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "116566854547835319",
+          "number": 3,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "101388912914513220",
+              "side": "blue"
+            },
+            {
+              "id": "99566404850008779",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        }
+      ]
+    },
+    {
+      "eventId": "116566854547769652",
+      "state": "unstarted",
+      "startTime": "2026-07-26T09:00:00Z",
+      "league": "LPL",
+      "strategy": {
+        "type": "bestOf",
+        "count": 3
+      },
+      "scheduleTeams": [
+        {
+          "id": null,
+          "name": "EDWARD GAMING",
+          "code": "EDG",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        },
+        {
+          "id": null,
+          "name": "THUNDER TALK GAMING",
+          "code": "TT",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        }
+      ],
+      "resolutionTeams": [
+        {
+          "id": "98767991882270868",
+          "name": "EDWARD GAMING",
+          "code": "EDG",
+          "image": "http://static.lolesports.com/teams/1631819297476_edg-2021-worlds.png",
+          "result": {
+            "gameWins": 0
+          }
+        },
+        {
+          "id": "101388912911039804",
+          "name": "THUNDER TALK GAMING",
+          "code": "TT",
+          "image": "http://static.lolesports.com/teams/TT-FullonDark.png",
+          "result": {
+            "gameWins": 0
+          }
+        }
+      ],
+      "selectedGame": null,
+      "broadcastLive": false,
+      "games": [
+        {
+          "id": "116566854547769653",
+          "number": 1,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "98767991882270868",
+              "side": "blue"
+            },
+            {
+              "id": "101388912911039804",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "116566854547769654",
+          "number": 2,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "98767991882270868",
+              "side": "blue"
+            },
+            {
+              "id": "101388912911039804",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "116566854547769655",
+          "number": 3,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "101388912911039804",
+              "side": "blue"
+            },
+            {
+              "id": "98767991882270868",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        }
+      ]
+    },
+    {
+      "eventId": "116566854547769552",
+      "state": "unstarted",
+      "startTime": "2026-07-26T11:00:00Z",
+      "league": "LPL",
+      "strategy": {
+        "type": "bestOf",
+        "count": 3
+      },
+      "scheduleTeams": [
+        {
+          "id": null,
+          "name": "BILIBILI GAMING",
+          "code": "BLG",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        },
+        {
+          "id": null,
+          "name": "Anyone's Legend",
+          "code": "AL",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        }
+      ],
+      "resolutionTeams": [
+        {
+          "id": "99566404853854212",
+          "name": "BILIBILI GAMING",
+          "code": "BLG",
+          "image": "http://static.lolesports.com/teams/1682322954525_Bilibili_Gaming_logo_20211.png",
+          "result": {
+            "gameWins": 0
+          }
+        },
+        {
+          "id": "99566404856367466",
+          "name": "Anyone's Legend",
+          "code": "AL",
+          "image": "http://static.lolesports.com/teams/1641199582689_.png",
+          "result": {
+            "gameWins": 0
+          }
+        }
+      ],
+      "selectedGame": null,
+      "broadcastLive": false,
+      "games": [
+        {
+          "id": "116566854547769553",
+          "number": 1,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "99566404853854212",
+              "side": "blue"
+            },
+            {
+              "id": "99566404856367466",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "116566854547769554",
+          "number": 2,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "99566404853854212",
+              "side": "blue"
+            },
+            {
+              "id": "99566404856367466",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "116566854547769555",
+          "number": 3,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "99566404856367466",
+              "side": "blue"
+            },
+            {
+              "id": "99566404853854212",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        }
+      ]
+    },
+    {
+      "eventId": "115548681803406287",
+      "state": "inProgress",
+      "startTime": "2026-07-26T17:30:00Z",
+      "league": "LEC",
+      "strategy": {
+        "count": 3
+      },
+      "scheduleTeams": [
+        {
+          "id": "111692118851466302",
+          "name": "Karmine Corp",
+          "code": "KC",
+          "result": {
+            "gameWins": 0
+          }
+        },
+        {
+          "id": "98767991926151025",
+          "name": "G2 Esports",
+          "code": "G2",
+          "result": {
+            "gameWins": 0
+          }
+        }
+      ],
+      "resolutionTeams": [
+        {
+          "id": "111692118851466302",
+          "name": "Karmine Corp",
+          "code": "KC",
+          "image": "http://static.lolesports.com/teams/1704714951336_KC.png",
+          "result": {
+            "gameWins": 0
+          }
+        },
+        {
+          "id": "98767991926151025",
+          "name": "G2 Esports",
+          "code": "G2",
+          "image": "http://static.lolesports.com/teams/G2-FullonDark.png",
+          "result": {
+            "gameWins": 0
+          }
+        }
+      ],
+      "selectedGame": null,
+      "broadcastLive": true,
+      "games": [
+        {
+          "id": "115548681803406288",
+          "number": 1,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "111692118851466302",
+              "side": "blue"
+            },
+            {
+              "id": "98767991926151025",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "115548681803406289",
+          "number": 2,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "98767991926151025",
+              "side": "blue"
+            },
+            {
+              "id": "111692118851466302",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "115548681803406290",
+          "number": 3,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "111692118851466302",
+              "side": "blue"
+            },
+            {
+              "id": "98767991926151025",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        }
+      ]
+    },
+    {
+      "eventId": "115565671526403053",
+      "state": "inProgress",
+      "startTime": "2026-07-26T19:00:00Z",
+      "league": "CBLOL",
+      "strategy": {
+        "count": 3
+      },
+      "scheduleTeams": [
+        {
+          "id": "99566408221961358",
+          "name": "RED Kalunga",
+          "code": "RED",
+          "result": {
+            "gameWins": 0
+          }
+        },
+        {
+          "id": "99566408219409348",
+          "name": "Vivo Keyd Stars",
+          "code": "VKS",
+          "result": {
+            "gameWins": 0
+          }
+        }
+      ],
+      "resolutionTeams": [
+        {
+          "id": "99566408221961358",
+          "name": "RED Kalunga",
+          "code": "RED",
+          "image": "http://static.lolesports.com/teams/1631820575924_red-2021-worlds.png",
+          "result": {
+            "gameWins": 0
+          }
+        },
+        {
+          "id": "99566408219409348",
+          "name": "Vivo Keyd Stars",
+          "code": "VKS",
+          "image": "http://static.lolesports.com/teams/1670542079678_vks.png",
+          "result": {
+            "gameWins": 0
+          }
+        }
+      ],
+      "selectedGame": {
+        "number": 2,
+        "id": "115565671526403055",
+        "state": "inProgress",
+        "teams": [
+          {
+            "id": "99566408221961358",
+            "side": "blue"
+          },
+          {
+            "id": "99566408219409348",
+            "side": "red"
+          }
+        ],
+        "vods": []
+      },
+      "broadcastLive": true,
+      "games": [
+        {
+          "id": "115565671526403054",
+          "number": 1,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "99566408221961358",
+              "side": "blue"
+            },
+            {
+              "id": "99566408219409348",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "115565671526403055",
+          "number": 2,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "99566408221961358",
+              "side": "blue"
+            },
+            {
+              "id": "99566408219409348",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "115565671526403056",
+          "number": 3,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "99566408219409348",
+              "side": "blue"
+            },
+            {
+              "id": "99566408221961358",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        }
+      ]
+    },
+    {
+      "eventId": "115564797163886759",
+      "state": "unstarted",
+      "startTime": "2026-07-26T20:00:00Z",
+      "league": "LCS",
+      "strategy": {
+        "type": "bestOf",
+        "count": 3
+      },
+      "scheduleTeams": [
+        {
+          "id": null,
+          "name": "Cloud9 Kia",
+          "code": "C9",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        },
+        {
+          "id": null,
+          "name": "Team Liquid Alienware",
+          "code": "TLAW",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        }
+      ],
+      "resolutionTeams": [
+        {
+          "id": "98767991877340524",
+          "name": "Cloud9 Kia",
+          "code": "C9",
+          "image": "http://static.lolesports.com/teams/1736924120254_C9Kia_IconBlue_Transparent_2000x2000.png",
+          "result": {
+            "gameWins": 0
+          }
+        },
+        {
+          "id": "98926509885559666",
+          "name": "Team Liquid Alienware",
+          "code": "TLAW",
+          "image": "http://static.lolesports.com/teams/1769357207762_TLAlienware_Minimal_Bug-White.png",
+          "result": {
+            "gameWins": 0
+          }
+        }
+      ],
+      "selectedGame": null,
+      "broadcastLive": false,
+      "games": [
+        {
+          "id": "115564797163886760",
+          "number": 1,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "98767991877340524",
+              "side": "blue"
+            },
+            {
+              "id": "98926509885559666",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "115564797163886761",
+          "number": 2,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "98926509885559666",
+              "side": "blue"
+            },
+            {
+              "id": "98767991877340524",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "115564797163886762",
+          "number": 3,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "98767991877340524",
+              "side": "blue"
+            },
+            {
+              "id": "98926509885559666",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        }
+      ]
+    },
+    {
+      "eventId": "115564797163952327",
+      "state": "unstarted",
+      "startTime": "2026-07-26T23:00:00Z",
+      "league": "LCS",
+      "strategy": {
+        "type": "bestOf",
+        "count": 3
+      },
+      "scheduleTeams": [
+        {
+          "id": null,
+          "name": "Disguised",
+          "code": "DSG",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        },
+        {
+          "id": null,
+          "name": "Shopify Rebellion",
+          "code": "SR",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        }
+      ],
+      "resolutionTeams": [
+        {
+          "id": "110428362822825796",
+          "name": "Disguised",
+          "code": "DSG",
+          "image": "http://static.lolesports.com/teams/1731496922454_Disguised-Wordmark-Yellow-Main.png",
+          "result": {
+            "gameWins": 0
+          }
+        },
+        {
+          "id": "111504538396430510",
+          "name": "Shopify Rebellion",
+          "code": "SR",
+          "image": "http://static.lolesports.com/teams/1701424227458_Teams204_Shopify_1632869404072.png",
+          "result": {
+            "gameWins": 0
+          }
+        }
+      ],
+      "selectedGame": null,
+      "broadcastLive": false,
+      "games": [
+        {
+          "id": "115564797164214472",
+          "number": 1,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "110428362822825796",
+              "side": "blue"
+            },
+            {
+              "id": "111504538396430510",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "115564797164280009",
+          "number": 2,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "111504538396430510",
+              "side": "blue"
+            },
+            {
+              "id": "110428362822825796",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "115564797164280010",
+          "number": 3,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "110428362822825796",
+              "side": "blue"
+            },
+            {
+              "id": "111504538396430510",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        }
+      ]
+    },
+    {
+      "eventId": "116929405111089363",
+      "state": "unstarted",
+      "startTime": "2026-07-27T06:00:00Z",
+      "league": "KeSPA Cup",
+      "strategy": {
+        "type": "bestOf",
+        "count": 1
+      },
+      "scheduleTeams": [
+        {
+          "id": null,
+          "name": "BNK FEARX",
+          "code": "BFX",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        },
+        {
+          "id": null,
+          "name": "Gen.G Esports",
+          "code": "GEN",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        }
+      ],
+      "resolutionTeams": [
+        {
+          "id": "100725845022060229",
+          "name": "BNK FEARX",
+          "code": "BFX",
+          "image": "http://static.lolesports.com/teams/1734691810721_BFXfullcolorfordarkbg.png",
+          "result": {
+            "gameWins": 0
+          }
+        },
+        {
+          "id": "100205573495116443",
+          "name": "Gen.G Esports",
+          "code": "GEN",
+          "image": "http://static.lolesports.com/teams/1773829250929_GENGLOGO_GOLD.png",
+          "result": {
+            "gameWins": 0
+          }
+        }
+      ],
+      "selectedGame": null,
+      "broadcastLive": false,
+      "games": [
+        {
+          "id": "116929405111089364",
+          "number": 1,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "100725845022060229",
+              "side": "blue"
+            },
+            {
+              "id": "100205573495116443",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        }
+      ]
+    },
+    {
+      "eventId": "116929405062330570",
+      "state": "unstarted",
+      "startTime": "2026-07-27T06:45:00Z",
+      "league": "KeSPA Cup",
+      "strategy": {
+        "type": "bestOf",
+        "count": 1
+      },
+      "scheduleTeams": [
+        {
+          "id": null,
+          "name": "Hanwha Life Esports",
+          "code": "HLE",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        },
+        {
+          "id": null,
+          "name": "Dplus KIA",
+          "code": "DK",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        }
+      ],
+      "resolutionTeams": [
+        {
+          "id": "100205573496804586",
+          "name": "Hanwha Life Esports",
+          "code": "HLE",
+          "image": "http://static.lolesports.com/teams/1631819564399_hle-2021-worlds.png",
+          "result": {
+            "gameWins": 0
+          }
+        },
+        {
+          "id": "100725845018863243",
+          "name": "Dplus KIA",
+          "code": "DK",
+          "image": "http://static.lolesports.com/teams/1673260049703_DPlusKIALOGO11.png",
+          "result": {
+            "gameWins": 0
+          }
+        }
+      ],
+      "selectedGame": null,
+      "broadcastLive": false,
+      "games": [
+        {
+          "id": "116929405062330571",
+          "number": 1,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "100205573496804586",
+              "side": "blue"
+            },
+            {
+              "id": "100725845018863243",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        }
+      ]
+    },
+    {
+      "eventId": "116929405173020892",
+      "state": "unstarted",
+      "startTime": "2026-07-27T07:30:00Z",
+      "league": "KeSPA Cup",
+      "strategy": {
+        "type": "bestOf",
+        "count": 1
+      },
+      "scheduleTeams": [
+        {
+          "id": null,
+          "name": "kt Rolster",
+          "code": "KT",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        },
+        {
+          "id": null,
+          "name": "Gen.G Esports",
+          "code": "GEN",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        }
+      ],
+      "resolutionTeams": [
+        {
+          "id": "99566404579461230",
+          "name": "kt Rolster",
+          "code": "KT",
+          "image": "http://static.lolesports.com/teams/kt_darkbackground.png",
+          "result": {
+            "gameWins": 0
+          }
+        },
+        {
+          "id": "100205573495116443",
+          "name": "Gen.G Esports",
+          "code": "GEN",
+          "image": "http://static.lolesports.com/teams/1773829250929_GENGLOGO_GOLD.png",
+          "result": {
+            "gameWins": 0
+          }
+        }
+      ],
+      "selectedGame": null,
+      "broadcastLive": false,
+      "games": [
+        {
+          "id": "116929405173020893",
+          "number": 1,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "99566404579461230",
+              "side": "blue"
+            },
+            {
+              "id": "100205573495116443",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        }
+      ]
+    },
+    {
+      "eventId": "116889604984157241",
+      "state": "unstarted",
+      "startTime": "2026-07-27T08:00:00Z",
+      "league": "LCK Challengers",
+      "strategy": {
+        "type": "bestOf",
+        "count": 3
+      },
+      "scheduleTeams": [
+        {
+          "id": null,
+          "name": "T1 Esports Academy",
+          "code": "T1A",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        },
+        {
+          "id": null,
+          "name": "NS Challengers",
+          "code": "NS",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        }
+      ],
+      "resolutionTeams": [
+        {
+          "id": "105550059790656435",
+          "name": "T1 Esports Academy",
+          "code": "T1A",
+          "image": "http://static.lolesports.com/teams/T1-FullonDark.png",
+          "result": {
+            "gameWins": 0
+          }
+        },
+        {
+          "id": "105550054006182911",
+          "name": "NS Challengers",
+          "code": "NS",
+          "image": "http://static.lolesports.com/teams/NSFullonDark.png",
+          "result": {
+            "gameWins": 0
+          }
+        }
+      ],
+      "selectedGame": null,
+      "broadcastLive": false,
+      "games": [
+        {
+          "id": "116889604984157242",
+          "number": 1,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "105550059790656435",
+              "side": "blue"
+            },
+            {
+              "id": "105550054006182911",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "116889604984157243",
+          "number": 2,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "105550059790656435",
+              "side": "blue"
+            },
+            {
+              "id": "105550054006182911",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "116889604984157244",
+          "number": 3,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "105550054006182911",
+              "side": "blue"
+            },
+            {
+              "id": "105550059790656435",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        }
+      ]
+    },
+    {
+      "eventId": "116929405094115536",
+      "state": "unstarted",
+      "startTime": "2026-07-27T08:15:00Z",
+      "league": "KeSPA Cup",
+      "strategy": {
+        "type": "bestOf",
+        "count": 1
+      },
+      "scheduleTeams": [
+        {
+          "id": null,
+          "name": "T1",
+          "code": "T1",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        },
+        {
+          "id": null,
+          "name": "Dplus KIA",
+          "code": "DK",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        }
+      ],
+      "resolutionTeams": [
+        {
+          "id": "98767991853197861",
+          "name": "T1",
+          "code": "T1",
+          "image": "http://static.lolesports.com/teams/1726801573959_539px-T1_2019_full_allmode.png",
+          "result": {
+            "gameWins": 0
+          }
+        },
+        {
+          "id": "100725845018863243",
+          "name": "Dplus KIA",
+          "code": "DK",
+          "image": "http://static.lolesports.com/teams/1673260049703_DPlusKIALOGO11.png",
+          "result": {
+            "gameWins": 0
+          }
+        }
+      ],
+      "selectedGame": null,
+      "broadcastLive": false,
+      "games": [
+        {
+          "id": "116929405094115537",
+          "number": 1,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "98767991853197861",
+              "side": "blue"
+            },
+            {
+              "id": "100725845018863243",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        }
+      ]
+    },
+    {
+      "eventId": "116929405249829096",
+      "state": "unstarted",
+      "startTime": "2026-07-27T09:00:00Z",
+      "league": "KeSPA Cup",
+      "strategy": {
+        "type": "bestOf",
+        "count": 1
+      },
+      "scheduleTeams": [
+        {
+          "id": null,
+          "name": "Hanwha Life Esports",
+          "code": "HLE",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        },
+        {
+          "id": null,
+          "name": "KIWOOM DRX",
+          "code": "KRX",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        }
+      ],
+      "resolutionTeams": [
+        {
+          "id": "100205573496804586",
+          "name": "Hanwha Life Esports",
+          "code": "HLE",
+          "image": "http://static.lolesports.com/teams/1631819564399_hle-2021-worlds.png",
+          "result": {
+            "gameWins": 0
+          }
+        },
+        {
+          "id": "99566404585387054",
+          "name": "KIWOOM DRX",
+          "code": "KRX",
+          "image": "http://static.lolesports.com/teams/1774247803537_horizontal_EN_Wh.png",
+          "result": {
+            "gameWins": 0
+          }
+        }
+      ],
+      "selectedGame": null,
+      "broadcastLive": false,
+      "games": [
+        {
+          "id": "116929405249894633",
+          "number": 1,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "100205573496804586",
+              "side": "blue"
+            },
+            {
+              "id": "99566404585387054",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        }
+      ]
+    },
+    {
+      "eventId": "116929405398989053",
+      "state": "unstarted",
+      "startTime": "2026-07-27T09:45:00Z",
+      "league": "KeSPA Cup",
+      "strategy": {
+        "type": "bestOf",
+        "count": 1
+      },
+      "scheduleTeams": [
+        {
+          "id": null,
+          "name": "T1",
+          "code": "T1",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        },
+        {
+          "id": null,
+          "name": "NONGSHIM RED FORCE",
+          "code": "NS",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        }
+      ],
+      "resolutionTeams": [
+        {
+          "id": "98767991853197861",
+          "name": "T1",
+          "code": "T1",
+          "image": "http://static.lolesports.com/teams/1726801573959_539px-T1_2019_full_allmode.png",
+          "result": {
+            "gameWins": 0
+          }
+        },
+        {
+          "id": "102747101565183056",
+          "name": "NONGSHIM RED FORCE",
+          "code": "NS",
+          "image": "http://static.lolesports.com/teams/NSFullonDark.png",
+          "result": {
+            "gameWins": 0
+          }
+        }
+      ],
+      "selectedGame": null,
+      "broadcastLive": false,
+      "games": [
+        {
+          "id": "116929405398989054",
+          "number": 1,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "98767991853197861",
+              "side": "blue"
+            },
+            {
+              "id": "102747101565183056",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        }
+      ]
+    },
+    {
+      "eventId": "116889604984222877",
+      "state": "unstarted",
+      "startTime": "2026-07-27T10:00:00Z",
+      "league": "LCK Challengers",
+      "strategy": {
+        "type": "bestOf",
+        "count": 3
+      },
+      "scheduleTeams": [
+        {
+          "id": null,
+          "name": "Gen.G Global Academy",
+          "code": "GGA",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        },
+        {
+          "id": null,
+          "name": "BNK FEARX Youth",
+          "code": "BFX",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        }
+      ],
+      "resolutionTeams": [
+        {
+          "id": "105550042327365041",
+          "name": "Gen.G Global Academy",
+          "code": "GGA",
+          "image": "http://static.lolesports.com/teams/1672911977540_GGA_2023ver_LOGO_GGA_simplyA_W1.png",
+          "result": {
+            "gameWins": 0
+          }
+        },
+        {
+          "id": "105550051809743868",
+          "name": "BNK FEARX Youth",
+          "code": "BFX",
+          "image": "http://static.lolesports.com/teams/1734691838858_BFXfullcolorfordarkbg.png",
+          "result": {
+            "gameWins": 0
+          }
+        }
+      ],
+      "selectedGame": null,
+      "broadcastLive": false,
+      "games": [
+        {
+          "id": "116889604984222878",
+          "number": 1,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "105550042327365041",
+              "side": "blue"
+            },
+            {
+              "id": "105550051809743868",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "116889604984222879",
+          "number": 2,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "105550051809743868",
+              "side": "blue"
+            },
+            {
+              "id": "105550042327365041",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "116889604984222880",
+          "number": 3,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "105550042327365041",
+              "side": "blue"
+            },
+            {
+              "id": "105550051809743868",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        }
+      ]
+    },
+    {
+      "eventId": "116929405047650503",
+      "state": "unstarted",
+      "startTime": "2026-07-27T10:30:00Z",
+      "league": "KeSPA Cup",
+      "strategy": {
+        "type": "bestOf",
+        "count": 1
+      },
+      "scheduleTeams": [
+        {
+          "id": null,
+          "name": "HANJIN BRION",
+          "code": "BRO",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        },
+        {
+          "id": null,
+          "name": "Dplus KIA",
+          "code": "DK",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        }
+      ],
+      "resolutionTeams": [
+        {
+          "id": "105505619546859895",
+          "name": "HANJIN BRION",
+          "code": "BRO",
+          "image": "http://static.lolesports.com/teams/1716454325887_Nowyprojekt.png",
+          "result": {
+            "gameWins": 0
+          }
+        },
+        {
+          "id": "100725845018863243",
+          "name": "Dplus KIA",
+          "code": "DK",
+          "image": "http://static.lolesports.com/teams/1673260049703_DPlusKIALOGO11.png",
+          "result": {
+            "gameWins": 0
+          }
+        }
+      ],
+      "selectedGame": null,
+      "broadcastLive": false,
+      "games": [
+        {
+          "id": "116929405047650504",
+          "number": 1,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "105505619546859895",
+              "side": "blue"
+            },
+            {
+              "id": "100725845018863243",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        }
+      ]
+    },
+    {
+      "eventId": "116929405012523201",
+      "state": "unstarted",
+      "startTime": "2026-07-27T11:15:00Z",
+      "league": "KeSPA Cup",
+      "strategy": {
+        "type": "bestOf",
+        "count": 1
+      },
+      "scheduleTeams": [
+        {
+          "id": null,
+          "name": "T1",
+          "code": "T1",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        },
+        {
+          "id": null,
+          "name": "DN SOOPers",
+          "code": "DNS",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        }
+      ],
+      "resolutionTeams": [
+        {
+          "id": "98767991853197861",
+          "name": "T1",
+          "code": "T1",
+          "image": "http://static.lolesports.com/teams/1726801573959_539px-T1_2019_full_allmode.png",
+          "result": {
+            "gameWins": 0
+          }
+        },
+        {
+          "id": "99566404581868574",
+          "name": "DN SOOPers",
+          "code": "DNS",
+          "image": "http://static.lolesports.com/teams/1767340467921_DN_SOOPerslogo_profile.webp",
+          "result": {
+            "gameWins": 0
+          }
+        }
+      ],
+      "selectedGame": null,
+      "broadcastLive": false,
+      "games": [
+        {
+          "id": "116929405012523202",
+          "number": 1,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "98767991853197861",
+              "side": "blue"
+            },
+            {
+              "id": "99566404581868574",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        }
+      ]
+    },
+    {
+      "eventId": "116697716933016519",
+      "state": "unstarted",
+      "startTime": "2026-07-27T13:00:00Z",
+      "league": "Hellenic Legends League",
+      "strategy": {
+        "type": "playAll",
+        "count": 2
+      },
+      "scheduleTeams": [
+        {
+          "id": null,
+          "name": "Team Phantasma",
+          "code": "TP",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        },
+        {
+          "id": null,
+          "name": "ALMO Players",
+          "code": "ALMO",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        }
+      ],
+      "resolutionTeams": [
+        {
+          "id": "105521637552587612",
+          "name": "Team Phantasma",
+          "code": "TP",
+          "image": "http://static.lolesports.com/teams/TeamPhantasma.png",
+          "result": {
+            "gameWins": 0
+          }
+        },
+        {
+          "id": "110441266196719234",
+          "name": "ALMO Players",
+          "code": "ALMO",
+          "image": "http://static.lolesports.com/teams/1766149888302_Ogi7qeR.webp",
+          "result": {
+            "gameWins": 0
+          }
+        }
+      ],
+      "selectedGame": null,
+      "broadcastLive": false,
+      "games": [
+        {
+          "id": "116697716933016520",
+          "number": 1,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "105521637552587612",
+              "side": "blue"
+            },
+            {
+              "id": "110441266196719234",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "116697716933016521",
+          "number": 2,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "105521637552587612",
+              "side": "blue"
+            },
+            {
+              "id": "110441266196719234",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        }
+      ]
+    },
+    {
+      "eventId": "116697716933016540",
+      "state": "unstarted",
+      "startTime": "2026-07-27T15:00:00Z",
+      "league": "Hellenic Legends League",
+      "strategy": {
+        "type": "playAll",
+        "count": 2
+      },
+      "scheduleTeams": [
+        {
+          "id": null,
+          "name": "Valerion",
+          "code": "VLR",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        },
+        {
+          "id": null,
+          "name": "TheParadOx Invaders",
+          "code": "TPX",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        }
+      ],
+      "resolutionTeams": [
+        {
+          "id": "116803545426908406",
+          "name": "Valerion",
+          "code": "VLR",
+          "image": "http://static.lolesports.com/teams/1782280666367_ValerionGold.png",
+          "result": {
+            "gameWins": 0
+          }
+        },
+        {
+          "id": "109704816337374156",
+          "name": "TheParadOx Invaders",
+          "code": "TPX",
+          "image": "http://static.lolesports.com/teams/1773838306977_TpOXRed_Gold-removebg-preview.png",
+          "result": {
+            "gameWins": 0
+          }
+        }
+      ],
+      "selectedGame": null,
+      "broadcastLive": false,
+      "games": [
+        {
+          "id": "116697716933016541",
+          "number": 1,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "116803545426908406",
+              "side": "blue"
+            },
+            {
+              "id": "109704816337374156",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "116697716933016542",
+          "number": 2,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "116803545426908406",
+              "side": "blue"
+            },
+            {
+              "id": "109704816337374156",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        }
+      ]
+    },
+    {
+      "eventId": "116878159559794423",
+      "state": "unstarted",
+      "startTime": "2026-07-27T16:00:00Z",
+      "league": "NLC",
+      "strategy": {
+        "type": "bestOf",
+        "count": 3
+      },
+      "scheduleTeams": [
+        {
+          "id": null,
+          "name": "Ruddy Corporation",
+          "code": "RUD",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        },
+        {
+          "id": null,
+          "name": "VES",
+          "code": "VES",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        }
+      ],
+      "resolutionTeams": [
+        {
+          "id": "109642690191894407",
+          "name": "Ruddy Corporation",
+          "code": "RUD",
+          "image": "http://static.lolesports.com/teams/1767962931112_rud.png",
+          "result": {
+            "gameWins": 0
+          }
+        },
+        {
+          "id": "116918607130413997",
+          "name": "VES",
+          "code": "VES",
+          "image": "http://static.lolesports.com/teams/1784036361182_VES_LOGO1.png",
+          "result": {
+            "gameWins": 0
+          }
+        }
+      ],
+      "selectedGame": null,
+      "broadcastLive": false,
+      "games": [
+        {
+          "id": "116878159559794424",
+          "number": 1,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "109642690191894407",
+              "side": "blue"
+            },
+            {
+              "id": "116918607130413997",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "116878159559794425",
+          "number": 2,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "116918607130413997",
+              "side": "blue"
+            },
+            {
+              "id": "109642690191894407",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "116878159559794426",
+          "number": 3,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "109642690191894407",
+              "side": "blue"
+            },
+            {
+              "id": "116918607130413997",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        }
+      ]
+    },
+    {
+      "eventId": "116878159559794427",
+      "state": "unstarted",
+      "startTime": "2026-07-27T16:00:00Z",
+      "league": "NLC",
+      "strategy": {
+        "type": "bestOf",
+        "count": 3
+      },
+      "scheduleTeams": [
+        {
+          "id": null,
+          "name": "Deer Gaming",
+          "code": "DEER",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        },
+        {
+          "id": null,
+          "name": "Epic Avalanche",
+          "code": "EA",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        }
+      ],
+      "resolutionTeams": [
+        {
+          "id": "115848483543771960",
+          "name": "Deer Gaming",
+          "code": "DEER",
+          "image": "http://static.lolesports.com/teams/1778583831293_COLORED_FINAL.png",
+          "result": {
+            "gameWins": 0
+          }
+        },
+        {
+          "id": "116918613874057657",
+          "name": "Epic Avalanche",
+          "code": "EA",
+          "image": "http://static.lolesports.com/teams/1784036463315_EAlogohighreso1.png",
+          "result": {
+            "gameWins": 0
+          }
+        }
+      ],
+      "selectedGame": null,
+      "broadcastLive": false,
+      "games": [
+        {
+          "id": "116878159559794428",
+          "number": 1,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "115848483543771960",
+              "side": "blue"
+            },
+            {
+              "id": "116918613874057657",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "116878159559794429",
+          "number": 2,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "116918613874057657",
+              "side": "blue"
+            },
+            {
+              "id": "115848483543771960",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "116878159559794430",
+          "number": 3,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "115848483543771960",
+              "side": "blue"
+            },
+            {
+              "id": "116918613874057657",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        }
+      ]
+    },
+    {
+      "eventId": "116878159559794431",
+      "state": "unstarted",
+      "startTime": "2026-07-27T18:00:00Z",
+      "league": "NLC",
+      "strategy": {
+        "type": "bestOf",
+        "count": 3
+      },
+      "scheduleTeams": [
+        {
+          "id": null,
+          "name": "Verdant",
+          "code": "VER",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        },
+        {
+          "id": null,
+          "name": "Lundqvist Lightside",
+          "code": "LLS",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        }
+      ],
+      "resolutionTeams": [
+        {
+          "id": "107565477822627354",
+          "name": "Verdant",
+          "code": "VER",
+          "image": "http://static.lolesports.com/teams/1736206402275_VER1.png",
+          "result": {
+            "gameWins": 0
+          }
+        },
+        {
+          "id": "107565473980214294",
+          "name": "Lundqvist Lightside",
+          "code": "LLS",
+          "image": "http://static.lolesports.com/teams/1736207650239_LLS1.png",
+          "result": {
+            "gameWins": 0
+          }
+        }
+      ],
+      "selectedGame": null,
+      "broadcastLive": false,
+      "games": [
+        {
+          "id": "116878159559794432",
+          "number": 1,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "107565477822627354",
+              "side": "blue"
+            },
+            {
+              "id": "107565473980214294",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "116878159559794433",
+          "number": 2,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "107565473980214294",
+              "side": "blue"
+            },
+            {
+              "id": "107565477822627354",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "116878159559794434",
+          "number": 3,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "107565477822627354",
+              "side": "blue"
+            },
+            {
+              "id": "107565473980214294",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        }
+      ]
+    },
+    {
+      "eventId": "116878159559794435",
+      "state": "unstarted",
+      "startTime": "2026-07-27T18:00:00Z",
+      "league": "NLC",
+      "strategy": {
+        "type": "bestOf",
+        "count": 3
+      },
+      "scheduleTeams": [
+        {
+          "id": null,
+          "name": "Arctic Pandas",
+          "code": "AP",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        },
+        {
+          "id": null,
+          "name": "Bulldog Esports",
+          "code": "BDG",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        }
+      ],
+      "resolutionTeams": [
+        {
+          "id": "115848475436772149",
+          "name": "Arctic Pandas",
+          "code": "AP",
+          "image": "http://static.lolesports.com/teams/1767707446482_ap.png",
+          "result": {
+            "gameWins": 0
+          }
+        },
+        {
+          "id": "113776188239005729",
+          "name": "Bulldog Esports",
+          "code": "BDG",
+          "image": "http://static.lolesports.com/teams/1736206647522_BDG1.png",
+          "result": {
+            "gameWins": 0
+          }
+        }
+      ],
+      "selectedGame": null,
+      "broadcastLive": false,
+      "games": [
+        {
+          "id": "116878159559794436",
+          "number": 1,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "115848475436772149",
+              "side": "blue"
+            },
+            {
+              "id": "113776188239005729",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "116878159559794437",
+          "number": 2,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "113776188239005729",
+              "side": "blue"
+            },
+            {
+              "id": "115848475436772149",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "116878159559794438",
+          "number": 3,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "115848475436772149",
+              "side": "blue"
+            },
+            {
+              "id": "113776188239005729",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        }
+      ]
+    },
+    {
+      "eventId": "116809240490152403",
+      "state": "unstarted",
+      "startTime": "2026-07-27T20:00:00Z",
+      "league": "Circuito Desafiante",
+      "strategy": {
+        "type": "bestOf",
+        "count": 1
+      },
+      "scheduleTeams": [
+        {
+          "id": null,
+          "name": "7REX Team",
+          "code": "7REX",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        },
+        {
+          "id": null,
+          "name": "RED Kalunga Academy",
+          "code": "RED",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        }
+      ],
+      "resolutionTeams": [
+        {
+          "id": "116051206657744637",
+          "name": "7REX Team",
+          "code": "7REX",
+          "image": "http://static.lolesports.com/teams/1770800891074_logo-7rex-vetor.png",
+          "result": {
+            "gameWins": 0
+          }
+        },
+        {
+          "id": "105550001032913831",
+          "name": "RED Kalunga Academy",
+          "code": "RED",
+          "image": "http://static.lolesports.com/teams/1642969030123_REDlogo_REDCanids-RGB-linhabranca1.png",
+          "result": {
+            "gameWins": 0
+          }
+        }
+      ],
+      "selectedGame": null,
+      "broadcastLive": false,
+      "games": [
+        {
+          "id": "116809240490152404",
+          "number": 1,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "116051206657744637",
+              "side": "blue"
+            },
+            {
+              "id": "105550001032913831",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        }
+      ]
+    },
+    {
+      "eventId": "116809240490217967",
+      "state": "unstarted",
+      "startTime": "2026-07-27T21:00:00Z",
+      "league": "Circuito Desafiante",
+      "strategy": {
+        "type": "bestOf",
+        "count": 1
+      },
+      "scheduleTeams": [
+        {
+          "id": null,
+          "name": "paiN Gaming Academy",
+          "code": "PAIN",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        },
+        {
+          "id": null,
+          "name": "Ei Nerd Esports",
+          "code": "NERD",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        }
+      ],
+      "resolutionTeams": [
+        {
+          "id": "105549998884468136",
+          "name": "paiN Gaming Academy",
+          "code": "PAIN",
+          "image": "http://static.lolesports.com/teams/1774199812580_pain_w.png",
+          "result": {
+            "gameWins": 0
+          }
+        },
+        {
+          "id": "116051242073399654",
+          "name": "Ei Nerd Esports",
+          "code": "NERD",
+          "image": "http://static.lolesports.com/teams/1774199508230_nerd_w.png",
+          "result": {
+            "gameWins": 0
+          }
+        }
+      ],
+      "selectedGame": null,
+      "broadcastLive": false,
+      "games": [
+        {
+          "id": "116809240490217968",
+          "number": 1,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "105549998884468136",
+              "side": "blue"
+            },
+            {
+              "id": "116051242073399654",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        }
+      ]
+    },
+    {
+      "eventId": "116809240490152381",
+      "state": "unstarted",
+      "startTime": "2026-07-27T22:00:00Z",
+      "league": "Circuito Desafiante",
+      "strategy": {
+        "type": "bestOf",
+        "count": 1
+      },
+      "scheduleTeams": [
+        {
+          "id": null,
+          "name": "KaBuM! Eports",
+          "code": "KBM",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        },
+        {
+          "id": null,
+          "name": "TEAM SOLID",
+          "code": "TSS",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        }
+      ],
+      "resolutionTeams": [
+        {
+          "id": "105549995617170853",
+          "name": "KaBuM! Eports",
+          "code": "KBM",
+          "image": "http://static.lolesports.com/teams/1774199720854_kbm_c_w.png",
+          "result": {
+            "gameWins": 0
+          }
+        },
+        {
+          "id": "116051268151231608",
+          "name": "TEAM SOLID",
+          "code": "TSS",
+          "image": "http://static.lolesports.com/teams/1774199850391_solid_w.png",
+          "result": {
+            "gameWins": 0
+          }
+        }
+      ],
+      "selectedGame": null,
+      "broadcastLive": false,
+      "games": [
+        {
+          "id": "116809240490152382",
+          "number": 1,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "105549995617170853",
+              "side": "blue"
+            },
+            {
+              "id": "116051268151231608",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        }
+      ]
+    },
+    {
+      "eventId": "116809240490152397",
+      "state": "unstarted",
+      "startTime": "2026-07-27T23:00:00Z",
+      "league": "Circuito Desafiante",
+      "strategy": {
+        "type": "bestOf",
+        "count": 1
+      },
+      "scheduleTeams": [
+        {
+          "id": null,
+          "name": "INTZ",
+          "code": "INTZ",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        },
+        {
+          "id": null,
+          "name": "RMD Gaming",
+          "code": "RMD",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        }
+      ],
+      "resolutionTeams": [
+        {
+          "id": "99566408217116828",
+          "name": "INTZ",
+          "code": "INTZ",
+          "image": "http://static.lolesports.com/teams/1770801521472_LOGOINTZ2026COMESTRELAS.png",
+          "result": {
+            "gameWins": 0
+          }
+        },
+        {
+          "id": "116051230771910011",
+          "name": "RMD Gaming",
+          "code": "RMD",
+          "image": "http://static.lolesports.com/teams/1774199461844_rdm_c.png",
+          "result": {
+            "gameWins": 0
+          }
+        }
+      ],
+      "selectedGame": null,
+      "broadcastLive": false,
+      "games": [
+        {
+          "id": "116809240490152398",
+          "number": 1,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "99566408217116828",
+              "side": "blue"
+            },
+            {
+              "id": "116051230771910011",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        }
+      ]
+    },
+    {
+      "eventId": "116520885021783348",
+      "state": "unstarted",
+      "startTime": "2026-07-27T23:00:00Z",
+      "league": "LRN",
+      "strategy": {
+        "type": "bestOf",
+        "count": 5
+      },
+      "scheduleTeams": [
+        {
+          "id": null,
+          "name": "FUEGO",
+          "code": "FUE",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        },
+        {
+          "id": null,
+          "name": "Kits Esports",
+          "code": "KITS",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        }
+      ],
+      "resolutionTeams": [
+        {
+          "id": "107581765633427097",
+          "name": "FUEGO",
+          "code": "FUE",
+          "image": "http://static.lolesports.com/teams/1711010140737_FUEGO-C.png",
+          "result": {
+            "gameWins": 0
+          }
+        },
+        {
+          "id": "116775262063798569",
+          "name": "Kits Esports",
+          "code": "KITS",
+          "image": "http://static.lolesports.com/teams/1781849092985_KITSLOGONEGRO.png",
+          "result": {
+            "gameWins": 0
+          }
+        }
+      ],
+      "selectedGame": null,
+      "broadcastLive": false,
+      "games": [
+        {
+          "id": "116520885021783349",
+          "number": 1,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "107581765633427097",
+              "side": "blue"
+            },
+            {
+              "id": "116775262063798569",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "116520885021783350",
+          "number": 2,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "107581765633427097",
+              "side": "blue"
+            },
+            {
+              "id": "116775262063798569",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "116520885021783351",
+          "number": 3,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "116775262063798569",
+              "side": "blue"
+            },
+            {
+              "id": "107581765633427097",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "116520885021783352",
+          "number": 4,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "107581765633427097",
+              "side": "blue"
+            },
+            {
+              "id": "116775262063798569",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "116520885021783353",
+          "number": 5,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "116775262063798569",
+              "side": "blue"
+            },
+            {
+              "id": "107581765633427097",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        }
+      ]
+    },
+    {
+      "eventId": "116809240490152369",
+      "state": "unstarted",
+      "startTime": "2026-07-28T00:00:00Z",
+      "league": "Circuito Desafiante",
+      "strategy": {
+        "type": "bestOf",
+        "count": 1
+      },
+      "scheduleTeams": [
+        {
+          "id": null,
+          "name": "Vivo Keyd Stars Academy",
+          "code": "VKS",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        },
+        {
+          "id": null,
+          "name": "Estral Esports",
+          "code": "EST",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        }
+      ],
+      "resolutionTeams": [
+        {
+          "id": "109485335453835911",
+          "name": "Vivo Keyd Stars Academy",
+          "code": "VKS",
+          "image": "http://static.lolesports.com/teams/1774200249450_vks_c.png",
+          "result": {
+            "gameWins": 0
+          }
+        },
+        {
+          "id": "104841890701948065",
+          "name": "Estral Esports",
+          "code": "EST",
+          "image": "http://static.lolesports.com/teams/1774200288247_estral_c.png",
+          "result": {
+            "gameWins": 0
+          }
+        }
+      ],
+      "selectedGame": null,
+      "broadcastLive": false,
+      "games": [
+        {
+          "id": "116809240490152370",
+          "number": 1,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "109485335453835911",
+              "side": "blue"
+            },
+            {
+              "id": "104841890701948065",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        }
+      ]
+    },
+    {
+      "eventId": "116889604984222881",
+      "state": "unstarted",
+      "startTime": "2026-07-28T08:00:00Z",
+      "league": "LCK Challengers",
+      "strategy": {
+        "type": "bestOf",
+        "count": 3
+      },
+      "scheduleTeams": [
+        {
+          "id": null,
+          "name": "HLE Challengers",
+          "code": "HLE",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        },
+        {
+          "id": null,
+          "name": "BRO Challengers",
+          "code": "BRO",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        }
+      ],
+      "resolutionTeams": [
+        {
+          "id": "105550047979361273",
+          "name": "HLE Challengers",
+          "code": "HLE",
+          "image": "http://static.lolesports.com/teams/hle-2021-color-on-dark.png",
+          "result": {
+            "gameWins": 0
+          }
+        },
+        {
+          "id": "105550036134585264",
+          "name": "BRO Challengers",
+          "code": "BRO",
+          "image": "http://static.lolesports.com/teams/1716454310243_Nowyprojekt.png",
+          "result": {
+            "gameWins": 0
+          }
+        }
+      ],
+      "selectedGame": null,
+      "broadcastLive": false,
+      "games": [
+        {
+          "id": "116889604984222882",
+          "number": 1,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "105550047979361273",
+              "side": "blue"
+            },
+            {
+              "id": "105550036134585264",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "116889604984222883",
+          "number": 2,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "105550047979361273",
+              "side": "blue"
+            },
+            {
+              "id": "105550036134585264",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "116889604984222884",
+          "number": 3,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "105550036134585264",
+              "side": "blue"
+            },
+            {
+              "id": "105550047979361273",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        }
+      ]
+    },
+    {
+      "eventId": "116929376557102168",
+      "state": "unstarted",
+      "startTime": "2026-07-28T08:00:00Z",
+      "league": "KeSPA Cup",
+      "strategy": {
+        "type": "bestOf",
+        "count": 3
+      },
+      "scheduleTeams": [
+        {
+          "id": null,
+          "name": "TBD",
+          "code": "TBD",
+          "result": null
+        },
+        {
+          "id": null,
+          "name": "TBD",
+          "code": "TBD",
+          "result": null
+        }
+      ],
+      "resolutionTeams": [
+        {
+          "id": "0",
+          "name": "TBD",
+          "code": "TBD",
+          "image": "https://static.lolesports.com/teams/team-tbd.png",
+          "result": null
+        },
+        {
+          "id": "0",
+          "name": "TBD",
+          "code": "TBD",
+          "image": "https://static.lolesports.com/teams/team-tbd.png",
+          "result": null
+        }
+      ],
+      "selectedGame": null,
+      "broadcastLive": false,
+      "games": [
+        {
+          "id": "116929376557102169",
+          "number": 1,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "0",
+              "side": null
+            },
+            {
+              "id": "0",
+              "side": null
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "116929376557102170",
+          "number": 2,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "0",
+              "side": null
+            },
+            {
+              "id": "0",
+              "side": null
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "116929376557102171",
+          "number": 3,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "0",
+              "side": null
+            },
+            {
+              "id": "0",
+              "side": null
+            }
+          ],
+          "vods": []
+        }
+      ]
+    },
+    {
+      "eventId": "116889604984157257",
+      "state": "unstarted",
+      "startTime": "2026-07-28T10:00:00Z",
+      "league": "LCK Challengers",
+      "strategy": {
+        "type": "bestOf",
+        "count": 3
+      },
+      "scheduleTeams": [
+        {
+          "id": null,
+          "name": "kt Challengers",
+          "code": "KT",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        },
+        {
+          "id": null,
+          "name": "DK Challengers",
+          "code": "DK",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        }
+      ],
+      "resolutionTeams": [
+        {
+          "id": "105550049871017396",
+          "name": "kt Challengers",
+          "code": "KT",
+          "image": "http://static.lolesports.com/teams/kt_darkbackground.png",
+          "result": {
+            "gameWins": 0
+          }
+        },
+        {
+          "id": "105550026570060790",
+          "name": "DK Challengers",
+          "code": "DK",
+          "image": "http://static.lolesports.com/teams/1673259409468_DPlusKIALOGO1.png",
+          "result": {
+            "gameWins": 0
+          }
+        }
+      ],
+      "selectedGame": null,
+      "broadcastLive": false,
+      "games": [
+        {
+          "id": "116889604984157258",
+          "number": 1,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "105550049871017396",
+              "side": "blue"
+            },
+            {
+              "id": "105550026570060790",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "116889604984157259",
+          "number": 2,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "105550026570060790",
+              "side": "blue"
+            },
+            {
+              "id": "105550049871017396",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "116889604984157260",
+          "number": 3,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "105550049871017396",
+              "side": "blue"
+            },
+            {
+              "id": "105550026570060790",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        }
+      ]
+    },
+    {
+      "eventId": "116929376557102164",
+      "state": "unstarted",
+      "startTime": "2026-07-28T10:30:00Z",
+      "league": "KeSPA Cup",
+      "strategy": {
+        "type": "bestOf",
+        "count": 3
+      },
+      "scheduleTeams": [
+        {
+          "id": null,
+          "name": "TBD",
+          "code": "TBD",
+          "result": null
+        },
+        {
+          "id": null,
+          "name": "TBD",
+          "code": "TBD",
+          "result": null
+        }
+      ],
+      "resolutionTeams": [
+        {
+          "id": "0",
+          "name": "TBD",
+          "code": "TBD",
+          "image": "https://static.lolesports.com/teams/team-tbd.png",
+          "result": null
+        },
+        {
+          "id": "0",
+          "name": "TBD",
+          "code": "TBD",
+          "image": "https://static.lolesports.com/teams/team-tbd.png",
+          "result": null
+        }
+      ],
+      "selectedGame": null,
+      "broadcastLive": false,
+      "games": [
+        {
+          "id": "116929376557102165",
+          "number": 1,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "0",
+              "side": null
+            },
+            {
+              "id": "0",
+              "side": null
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "116929376557102166",
+          "number": 2,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "0",
+              "side": null
+            },
+            {
+              "id": "0",
+              "side": null
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "116929376557102167",
+          "number": 3,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "0",
+              "side": null
+            },
+            {
+              "id": "0",
+              "side": null
+            }
+          ],
+          "vods": []
+        }
+      ]
+    },
+    {
+      "eventId": "116697716933016501",
+      "state": "unstarted",
+      "startTime": "2026-07-28T13:00:00Z",
+      "league": "Hellenic Legends League",
+      "strategy": {
+        "type": "playAll",
+        "count": 2
+      },
+      "scheduleTeams": [
+        {
+          "id": null,
+          "name": "Gamespace M.C.",
+          "code": "GSMC",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        },
+        {
+          "id": null,
+          "name": "Team Phantasma",
+          "code": "TP",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        }
+      ],
+      "resolutionTeams": [
+        {
+          "id": "105521674055625312",
+          "name": "Gamespace M.C.",
+          "code": "GSMC",
+          "image": "http://static.lolesports.com/teams/GameSpaceMediterraneanCollegeeSports.png",
+          "result": {
+            "gameWins": 0
+          }
+        },
+        {
+          "id": "105521637552587612",
+          "name": "Team Phantasma",
+          "code": "TP",
+          "image": "http://static.lolesports.com/teams/TeamPhantasma.png",
+          "result": {
+            "gameWins": 0
+          }
+        }
+      ],
+      "selectedGame": null,
+      "broadcastLive": false,
+      "games": [
+        {
+          "id": "116697716933016502",
+          "number": 1,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "105521674055625312",
+              "side": "blue"
+            },
+            {
+              "id": "105521637552587612",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "116697716933016503",
+          "number": 2,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "105521637552587612",
+              "side": "blue"
+            },
+            {
+              "id": "105521674055625312",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        }
+      ]
+    },
+    {
+      "eventId": "116697716933082109",
+      "state": "unstarted",
+      "startTime": "2026-07-28T15:00:00Z",
+      "league": "Hellenic Legends League",
+      "strategy": {
+        "type": "playAll",
+        "count": 2
+      },
+      "scheduleTeams": [
+        {
+          "id": null,
+          "name": "ALMO Players",
+          "code": "ALMO",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        },
+        {
+          "id": null,
+          "name": "Spartans EU",
+          "code": "SPAR",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        }
+      ],
+      "resolutionTeams": [
+        {
+          "id": "110441266196719234",
+          "name": "ALMO Players",
+          "code": "ALMO",
+          "image": "http://static.lolesports.com/teams/1766149888302_Ogi7qeR.webp",
+          "result": {
+            "gameWins": 0
+          }
+        },
+        {
+          "id": "112437059871303752",
+          "name": "Spartans EU",
+          "code": "SPAR",
+          "image": "http://static.lolesports.com/teams/1773837632921_LogoWhitetextv1.png",
+          "result": {
+            "gameWins": 0
+          }
+        }
+      ],
+      "selectedGame": null,
+      "broadcastLive": false,
+      "games": [
+        {
+          "id": "116697716933082110",
+          "number": 1,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "110441266196719234",
+              "side": "blue"
+            },
+            {
+              "id": "112437059871303752",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "116697716933082111",
+          "number": 2,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "112437059871303752",
+              "side": "blue"
+            },
+            {
+              "id": "110441266196719234",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        }
+      ]
+    },
+    {
+      "eventId": "116833506932259251",
+      "state": "unstarted",
+      "startTime": "2026-07-28T15:00:00Z",
+      "league": "LES",
+      "strategy": {
+        "type": "bestOf",
+        "count": 3
+      },
+      "scheduleTeams": [
+        {
+          "id": null,
+          "name": "UB Alma Mater",
+          "code": "UB",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        },
+        {
+          "id": null,
+          "name": "UCAM Esports Club",
+          "code": "UCAM",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        }
+      ],
+      "resolutionTeams": [
+        {
+          "id": "116011430753382397",
+          "name": "UB Alma Mater",
+          "code": "UB",
+          "image": "http://static.lolesports.com/teams/1774563483977_alma_c.png",
+          "result": {
+            "gameWins": 0
+          }
+        },
+        {
+          "id": "105532791598779236",
+          "name": "UCAM Esports Club",
+          "code": "UCAM",
+          "image": "http://static.lolesports.com/teams/1774563455909_ucam_c.png",
+          "result": {
+            "gameWins": 0
+          }
+        }
+      ],
+      "selectedGame": null,
+      "broadcastLive": false,
+      "games": [
+        {
+          "id": "116833506932259252",
+          "number": 1,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "116011430753382397",
+              "side": "blue"
+            },
+            {
+              "id": "105532791598779236",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "116833506932259253",
+          "number": 2,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "116011430753382397",
+              "side": "blue"
+            },
+            {
+              "id": "105532791598779236",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "116833506932259254",
+          "number": 3,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "105532791598779236",
+              "side": "blue"
+            },
+            {
+              "id": "116011430753382397",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        }
+      ]
+    },
+    {
+      "eventId": "116764853817499346",
+      "state": "unstarted",
+      "startTime": "2026-07-28T16:00:00Z",
+      "league": "Arabian League",
+      "strategy": {
+        "type": "bestOf",
+        "count": 3
+      },
+      "scheduleTeams": [
+        {
+          "id": null,
+          "name": "JSK Gamefy",
+          "code": "JSK",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        },
+        {
+          "id": null,
+          "name": "3BL GALAXY ESPORTS",
+          "code": "3BL",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        }
+      ],
+      "resolutionTeams": [
+        {
+          "id": "116339377622705301",
+          "name": "JSK Gamefy",
+          "code": "JSK",
+          "image": "http://static.lolesports.com/teams/1775517135066_JSK_c.png",
+          "result": {
+            "gameWins": 0
+          }
+        },
+        {
+          "id": "109696138543579708",
+          "name": "3BL GALAXY ESPORTS",
+          "code": "3BL",
+          "image": "http://static.lolesports.com/teams/1767880818037_Copyof3BLLOGO.png",
+          "result": {
+            "gameWins": 0
+          }
+        }
+      ],
+      "selectedGame": null,
+      "broadcastLive": false,
+      "games": [
+        {
+          "id": "116764853817499347",
+          "number": 1,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "116339377622705301",
+              "side": "blue"
+            },
+            {
+              "id": "109696138543579708",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "116764853817499348",
+          "number": 2,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "116339377622705301",
+              "side": "blue"
+            },
+            {
+              "id": "109696138543579708",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "116764853817499349",
+          "number": 3,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "109696138543579708",
+              "side": "blue"
+            },
+            {
+              "id": "116339377622705301",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        }
+      ]
+    },
+    {
+      "eventId": "116912368899990120",
+      "state": "unstarted",
+      "startTime": "2026-07-28T16:00:00Z",
+      "league": "La Ligue Fran\u00e7aise",
+      "strategy": {
+        "type": "bestOf",
+        "count": 1
+      },
+      "scheduleTeams": [
+        {
+          "id": null,
+          "name": "TLN Pirates",
+          "code": "TLNP",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        },
+        {
+          "id": null,
+          "name": "Skillcamp",
+          "code": "SC",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        }
+      ],
+      "resolutionTeams": [
+        {
+          "id": "115745361559907281",
+          "name": "TLN Pirates",
+          "code": "TLNP",
+          "image": "http://static.lolesports.com/teams/1766134058603_TLNPirates.png",
+          "result": {
+            "gameWins": 0
+          }
+        },
+        {
+          "id": "115745364589112276",
+          "name": "Skillcamp",
+          "code": "SC",
+          "image": "http://static.lolesports.com/teams/1766134108028_Skillcamp.png",
+          "result": {
+            "gameWins": 0
+          }
+        }
+      ],
+      "selectedGame": null,
+      "broadcastLive": false,
+      "games": [
+        {
+          "id": "116912368899990121",
+          "number": 1,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "115745361559907281",
+              "side": "blue"
+            },
+            {
+              "id": "115745364589112276",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        }
+      ]
+    },
+    {
+      "eventId": "116923238535448326",
+      "state": "unstarted",
+      "startTime": "2026-07-28T16:00:00Z",
+      "league": "Esports Balkan League",
+      "strategy": {
+        "type": "bestOf",
+        "count": 3
+      },
+      "scheduleTeams": [
+        {
+          "id": null,
+          "name": "TBD",
+          "code": "TBD",
+          "result": null
+        },
+        {
+          "id": null,
+          "name": "Lupus Esports",
+          "code": "LUP",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        }
+      ],
+      "resolutionTeams": [
+        {
+          "id": "0",
+          "name": "TBD",
+          "code": "TBD",
+          "image": "https://static.lolesports.com/teams/team-tbd.png",
+          "result": null
+        },
+        {
+          "id": "111726451903575911",
+          "name": "Lupus Esports",
+          "code": "LUP",
+          "image": "http://static.lolesports.com/teams/1776205469628_LUP_c.png",
+          "result": {
+            "gameWins": 0
+          }
+        }
+      ],
+      "selectedGame": null,
+      "broadcastLive": false,
+      "games": [
+        {
+          "id": "116923238535448327",
+          "number": 1,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "0",
+              "side": null
+            },
+            {
+              "id": "111726451903575911",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "116923238535448328",
+          "number": 2,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "111726451903575911",
+              "side": "blue"
+            },
+            {
+              "id": "0",
+              "side": null
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "116923238535448329",
+          "number": 3,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "0",
+              "side": null
+            },
+            {
+              "id": "111726451903575911",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        }
+      ]
+    },
+    {
+      "eventId": "116912368900055694",
+      "state": "unstarted",
+      "startTime": "2026-07-28T17:00:00Z",
+      "league": "La Ligue Fran\u00e7aise",
+      "strategy": {
+        "type": "bestOf",
+        "count": 1
+      },
+      "scheduleTeams": [
+        {
+          "id": null,
+          "name": "ZYB",
+          "code": "ZYB",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        },
+        {
+          "id": null,
+          "name": "Esprit Shonen",
+          "code": "ES",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        }
+      ],
+      "resolutionTeams": [
+        {
+          "id": "115745558004231657",
+          "name": "ZYB",
+          "code": "ZYB",
+          "image": "http://static.lolesports.com/teams/1767950581466_ZYB_LOGO_PNG_2026.png",
+          "result": {
+            "gameWins": 0
+          }
+        },
+        {
+          "id": "109508365983748798",
+          "name": "Esprit Shonen",
+          "code": "ES",
+          "image": "http://static.lolesports.com/teams/1766136918134_CopyofLogo-ES-Flat.png",
+          "result": {
+            "gameWins": 0
+          }
+        }
+      ],
+      "selectedGame": null,
+      "broadcastLive": false,
+      "games": [
+        {
+          "id": "116912368900055695",
+          "number": 1,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "115745558004231657",
+              "side": "blue"
+            },
+            {
+              "id": "109508365983748798",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        }
+      ]
+    },
+    {
+      "eventId": "116793933806066860",
+      "state": "unstarted",
+      "startTime": "2026-07-28T17:00:00Z",
+      "league": "Road of Legends",
+      "strategy": {
+        "type": "bestOf",
+        "count": 3
+      },
+      "scheduleTeams": [
+        {
+          "id": null,
+          "name": "ZennIT",
+          "code": "ZNT",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        },
+        {
+          "id": null,
+          "name": "Dynasty",
+          "code": "DYN",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        }
+      ],
+      "resolutionTeams": [
+        {
+          "id": "107128093558481418",
+          "name": "ZennIT",
+          "code": "ZNT",
+          "image": "http://static.lolesports.com/teams/1671442841824_ZennIT.png",
+          "result": {
+            "gameWins": 0
+          }
+        },
+        {
+          "id": "105520816474194464",
+          "name": "Dynasty",
+          "code": "DYN",
+          "image": "http://static.lolesports.com/teams/1767914106312_dyn_w.png",
+          "result": {
+            "gameWins": 0
+          }
+        }
+      ],
+      "selectedGame": null,
+      "broadcastLive": false,
+      "games": [
+        {
+          "id": "116793933806066861",
+          "number": 1,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "107128093558481418",
+              "side": "blue"
+            },
+            {
+              "id": "105520816474194464",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "116793933806066862",
+          "number": 2,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "105520816474194464",
+              "side": "blue"
+            },
+            {
+              "id": "107128093558481418",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "116793933806066863",
+          "number": 3,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "107128093558481418",
+              "side": "blue"
+            },
+            {
+              "id": "105520816474194464",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        }
+      ]
+    },
+    {
+      "eventId": "116833506932128119",
+      "state": "unstarted",
+      "startTime": "2026-07-28T17:30:00Z",
+      "league": "LES",
+      "strategy": {
+        "type": "bestOf",
+        "count": 3
+      },
+      "scheduleTeams": [
+        {
+          "id": null,
+          "name": "Bar\u00e7a Esports",
+          "code": "BAR",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        },
+        {
+          "id": null,
+          "name": "GIANTX ITERO",
+          "code": "GX",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        }
+      ],
+      "resolutionTeams": [
+        {
+          "id": "107422385694193066",
+          "name": "Bar\u00e7a Esports",
+          "code": "BAR",
+          "image": "http://static.lolesports.com/teams/1639828813946_61b778236a9c9995719028.png",
+          "result": {
+            "gameWins": 0
+          }
+        },
+        {
+          "id": "111624630736536145",
+          "name": "GIANTX ITERO",
+          "code": "GX",
+          "image": "http://static.lolesports.com/teams/1703256688027_658305af80d3b372217018.png",
+          "result": {
+            "gameWins": 0
+          }
+        }
+      ],
+      "selectedGame": null,
+      "broadcastLive": false,
+      "games": [
+        {
+          "id": "116833506932128120",
+          "number": 1,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "107422385694193066",
+              "side": "blue"
+            },
+            {
+              "id": "111624630736536145",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "116833506932128121",
+          "number": 2,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "107422385694193066",
+              "side": "blue"
+            },
+            {
+              "id": "111624630736536145",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "116833506932193658",
+          "number": 3,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "111624630736536145",
+              "side": "blue"
+            },
+            {
+              "id": "107422385694193066",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        }
+      ]
+    },
+    {
+      "eventId": "116837891489321419",
+      "state": "unstarted",
+      "startTime": "2026-07-28T18:00:00Z",
+      "league": "Liga Portuguesa",
+      "strategy": {
+        "type": "bestOf",
+        "count": 1
+      },
+      "scheduleTeams": [
+        {
+          "id": null,
+          "name": "TBD",
+          "code": "TBD",
+          "result": null
+        },
+        {
+          "id": null,
+          "name": "TBD",
+          "code": "TBD",
+          "result": null
+        }
+      ],
+      "resolutionTeams": [
+        {
+          "id": "0",
+          "name": "TBD",
+          "code": "TBD",
+          "image": "https://static.lolesports.com/teams/team-tbd.png",
+          "result": null
+        },
+        {
+          "id": "0",
+          "name": "TBD",
+          "code": "TBD",
+          "image": "https://static.lolesports.com/teams/team-tbd.png",
+          "result": null
+        }
+      ],
+      "selectedGame": null,
+      "broadcastLive": false,
+      "games": [
+        {
+          "id": "116837891489321420",
+          "number": 1,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "0",
+              "side": null
+            },
+            {
+              "id": "0",
+              "side": null
+            }
+          ],
+          "vods": []
+        }
+      ]
+    },
+    {
+      "eventId": "116912368900055718",
+      "state": "unstarted",
+      "startTime": "2026-07-28T18:00:00Z",
+      "league": "La Ligue Fran\u00e7aise",
+      "strategy": {
+        "type": "bestOf",
+        "count": 1
+      },
+      "scheduleTeams": [
+        {
+          "id": null,
+          "name": "Karmine Corp Blue",
+          "code": "KCB",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        },
+        {
+          "id": null,
+          "name": "Galions",
+          "code": "GL",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        }
+      ],
+      "resolutionTeams": [
+        {
+          "id": "105515219038427019",
+          "name": "Karmine Corp Blue",
+          "code": "KCB",
+          "image": "http://static.lolesports.com/teams/1765897112519_WHITE.png",
+          "result": {
+            "gameWins": 0
+          }
+        },
+        {
+          "id": "103935468920814040",
+          "name": "Galions",
+          "code": "GL",
+          "image": "http://static.lolesports.com/teams/1734090136444_WHITE_GALIONS_LOGO.png",
+          "result": {
+            "gameWins": 0
+          }
+        }
+      ],
+      "selectedGame": null,
+      "broadcastLive": false,
+      "games": [
+        {
+          "id": "116912368900055719",
+          "number": 1,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "105515219038427019",
+              "side": "blue"
+            },
+            {
+              "id": "103935468920814040",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        }
+      ]
+    },
+    {
+      "eventId": "116923238535448338",
+      "state": "unstarted",
+      "startTime": "2026-07-28T18:00:00Z",
+      "league": "Esports Balkan League",
+      "strategy": {
+        "type": "bestOf",
+        "count": 3
+      },
+      "scheduleTeams": [
+        {
+          "id": null,
+          "name": "The Secret Club",
+          "code": "TSC",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        },
+        {
+          "id": null,
+          "name": "Croatian Flair",
+          "code": "CF",
+          "result": {
+            "outcome": null,
+            "gameWins": 0
+          }
+        }
+      ],
+      "resolutionTeams": [
+        {
+          "id": "114017802981197435",
+          "name": "The Secret Club",
+          "code": "TSC",
+          "image": "http://static.lolesports.com/teams/1754902519348_EBL_TSC-MonochromeDarkBG.png",
+          "result": {
+            "gameWins": 0
+          }
+        },
+        {
+          "id": "116086376784230073",
+          "name": "Croatian Flair",
+          "code": "CF",
+          "image": "http://static.lolesports.com/teams/1776207835031_CFW1.png",
+          "result": {
+            "gameWins": 0
+          }
+        }
+      ],
+      "selectedGame": null,
+      "broadcastLive": false,
+      "games": [
+        {
+          "id": "116923238535448339",
+          "number": 1,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "114017802981197435",
+              "side": "blue"
+            },
+            {
+              "id": "116086376784230073",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "116923238535448340",
+          "number": 2,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "116086376784230073",
+              "side": "blue"
+            },
+            {
+              "id": "114017802981197435",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        },
+        {
+          "id": "116923238535448341",
+          "number": 3,
+          "state": "unstarted",
+          "teams": [
+            {
+              "id": "114017802981197435",
+              "side": "blue"
+            },
+            {
+              "id": "116086376784230073",
+              "side": "red"
+            }
+          ],
+          "vods": []
+        }
+      ]
+    }
+  ]
+}
