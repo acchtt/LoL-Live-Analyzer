@@ -2,6 +2,9 @@
 const WORKER_BASE = 'https://lol-live-analyzer-api.acchtt.workers.dev';
 const GAME_POLL_MS = 15000;
 const EVENT_RETRY_MS = 15000;
+const SCHEDULE_POLL_MS = 30000;
+const START_EARLY_WINDOW_MS = 5 * 60 * 1000;
+const OVERDUE_LIVE_WINDOW_MS = 8 * 60 * 60 * 1000;
 
 const state = {
   events: [],
@@ -10,6 +13,7 @@ const state = {
   selectedMatchState: null,
   pollTimer: null,
   eventRetryTimer: null,
+  scheduleTimer: null,
   lastSnapshot: null
 };
 
@@ -70,6 +74,26 @@ function eventId(event) {
   return String(event?.match?.id || event?.id || '');
 }
 
+function eventStartMs(event) {
+  const parsed = Date.parse(event?.startTime || '');
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function shouldResolveAsLive(event, now = Date.now()) {
+  if (event?.state === 'inProgress') return true;
+  if (event?.state !== 'unstarted') return false;
+
+  const start = eventStartMs(event);
+  if (start === null) return false;
+
+  return start <= now + START_EARLY_WINDOW_MS && start >= now - OVERDUE_LIVE_WINDOW_MS;
+}
+
+function displayState(event) {
+  if (event?.state === 'unstarted' && shouldResolveAsLive(event)) return 'starting';
+  return event?.state || 'unstarted';
+}
+
 function selectedScheduleEvent() {
   return state.events.find(event => eventId(event) === state.selectedEventId) || null;
 }
@@ -77,6 +101,7 @@ function selectedScheduleEvent() {
 function statusLabel(status) {
   const labels = {
     inProgress: 'LIVE',
+    starting: 'STARTING',
     unstarted: 'UPCOMING',
     completed: 'FINISHED'
   };
@@ -84,14 +109,17 @@ function statusLabel(status) {
 }
 
 function sortEvents(events) {
-  const priority = { inProgress: 0, unstarted: 1, completed: 2 };
+  const priority = { inProgress: 0, starting: 1, unstarted: 2, completed: 3 };
+
   return [...events].sort((a, b) => {
-    const stateDifference = (priority[a.state] ?? 3) - (priority[b.state] ?? 3);
+    const aState = displayState(a);
+    const bState = displayState(b);
+    const stateDifference = (priority[aState] ?? 4) - (priority[bState] ?? 4);
     if (stateDifference !== 0) return stateDifference;
 
-    const aTime = Date.parse(a.startTime || 0) || 0;
-    const bTime = Date.parse(b.startTime || 0) || 0;
-    return a.state === 'completed' ? bTime - aTime : aTime - bTime;
+    const aTime = eventStartMs(a) || 0;
+    const bTime = eventStartMs(b) || 0;
+    return aState === 'completed' ? bTime - aTime : aTime - bTime;
   });
 }
 
@@ -104,7 +132,7 @@ function renderSchedule() {
   scheduleList.innerHTML = state.events.map(event => {
     const id = eventId(event);
     const [a, b] = eventTeams(event);
-    const status = event.state || 'unstarted';
+    const status = displayState(event);
 
     return `<button class="match-card ${id === state.selectedEventId ? 'active' : ''}" data-event-id="${id}" type="button">
       <div class="match-meta"><span>${event.league?.name || event.league?.slug || 'LoL Esports'}</span><span class="match-state">${statusLabel(status)}</span></div>
@@ -159,7 +187,7 @@ function setJsonEndpoint(gameId) {
   copyJsonUrl.disabled = false;
 }
 
-function clearTimers() {
+function clearMatchTimers() {
   clearInterval(state.pollTimer);
   clearTimeout(state.eventRetryTimer);
   state.pollTimer = null;
@@ -180,12 +208,19 @@ function showUpcoming(event) {
 }
 
 function showWaiting(event, resolution = {}) {
-  const teams = event?.match?.teams || [];
+  const teams = event?.match?.teams || eventTeams(selectedScheduleEvent());
   const title = teams.length >= 2 ? `${teams[0].name} vs ${teams[1].name}` : 'Selected match';
   const completedGames = (resolution.games || []).filter(game => game.state === 'completed').length;
-  const message = completedGames > 0
-    ? `${title} is between games. Waiting for Riot to activate the next live telemetry feed…`
-    : `${title} is listed as live, but Riot has not activated an in-game telemetry feed yet. Checking again automatically…`;
+  const scheduleStillUpcoming = selectedScheduleEvent()?.state === 'unstarted';
+
+  let message;
+  if (completedGames > 0) {
+    message = `${title} is between games. Waiting for Riot to activate the next live telemetry feed…`;
+  } else if (scheduleStillUpcoming) {
+    message = `${title}'s scheduled start time has passed, but Riot has not activated a fresh in-game telemetry feed yet. Checking again automatically…`;
+  } else {
+    message = `${title} is listed as live, but Riot has not activated an in-game telemetry feed yet. Checking again automatically…`;
+  }
 
   gameContent.innerHTML = `<div class="empty hero-empty"><strong>Waiting for live game data</strong><span>${message}</span></div>`;
   jsonUrl.value = '';
@@ -200,6 +235,8 @@ function showWaiting(event, resolution = {}) {
 }
 
 async function resolveLiveEvent(id, isRetry = false) {
+  state.selectedMatchState = 'inProgress';
+
   if (!isRetry) {
     gameContent.innerHTML = '<div class="empty hero-empty"><strong>Resolving game</strong><span>Checking Riot event, game-state and live-feed data…</span></div>';
   }
@@ -219,7 +256,6 @@ async function resolveLiveEvent(id, isRetry = false) {
   }
 
   state.selectedGameId = String(selected.id);
-  state.selectedMatchState = 'inProgress';
   setJsonEndpoint(state.selectedGameId);
   await loadGame();
   startPolling();
@@ -248,20 +284,20 @@ async function selectEvent(id) {
   state.selectedEventId = String(id);
   state.selectedGameId = null;
   state.selectedMatchState = null;
-  clearTimers();
+  clearMatchTimers();
   renderSchedule();
 
   const selectedEvent = selectedScheduleEvent();
 
   try {
-    if (selectedEvent?.state === 'unstarted') {
-      state.selectedMatchState = 'unstarted';
-      showUpcoming(selectedEvent);
+    if (selectedEvent?.state === 'completed') {
+      await loadFinishedMatch(id);
       return;
     }
 
-    if (selectedEvent?.state === 'completed') {
-      await loadFinishedMatch(id);
+    if (selectedEvent?.state === 'unstarted' && !shouldResolveAsLive(selectedEvent)) {
+      state.selectedMatchState = 'unstarted';
+      showUpcoming(selectedEvent);
       return;
     }
 
@@ -301,8 +337,8 @@ function startPolling() {
   state.pollTimer = setInterval(loadGame, GAME_POLL_MS);
 }
 
-async function loadSchedule() {
-  setConnection('Loading schedule…');
+async function loadSchedule(silent = false) {
+  if (!silent) setConnection('Loading schedule…');
 
   try {
     const payload = await api('/api/schedule');
@@ -311,12 +347,35 @@ async function loadSchedule() {
     state.events = sortEvents(supported).slice(0, 80);
     renderSchedule();
 
-    const finishedCount = state.events.filter(event => event.state === 'completed').length;
-    setConnection(`Schedule connected · ${finishedCount} finished`, 'live');
+    const selectedEvent = selectedScheduleEvent();
+    if (
+      selectedEvent?.state === 'unstarted' &&
+      state.selectedMatchState === 'unstarted' &&
+      shouldResolveAsLive(selectedEvent)
+    ) {
+      await resolveLiveEvent(state.selectedEventId);
+      return;
+    }
+
+    if (!silent || !state.selectedEventId) {
+      const liveCount = state.events.filter(event => displayState(event) === 'inProgress').length;
+      const startingCount = state.events.filter(event => displayState(event) === 'starting').length;
+      const finishedCount = state.events.filter(event => event.state === 'completed').length;
+      setConnection(`Schedule connected · ${liveCount} live · ${startingCount} starting · ${finishedCount} finished`, 'live');
+    }
   } catch (error) {
-    setConnection(error.message, 'error');
-    scheduleList.innerHTML = `<div class="empty">${error.message}</div>`;
+    if (!silent) {
+      setConnection(error.message, 'error');
+      scheduleList.innerHTML = `<div class="empty">${error.message}</div>`;
+    }
   }
+}
+
+function startSchedulePolling() {
+  clearInterval(state.scheduleTimer);
+  state.scheduleTimer = setInterval(() => {
+    if (!document.hidden) loadSchedule(true);
+  }, SCHEDULE_POLL_MS);
 }
 
 scheduleList.addEventListener('click', event => {
@@ -324,7 +383,7 @@ scheduleList.addEventListener('click', event => {
   if (card?.dataset.eventId) selectEvent(card.dataset.eventId);
 });
 
-document.querySelector('#refreshSchedule').addEventListener('click', loadSchedule);
+document.querySelector('#refreshSchedule').addEventListener('click', () => loadSchedule(false));
 copyJsonUrl.addEventListener('click', async () => {
   await navigator.clipboard.writeText(jsonUrl.value);
   copyJsonUrl.textContent = 'Copied';
@@ -333,10 +392,15 @@ copyJsonUrl.addEventListener('click', async () => {
 
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) return;
-  if (state.selectedMatchState === 'inProgress' && state.selectedGameId) loadGame();
-  else if (state.selectedMatchState === 'inProgress' && state.selectedEventId) {
+
+  loadSchedule(true);
+
+  if (state.selectedMatchState === 'inProgress' && state.selectedGameId) {
+    loadGame();
+  } else if (state.selectedMatchState === 'inProgress' && state.selectedEventId) {
     resolveLiveEvent(state.selectedEventId, true).catch(error => setConnection(error.message, 'error'));
   }
 });
 
-loadSchedule();
+loadSchedule(false);
+startSchedulePolling();
