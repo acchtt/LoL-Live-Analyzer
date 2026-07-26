@@ -17,13 +17,14 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v6
 
-      - name: Verify Worker v2.0 completed series
+      - name: Verify Worker v2.0 completed series after schedule mapping
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p diagnostics
           base="https://lol-live-analyzer-api.acchtt.workers.dev"
 
+          sleep 30
           for attempt in $(seq 1 30); do
             curl --retry 2 --retry-delay 1 --fail-with-body -sS "$base/" \
               -o diagnostics/worker-health.json
@@ -64,7 +65,8 @@ jobs:
               return [
                   {
                       'code': team.get('code'),
-                      'wins': team.get('wins', team.get('result', {}).get('gameWins'))
+                      'wins': team.get('wins', team.get('result', {}).get('gameWins')),
+                      'outcome': team.get('result', {}).get('outcome')
                   }
                   for team in rows or []
               ]
@@ -100,5 +102,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add diagnostics/
-          git commit -m "Verify Worker v2.0 final series [skip ci]"
+          git commit -m "Reverify Worker v2.0 final series [skip ci]"
           git push
