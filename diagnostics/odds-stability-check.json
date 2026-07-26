@@ -1,0 +1,89 @@
+{
+  "healthHttpStatus": 200,
+  "workerVersion": "2.3",
+  "bridgeConfigured": true,
+  "storage": "Workers KV + edge cache",
+  "durable": true,
+  "samples": [
+    {
+      "httpStatus": 404,
+      "status": "waiting_for_bridge",
+      "ageSeconds": null,
+      "stale": null,
+      "matchCount": 0,
+      "error": null
+    },
+    {
+      "httpStatus": 404,
+      "status": "waiting_for_bridge",
+      "ageSeconds": null,
+      "stale": null,
+      "matchCount": 0,
+      "error": null
+    },
+    {
+      "httpStatus": 404,
+      "status": "waiting_for_bridge",
+      "ageSeconds": null,
+      "stale": null,
+      "matchCount": 0,
+      "error": null
+    },
+    {
+      "httpStatus": 404,
+      "status": "waiting_for_bridge",
+      "ageSeconds": null,
+      "stale": null,
+      "matchCount": 0,
+      "error": null
+    },
+    {
+      "httpStatus": 404,
+      "status": "waiting_for_bridge",
+      "ageSeconds": null,
+      "stale": null,
+      "matchCount": 0,
+      "error": null
+    },
+    {
+      "httpStatus": 404,
+      "status": "waiting_for_bridge",
+      "ageSeconds": null,
+      "stale": null,
+      "matchCount": 0,
+      "error": null
+    },
+    {
+      "httpStatus": 404,
+      "status": "waiting_for_bridge",
+      "ageSeconds": null,
+      "stale": null,
+      "matchCount": 0,
+      "error": null
+    },
+    {
+      "httpStatus": 404,
+      "status": "waiting_for_bridge",
+      "ageSeconds": null,
+      "stale": null,
+      "matchCount": 0,
+      "error": null
+    },
+    {
+      "httpStatus": 404,
+      "status": "waiting_for_bridge",
+      "ageSeconds": null,
+      "stale": null,
+      "matchCount": 0,
+      "error": null
+    },
+    {
+      "httpStatus": 404,
+      "status": "waiting_for_bridge",
+      "ageSeconds": null,
+      "stale": null,
+      "matchCount": 0,
+      "error": null
+    }
+  ]
+}
