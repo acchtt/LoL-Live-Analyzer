@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         LoL Live Analyzer - BK8/IME Odds Bridge
 // @namespace    https://github.com/acchtt/LoL-Live-Analyzer
-// @version      1.1.0
+// @version      1.2.0
 // @description  Captures sanitized eSportsBull market responses and sends them to your private Cloudflare Worker bridge.
 // @author       LoL Live Analyzer
 // @match        https://*.dotnapu.com/*
@@ -20,228 +20,170 @@
 (() => {
   'use strict';
 
-  const TARGET_FRAGMENT = '/api/GetMatchDetailsByParentV2';
+  const TARGET = '/api/GetMatchDetailsByParentV2';
   const DEFAULT_WORKER = 'https://lol-live-analyzer-api.acchtt.workers.dev';
   const SECRET_KEY = 'oddsBridgeSecret';
   const WORKER_KEY = 'oddsBridgeWorker';
   const page = typeof unsafeWindow !== 'undefined' ? unsafeWindow : window;
 
-  let badge = null;
-  let lastBadgeMessage = '';
-  let lastBadgeState = 'idle';
-  let lastPayload = null;
-  let lastFingerprint = '';
-  let sendTimer = null;
+  let host;
+  let root;
+  let badge;
+  let modal;
+  let modalOpen = false;
+  let message = '';
+  let state = 'idle';
+  let lastPayload;
+  let lastHash = '';
+  let timer;
   let sending = false;
 
-  function workerBase() {
-    return String(GM_getValue(WORKER_KEY, DEFAULT_WORKER) || DEFAULT_WORKER).replace(/\/+$/, '');
+  const workerBase = () => String(GM_getValue(WORKER_KEY, DEFAULT_WORKER) || DEFAULT_WORKER).replace(/\/+$/, '');
+  const bridgeSecret = () => String(GM_getValue(SECRET_KEY, '') || '').trim();
+  const text = (value, fallback = '') => String(value ?? fallback).trim();
+  const number = value => Number.isFinite(Number(value)) ? Number(value) : null;
+  const integer = value => Number.isInteger(Number(value)) ? Number(value) : null;
+
+  function mountHost() {
+    const mount = document.body || document.documentElement;
+    if (!mount) return false;
+    if (!host) {
+      host = document.createElement('div');
+      host.style.cssText = 'all:initial;position:fixed;right:12px;bottom:12px;z-index:2147483647;display:block;pointer-events:auto';
+      root = host.attachShadow({ mode: 'open' });
+    }
+    if (!host.isConnected || host.parentNode !== mount) mount.appendChild(host);
+    return true;
   }
 
-  function bridgeSecret() {
-    return String(GM_getValue(SECRET_KEY, '') || '').trim();
-  }
-
-  function badgeColors(state) {
+  function colors(kind) {
     return {
-      idle: ['#182033', '#cbd5e1'],
-      waiting: ['#332d18', '#fde68a'],
-      sending: ['#172554', '#bfdbfe'],
-      ok: ['#123524', '#bbf7d0'],
-      error: ['#3f1717', '#fecaca']
-    }[state] || ['#182033', '#cbd5e1'];
+      idle: ['#182033', '#cbd5e1'], waiting: ['#332d18', '#fde68a'],
+      sending: ['#172554', '#bfdbfe'], ok: ['#123524', '#bbf7d0'], error: ['#3f1717', '#fecaca']
+    }[kind] || ['#182033', '#cbd5e1'];
   }
 
   function ensureBadge() {
-    const mount = document.body || document.documentElement;
-    if (!mount) return null;
-
+    if (!mountHost()) return;
     if (!badge) {
       badge = document.createElement('button');
       badge.type = 'button';
-      badge.id = 'lol-live-analyzer-odds-bridge';
-      badge.title = 'Click to configure the private odds bridge secret.';
-      badge.style.cssText = [
-        'all:initial',
-        'position:fixed',
-        'right:12px',
-        'bottom:12px',
-        'z-index:2147483647',
-        'display:block',
-        'box-sizing:border-box',
-        'border:1px solid rgba(255,255,255,.24)',
-        'border-radius:9px',
-        'padding:9px 12px',
-        'font:600 12px/1.35 system-ui,-apple-system,Segoe UI,sans-serif',
-        'box-shadow:0 5px 20px rgba(0,0,0,.42)',
-        'cursor:pointer',
-        'max-width:340px',
-        'text-align:left',
-        'white-space:normal'
-      ].join(';');
-      badge.addEventListener('click', configureSecret);
+      badge.style.cssText = 'all:initial;display:block;box-sizing:border-box;border:1px solid rgba(255,255,255,.24);border-radius:9px;padding:9px 12px;font:600 12px/1.35 system-ui,sans-serif;box-shadow:0 5px 20px rgba(0,0,0,.42);cursor:pointer;max-width:340px;text-align:left;white-space:normal;pointer-events:auto;user-select:none';
+      badge.addEventListener('pointerdown', event => event.stopPropagation(), true);
+      badge.addEventListener('click', event => {
+        event.preventDefault();
+        event.stopPropagation();
+        openSettings();
+      }, true);
+      root.appendChild(badge);
     }
-
-    if (!badge.isConnected || badge.parentNode !== mount) mount.appendChild(badge);
-
-    const message = lastBadgeMessage || (bridgeSecret()
-      ? 'Odds bridge ready · waiting for odds'
-      : 'Odds bridge · click to set secret');
-    const state = lastBadgeMessage ? lastBadgeState : (bridgeSecret() ? 'waiting' : 'idle');
-    const [background, color] = badgeColors(state);
-    badge.textContent = message;
-    badge.dataset.state = state;
+    const currentMessage = message || (bridgeSecret() ? 'Odds bridge ready · waiting for odds' : 'Odds bridge · click to set secret');
+    const currentState = message ? state : (bridgeSecret() ? 'waiting' : 'idle');
+    const [background, color] = colors(currentState);
+    badge.textContent = currentMessage;
     badge.style.background = background;
     badge.style.color = color;
-    return badge;
   }
 
-  function setBadge(message, state = 'idle') {
-    lastBadgeMessage = String(message || '');
-    lastBadgeState = state;
+  function setBadge(nextMessage, nextState = 'idle') {
+    message = String(nextMessage || '');
+    state = nextState;
     ensureBadge();
   }
 
-  function configureSecret() {
-    const value = prompt(
-      'Paste ODDS_BRIDGE_SECRET. It remains in Tampermonkey storage on this browser.',
-      bridgeSecret()
-    );
-    if (value === null) return;
-    const secret = String(value).trim();
-    if (!secret) {
+  function button(label, background) {
+    const element = document.createElement('button');
+    element.type = 'button';
+    element.textContent = label;
+    element.style.cssText = `all:initial;display:inline-block;box-sizing:border-box;border:1px solid rgba(255,255,255,.14);border-radius:9px;padding:9px 12px;background:${background};color:#fff;font:600 13px/1.3 system-ui,sans-serif;cursor:pointer;text-align:center`;
+    return element;
+  }
+
+  function closeSettings() {
+    modalOpen = false;
+    modal?.remove();
+    modal = null;
+  }
+
+  function openSettings() {
+    modalOpen = true;
+    ensureSettings();
+  }
+
+  function ensureSettings() {
+    if (!modalOpen || !mountHost() || modal?.isConnected) return;
+    modal = document.createElement('div');
+    modal.style.cssText = 'all:initial;position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;box-sizing:border-box;padding:18px;background:rgba(3,7,18,.78);font:14px/1.45 system-ui,sans-serif;color:#e5e7eb;pointer-events:auto';
+
+    const panel = document.createElement('div');
+    panel.style.cssText = 'all:initial;display:block;box-sizing:border-box;width:min(520px,100%);border:1px solid #3a4761;border-radius:14px;padding:18px;background:#111827;box-shadow:0 18px 60px rgba(0,0,0,.6);font:14px/1.45 system-ui,sans-serif;color:#e5e7eb';
+    panel.innerHTML = '<div style="font-weight:700;font-size:17px;color:#f8fafc;margin-bottom:6px">Configure private odds bridge</div><div style="color:#aab4c7;margin-bottom:16px">Paste the same ODDS_BRIDGE_SECRET stored in GitHub. It stays only in Tampermonkey storage.</div>';
+
+    const secretLabel = document.createElement('label');
+    secretLabel.textContent = 'Bridge secret';
+    secretLabel.style.cssText = 'display:block;margin-bottom:6px;font-weight:600;color:#dbeafe';
+    const secretInput = document.createElement('input');
+    secretInput.type = 'password';
+    secretInput.autocomplete = 'off';
+    secretInput.value = bridgeSecret();
+    secretInput.placeholder = 'ODDS_BRIDGE_SECRET';
+
+    const workerLabel = document.createElement('label');
+    workerLabel.textContent = 'Cloudflare Worker URL';
+    workerLabel.style.cssText = 'display:block;margin:14px 0 6px;font-weight:600;color:#dbeafe';
+    const workerInput = document.createElement('input');
+    workerInput.type = 'url';
+    workerInput.value = workerBase();
+
+    for (const input of [secretInput, workerInput]) {
+      input.style.cssText = 'all:initial;display:block;box-sizing:border-box;width:100%;border:1px solid #43516d;border-radius:9px;padding:10px 11px;background:#0b1220;color:#f8fafc;font:14px/1.35 system-ui,sans-serif';
+    }
+
+    const error = document.createElement('div');
+    error.style.cssText = 'display:none;margin-top:10px;color:#fecaca';
+    const actions = document.createElement('div');
+    actions.style.cssText = 'display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:18px';
+    const clear = button('Clear secret', '#263247');
+    const cancel = button('Cancel', '#263247');
+    const save = button('Save and connect', '#315efb');
+
+    clear.addEventListener('click', () => {
       GM_deleteValue(SECRET_KEY);
       setBadge('Odds bridge · secret cleared', 'idle');
-      return;
-    }
-    GM_setValue(SECRET_KEY, secret);
-    setBadge('Odds bridge ready · waiting for odds', 'waiting');
-    if (lastPayload) queueSend(lastPayload, true);
+      closeSettings();
+    });
+    cancel.addEventListener('click', closeSettings);
+    save.addEventListener('click', () => {
+      const secret = text(secretInput.value);
+      const worker = text(workerInput.value).replace(/\/+$/, '');
+      if (!secret || !/^https:\/\//i.test(worker)) {
+        error.textContent = !secret ? 'Paste ODDS_BRIDGE_SECRET first.' : 'Worker URL must start with https://';
+        error.style.display = 'block';
+        return;
+      }
+      GM_setValue(SECRET_KEY, secret);
+      GM_setValue(WORKER_KEY, worker);
+      setBadge('Odds bridge ready · waiting for odds', 'waiting');
+      closeSettings();
+      if (lastPayload) queueSend(lastPayload, true);
+    });
+
+    modal.addEventListener('click', event => { if (event.target === modal) closeSettings(); });
+    panel.addEventListener('click', event => event.stopPropagation());
+    actions.append(clear, cancel, save);
+    panel.append(secretLabel, secretInput, workerLabel, workerInput, error, actions);
+    modal.appendChild(panel);
+    root.appendChild(modal);
+    setTimeout(() => secretInput.focus(), 0);
   }
 
-  function configureWorker() {
-    const value = prompt('Cloudflare Worker base URL:', workerBase());
-    if (value === null) return;
-    const normalized = String(value).trim().replace(/\/+$/, '');
-    if (!/^https:\/\//i.test(normalized)) {
-      setBadge('Odds bridge · invalid Worker URL', 'error');
-      return;
-    }
-    GM_setValue(WORKER_KEY, normalized);
-    setBadge('Odds bridge · Worker URL updated', 'ok');
-  }
-
-  function finite(value) {
-    const number = Number(value);
-    return Number.isFinite(number) ? number : null;
-  }
-
-  function integer(value) {
-    const number = Number(value);
-    return Number.isInteger(number) ? number : null;
-  }
-
-  function cleanText(value, fallback = '') {
-    return String(value ?? fallback).trim();
-  }
-
-  function selectionSide(rawName, code) {
-    const name = cleanText(rawName).toLowerCase();
-    if (name === 'tài' || name === 'over') return 'over';
-    if (name === 'xỉu' || name === 'under') return 'under';
-    if (name.includes('{teama}') || Number(code) === 1) return 'home';
-    if (name.includes('{teamb}') || Number(code) === 2) return 'away';
+  function selectionSide(name, code) {
+    const value = text(name).toLowerCase();
+    if (value === 'tài' || value === 'over') return 'over';
+    if (value === 'xỉu' || value === 'under') return 'under';
+    if (value.includes('{teama}') || Number(code) === 1) return 'home';
+    if (value.includes('{teamb}') || Number(code) === 2) return 'away';
     return null;
-  }
-
-  function selectionName(rawName, homeName, awayName, handicap) {
-    const hdp = handicap === null ? '' : String(Math.abs(handicap));
-    return cleanText(rawName)
-      .replaceAll('{TeamA}', homeName)
-      .replaceAll('{TeamB}', awayName)
-      .replaceAll('{HDP}', hdp)
-      .replace(/\s+/g, ' ')
-      .trim();
-  }
-
-  function normalizeLine(group, homeName, awayName) {
-    const selections = (Array.isArray(group?.SEL) ? group.SEL : []).map(selection => {
-      const handicap = finite(selection?.HDP);
-      return {
-        code: integer(selection?.SCode),
-        name: selectionName(selection?.SName, homeName, awayName, handicap),
-        side: selectionSide(selection?.SName, selection?.SCode),
-        handicap,
-        odds: finite(selection?.Odds),
-        locked: Boolean(selection?.IsLock),
-        prompt: Boolean(selection?.IsPrompt)
-      };
-    }).filter(selection => selection.name && selection.odds !== null);
-
-    return {
-      handicap: selections.find(selection => selection.handicap !== null)?.handicap ?? null,
-      selections
-    };
-  }
-
-  function normalizeMarket(market, homeName, awayName) {
-    const lines = (Array.isArray(market?.Odds) ? market.Odds : [])
-      .map(group => normalizeLine(group, homeName, awayName))
-      .filter(line => line.selections.length);
-
-    return {
-      providerMarketId: cleanText(market?.MatchNo),
-      code: cleanText(market?.GTCode),
-      name: cleanText(market?.GTName),
-      gameOrder: integer(market?.GameOrder),
-      group: cleanText(market?.GTGroup) || null,
-      marketGroup: cleanText(market?.GTMarketGroup) || null,
-      live: Boolean(market?.IsLive),
-      providerStatus: integer(market?.Status),
-      available: Number(market?.Status) === 1 && lines.some(line => line.selections.some(selection => !selection.locked)),
-      tabs: Array.isArray(market?.Tabs) ? market.Tabs.map(cleanText) : [],
-      lines
-    };
-  }
-
-  function normalizeParent(sport, league, parent) {
-    const homeName = cleanText(parent?.PHTName);
-    const awayName = cleanText(parent?.PATName);
-    const markets = (Array.isArray(parent?.Match) ? parent.Match : [])
-      .map(market => normalizeMarket(market, homeName, awayName))
-      .filter(market => market.providerMarketId && market.code && market.lines.length);
-
-    return {
-      providerMatchId: cleanText(parent?.PMatchNo),
-      externalMatchId: cleanText(parent?.ExtMatchId) || null,
-      sport: cleanText(sport?.SportName, 'League of Legends'),
-      sportCode: cleanText(sport?.SportAbbr, 'LOL'),
-      league: cleanText(league?.LGName || league?.BaseLGName),
-      leagueCode: cleanText(league?.BaseLGAbbr) || null,
-      matchType: cleanText(parent?.MatchType) || null,
-      group: cleanText(parent?.MatchGroup) || null,
-      live: Boolean(parent?.HasLive),
-      liveOpened: Boolean(parent?.HasLiveOpened),
-      providerStatus: integer(parent?.GameStatus),
-      updatedAt: cleanText(parent?.LiveUpdateTime || parent?.LiveRefTime) || null,
-      teams: {
-        home: {
-          id: cleanText(parent?.PHTId) || null,
-          name: homeName,
-          code: cleanText(parent?.PHTAbbr) || null,
-          score: finite(parent?.PHTScore),
-          image: cleanText(parent?.PHTImgURL) || null
-        },
-        away: {
-          id: cleanText(parent?.PATId) || null,
-          name: awayName,
-          code: cleanText(parent?.PATAbbr) || null,
-          score: finite(parent?.PATScore),
-          image: cleanText(parent?.PATImgURL) || null
-        }
-      },
-      markets
-    };
   }
 
   function normalizeResponse(data) {
@@ -249,22 +191,49 @@
     for (const sport of Array.isArray(data?.Sport) ? data.Sport : []) {
       for (const league of Array.isArray(sport?.LG) ? sport.LG : []) {
         for (const parent of Array.isArray(league?.ParentMatch) ? league.ParentMatch : []) {
-          const match = normalizeParent(sport, league, parent);
-          if (/^\d{4,14}$/.test(match.providerMatchId) && match.teams.home.name && match.teams.away.name) {
-            matches.push(match);
-          }
+          const home = text(parent?.PHTName);
+          const away = text(parent?.PATName);
+          const markets = (Array.isArray(parent?.Match) ? parent.Match : []).map(market => ({
+            providerMarketId: text(market?.MatchNo), code: text(market?.GTCode), name: text(market?.GTName),
+            gameOrder: integer(market?.GameOrder), group: text(market?.GTGroup) || null,
+            marketGroup: text(market?.GTMarketGroup) || null, live: Boolean(market?.IsLive),
+            providerStatus: integer(market?.Status), available: Number(market?.Status) === 1,
+            tabs: Array.isArray(market?.Tabs) ? market.Tabs.map(text) : [],
+            lines: (Array.isArray(market?.Odds) ? market.Odds : []).map(group => {
+              const selections = (Array.isArray(group?.SEL) ? group.SEL : []).map(selection => {
+                const handicap = number(selection?.HDP);
+                const name = text(selection?.SName)
+                  .replaceAll('{TeamA}', home).replaceAll('{TeamB}', away)
+                  .replaceAll('{HDP}', handicap === null ? '' : String(Math.abs(handicap)))
+                  .replace(/\s+/g, ' ').trim();
+                return { code: integer(selection?.SCode), name, side: selectionSide(selection?.SName, selection?.SCode), handicap, odds: number(selection?.Odds), locked: Boolean(selection?.IsLock), prompt: Boolean(selection?.IsPrompt) };
+              }).filter(selection => selection.name && selection.odds !== null);
+              return { handicap: selections.find(selection => selection.handicap !== null)?.handicap ?? null, selections };
+            }).filter(line => line.selections.length)
+          })).filter(market => market.providerMarketId && market.code && market.lines.length);
+
+          const providerMatchId = text(parent?.PMatchNo);
+          if (!/^\d{4,14}$/.test(providerMatchId) || !home || !away) continue;
+          matches.push({
+            providerMatchId, externalMatchId: text(parent?.ExtMatchId) || null,
+            sport: text(sport?.SportName, 'League of Legends'), sportCode: text(sport?.SportAbbr, 'LOL'),
+            league: text(league?.LGName || league?.BaseLGName), leagueCode: text(league?.BaseLGAbbr) || null,
+            matchType: text(parent?.MatchType) || null, group: text(parent?.MatchGroup) || null,
+            live: Boolean(parent?.HasLive), liveOpened: Boolean(parent?.HasLiveOpened),
+            providerStatus: integer(parent?.GameStatus), updatedAt: text(parent?.LiveUpdateTime || parent?.LiveRefTime) || null,
+            teams: {
+              home: { id: text(parent?.PHTId) || null, name: home, code: text(parent?.PHTAbbr) || null, score: number(parent?.PHTScore), image: text(parent?.PHTImgURL) || null },
+              away: { id: text(parent?.PATId) || null, name: away, code: text(parent?.PATAbbr) || null, score: number(parent?.PATScore), image: text(parent?.PATImgURL) || null }
+            },
+            markets
+          });
         }
       }
     }
-    return {
-      schemaVersion: '1.0',
-      source: 'ime-esportsbull-browser-bridge',
-      capturedAt: new Date().toISOString(),
-      matches
-    };
+    return { schemaVersion: '1.0', source: 'ime-esportsbull-browser-bridge', capturedAt: new Date().toISOString(), matches };
   }
 
-  function fingerprint(payload) {
+  function hashPayload(payload) {
     const value = JSON.stringify(payload.matches);
     let hash = 2166136261;
     for (let index = 0; index < value.length; index += 1) {
@@ -277,150 +246,102 @@
   function queueSend(payload, force = false) {
     if (!payload?.matches?.length) return;
     lastPayload = payload;
-    const nextFingerprint = fingerprint(payload);
-    if (!force && nextFingerprint === lastFingerprint) return;
-    lastFingerprint = nextFingerprint;
-    clearTimeout(sendTimer);
-    sendTimer = setTimeout(() => sendPayload(payload), 350);
+    const nextHash = hashPayload(payload);
+    if (!force && nextHash === lastHash) return;
+    lastHash = nextHash;
+    clearTimeout(timer);
+    timer = setTimeout(() => sendPayload(payload), 350);
   }
 
   function sendPayload(payload) {
     const secret = bridgeSecret();
+    const first = payload.matches[0];
     if (!secret) {
-      const first = payload.matches[0];
       setBadge(`Odds captured · ${first?.teams?.home?.code || 'A'} vs ${first?.teams?.away?.code || 'B'} · click to set secret`, 'waiting');
       return;
     }
-    if (sending) {
-      setTimeout(() => queueSend(lastPayload, true), 500);
-      return;
-    }
-
+    if (sending) return setTimeout(() => queueSend(lastPayload, true), 500);
     sending = true;
-    const first = payload.matches[0];
     setBadge(`Sending ${first?.teams?.home?.code || 'A'} vs ${first?.teams?.away?.code || 'B'} odds…`, 'sending');
-
     GM_xmlhttpRequest({
-      method: 'POST',
-      url: `${workerBase()}/api/odds/bridge`,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${secret}`
-      },
-      data: JSON.stringify(payload),
-      timeout: 15000,
+      method: 'POST', url: `${workerBase()}/api/odds/bridge`,
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${secret}` },
+      data: JSON.stringify(payload), timeout: 15000,
       onload(response) {
         sending = false;
-        let body = null;
-        try { body = JSON.parse(response.responseText); } catch { /* no-op */ }
+        let body;
+        try { body = JSON.parse(response.responseText); } catch { body = null; }
         if (response.status >= 200 && response.status < 300 && body?.status === 'accepted') {
-          const marketCount = body.matches?.reduce((sum, match) => sum + Number(match.marketCount || 0), 0) || 0;
-          setBadge(`Odds bridge live · ${body.matches?.length || 0} match · ${marketCount} markets`, 'ok');
-          return;
-        }
-        setBadge(`Odds bridge failed · ${body?.error || body?.status || `HTTP ${response.status}`}`, 'error');
+          const count = body.matches?.reduce((sum, match) => sum + Number(match.marketCount || 0), 0) || 0;
+          setBadge(`Odds bridge live · ${body.matches?.length || 0} match · ${count} markets`, 'ok');
+        } else setBadge(`Odds bridge failed · ${body?.error || body?.status || `HTTP ${response.status}`}`, 'error');
       },
-      onerror() {
-        sending = false;
-        setBadge('Odds bridge failed · network error', 'error');
-      },
-      ontimeout() {
-        sending = false;
-        setBadge('Odds bridge failed · timeout', 'error');
-      }
+      onerror() { sending = false; setBadge('Odds bridge failed · network error', 'error'); },
+      ontimeout() { sending = false; setBadge('Odds bridge failed · timeout', 'error'); }
     });
   }
 
-  function handleProviderData(data) {
+  function handleData(data) {
     try {
       const payload = normalizeResponse(data);
       if (payload.matches.length) queueSend(payload);
     } catch (error) {
-      console.warn('[LoL Odds Bridge] Could not normalize provider response:', error);
+      console.warn('[LoL Odds Bridge] Parse failed:', error);
       setBadge('Odds bridge · response parse failed', 'error');
     }
   }
 
-  function isTarget(url) {
-    return String(url || '').includes(TARGET_FRAGMENT);
-  }
+  const isTarget = url => String(url || '').includes(TARGET);
 
-  function patchXmlHttpRequest() {
+  function patchXHR() {
     const prototype = page.XMLHttpRequest?.prototype;
-    if (!prototype) return;
-    if (prototype.open?.__lolOddsBridgePatched && prototype.send?.__lolOddsBridgePatched) return;
-
+    if (!prototype || (prototype.open?.__oddsBridge && prototype.send?.__oddsBridge)) return;
     const originalOpen = prototype.open;
     const originalSend = prototype.send;
-
-    function patchedOpen(method, url, ...rest) {
-      this.__lolOddsBridgeUrl = String(url || '');
+    function open(method, url, ...rest) {
+      this.__oddsBridgeUrl = String(url || '');
       return originalOpen.call(this, method, url, ...rest);
     }
-
-    function patchedSend(...args) {
-      if (isTarget(this.__lolOddsBridgeUrl)) {
-        this.addEventListener('load', () => {
-          if (this.status < 200 || this.status >= 300) return;
-          try {
-            const data = this.responseType === 'json' && this.response
-              ? this.response
-              : JSON.parse(this.responseText);
-            handleProviderData(data);
-          } catch (error) {
-            console.warn('[LoL Odds Bridge] XHR response was not readable JSON:', error);
-          }
-        }, { once: true });
-      }
+    function send(...args) {
+      if (isTarget(this.__oddsBridgeUrl)) this.addEventListener('load', () => {
+        if (this.status < 200 || this.status >= 300) return;
+        try { handleData(this.responseType === 'json' && this.response ? this.response : JSON.parse(this.responseText)); } catch {}
+      }, { once: true });
       return originalSend.apply(this, args);
     }
-
-    Object.defineProperty(patchedOpen, '__lolOddsBridgePatched', { value: true });
-    Object.defineProperty(patchedSend, '__lolOddsBridgePatched', { value: true });
-    prototype.open = patchedOpen;
-    prototype.send = patchedSend;
+    Object.defineProperty(open, '__oddsBridge', { value: true });
+    Object.defineProperty(send, '__oddsBridge', { value: true });
+    prototype.open = open;
+    prototype.send = send;
   }
 
   function patchFetch() {
-    if (typeof page.fetch !== 'function' || page.fetch.__lolOddsBridgePatched) return;
-    const originalFetch = page.fetch;
-
-    async function patchedFetch(input, init) {
-      const response = await originalFetch.call(this, input, init);
+    if (typeof page.fetch !== 'function' || page.fetch.__oddsBridge) return;
+    const original = page.fetch;
+    async function wrapped(input, init) {
+      const response = await original.call(this, input, init);
       const url = typeof input === 'string' ? input : input?.url;
-      if (isTarget(url) && response.ok) {
-        response.clone().json().then(handleProviderData).catch(() => {});
-      }
+      if (isTarget(url) && response.ok) response.clone().json().then(handleData).catch(() => {});
       return response;
     }
-
-    Object.defineProperty(patchedFetch, '__lolOddsBridgePatched', { value: true });
-    page.fetch = patchedFetch;
+    Object.defineProperty(wrapped, '__oddsBridge', { value: true });
+    page.fetch = wrapped;
   }
 
-  function maintainBridge() {
+  function maintain() {
     ensureBadge();
-    patchXmlHttpRequest();
+    if (modalOpen) ensureSettings();
+    patchXHR();
     patchFetch();
   }
 
-  GM_registerMenuCommand('Show bridge badge', () => {
-    badge?.remove();
-    ensureBadge();
-  });
-  GM_registerMenuCommand('Configure bridge secret', configureSecret);
-  GM_registerMenuCommand('Configure Worker URL', configureWorker);
-  GM_registerMenuCommand('Send last captured odds again', () => {
-    if (lastPayload) queueSend(lastPayload, true);
-    else setBadge('Odds bridge · no response captured yet', 'waiting');
-  });
-  GM_registerMenuCommand('Clear bridge secret', () => {
-    GM_deleteValue(SECRET_KEY);
-    setBadge('Odds bridge · secret cleared', 'idle');
-  });
+  GM_registerMenuCommand('Open bridge settings', openSettings);
+  GM_registerMenuCommand('Show bridge badge', () => { host?.remove(); ensureBadge(); });
+  GM_registerMenuCommand('Send last captured odds again', () => lastPayload ? queueSend(lastPayload, true) : setBadge('Odds bridge · no response captured yet', 'waiting'));
+  GM_registerMenuCommand('Clear bridge secret', () => { GM_deleteValue(SECRET_KEY); setBadge('Odds bridge · secret cleared', 'idle'); });
 
-  maintainBridge();
-  document.addEventListener('DOMContentLoaded', maintainBridge, { once: true });
-  setInterval(maintainBridge, 1500);
-  console.info('[LoL Odds Bridge] v1.1.0 installed. Waiting for GetMatchDetailsByParentV2 responses.');
+  maintain();
+  document.addEventListener('DOMContentLoaded', maintain, { once: true });
+  setInterval(maintain, 1500);
+  console.info('[LoL Odds Bridge] v1.2.0 installed.');
 })();
