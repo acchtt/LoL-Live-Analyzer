@@ -17,59 +17,49 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v6
 
-      - name: Read current Worker v1.7 feed
+      - name: Verify Worker v1.8 path feed
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p diagnostics
           base="https://lol-live-analyzer-api.acchtt.workers.dev"
 
-          curl --retry 5 --retry-delay 3 --fail-with-body -sS "$base/" \
-            -o diagnostics/worker-health.json
-          curl --retry 5 --retry-delay 3 --fail-with-body -sS \
-            "$base/api/chatgpt?gameId=115548681803406194&_=$(date +%s)" \
-            -D diagnostics/chatgpt-game3.headers.txt \
-            -o diagnostics/chatgpt-game3.json
+          for attempt in $(seq 1 30); do
+            curl --retry 2 --retry-delay 1 --fail-with-body -sS "$base/" \
+              -o diagnostics/worker-health.json
+            version=$(python -c "import json; print(json.load(open('diagnostics/worker-health.json')).get('version',''))")
+            if [ "$version" = "1.8" ]; then
+              break
+            fi
+            sleep 4
+          done
 
-          python -m json.tool diagnostics/worker-health.json > diagnostics/worker-health.pretty.json
-          python -m json.tool diagnostics/chatgpt-game3.json > diagnostics/chatgpt-game3.pretty.json
+          python -c "import json; v=json.load(open('diagnostics/worker-health.json')).get('version'); assert v == '1.8', f'Expected Worker 1.8, got {v}'"
+
+          curl --retry 5 --retry-delay 3 --fail-with-body -sS \
+            "$base/api/chatgpt/115548681803406194" \
+            -D diagnostics/path-feed.headers.txt \
+            -o diagnostics/path-feed.json
+
+          python -m json.tool diagnostics/path-feed.json > diagnostics/path-feed.pretty.json
           python - <<'PY'
           import json
           from pathlib import Path
-          data = json.load(open('diagnostics/chatgpt-game3.json'))
+          data = json.load(open('diagnostics/path-feed.json'))
           summary = {
               'schemaVersion': data.get('schemaVersion'),
-              'updatedAt': data.get('updatedAt'),
-              'frameTimestamp': data.get('source', {}).get('frameTimestamp'),
-              'dataAgeSeconds': data.get('source', {}).get('dataAgeSeconds'),
-              'live': data.get('source', {}).get('live'),
+              'status': data.get('status'),
+              'gameId': data.get('source', {}).get('gameId'),
+              'feedUrl': data.get('request', {}).get('feedUrl'),
+              'format': data.get('request', {}).get('format'),
               'clock': data.get('clock'),
-              'clockSeconds': data.get('clockSeconds'),
-              'clockSource': data.get('source', {}).get('clockSource'),
-              'matchState': data.get('match', {}).get('state'),
               'series': [
                   {'code': team.get('code'), 'wins': team.get('wins')}
                   for team in data.get('series', {}).get('teams', [])
               ],
-              'seriesSource': data.get('series', {}).get('source'),
-              'blue': {
-                  'code': data.get('blue', {}).get('code'),
-                  'kills': data.get('blue', {}).get('kills'),
-                  'gold': data.get('blue', {}).get('gold'),
-                  'towers': data.get('blue', {}).get('towers'),
-                  'dragons': len(data.get('blue', {}).get('dragons', [])),
-                  'barons': data.get('blue', {}).get('barons')
-              },
-              'red': {
-                  'code': data.get('red', {}).get('code'),
-                  'kills': data.get('red', {}).get('kills'),
-                  'gold': data.get('red', {}).get('gold'),
-                  'towers': data.get('red', {}).get('towers'),
-                  'dragons': len(data.get('red', {}).get('dragons', [])),
-                  'barons': data.get('red', {}).get('barons')
-              }
+              'message': data.get('message')
           }
-          Path('diagnostics/v17-verification-summary.json').write_text(json.dumps(summary, indent=2) + '\n')
+          Path('diagnostics/v18-path-feed-summary.json').write_text(json.dumps(summary, indent=2) + '\n')
           PY
 
       - name: Commit diagnostic response
@@ -78,5 +68,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add diagnostics/
-          git commit -m "Read current ChatGPT feed [skip ci]"
+          git commit -m "Verify Worker v1.8 path feed [skip ci]"
           git push
