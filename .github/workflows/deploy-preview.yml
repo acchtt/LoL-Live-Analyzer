@@ -2,15 +2,6 @@ name: Deploy RiftPulse Reliability Preview
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - reliability/live-telemetry-v2-4-final
-    paths:
-      - worker-v2.4.js
-      - worker-reliable-core.js
-      - lib/**
-      - wrangler.preview.toml
-      - .github/workflows/deploy-preview.yml
   pull_request:
     branches:
       - main
