@@ -101,6 +101,58 @@ jobs:
           ! grep -Fq "https://lol-live-analyzer-api.acchtt.workers.dev" preview-app.js
           node -e "const fs=require('fs');const p=JSON.parse(fs.readFileSync('preview-schedule.json'));const events=p?.data?.schedule?.events||p?.schedule?.events||p?.events;if(!Array.isArray(events))process.exit(1);console.log('Schedule events:',events.length)"
 
+      - name: Validate ALMO Players history regression
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          const base = process.env.DASHBOARD_PREVIEW_URL;
+          const schedule = await fetch(`${base}/api/schedule?_=${Date.now()}`).then(response => response.json());
+          const events = schedule?.data?.schedule?.events || schedule?.schedule?.events || schedule?.events || [];
+          const normalized = value => String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
+          const target = events.find(event => {
+            const names = (event?.match?.teams || []).map(team => normalized(`${team?.name || ''} ${team?.code || ''}`));
+            return names.some(name => name.includes('almo')) && names.some(name => name.includes('teamphantasma'));
+          });
+          if (!target) {
+            console.log('ALMO Players vs Team Phantasma is outside the current schedule window; targeted archive check skipped.');
+            process.exit(0);
+          }
+
+          const matchId = String(target?.match?.id || target?.id || '');
+          const detailPayload = await fetch(`${base}/api/match-details?matchId=${encodeURIComponent(matchId)}&_=${Date.now()}`).then(response => response.json());
+          const event = detailPayload?.data?.event || detailPayload?.event || detailPayload?.data || detailPayload;
+          const rawGames = (event?.match?.games || []).filter(game => game?.id).sort((a, b) => Number(a?.number || 0) - Number(b?.number || 0));
+          const scores = (event?.match?.teams || []).map(team => Number(team?.result?.gameWins));
+          const playedCount = scores.length >= 2 && scores.every(Number.isFinite)
+            ? Math.min(rawGames.length, scores.reduce((sum, score) => sum + score, 0))
+            : rawGames.filter(game => game?.state === 'completed' || (game?.vods || []).length).length;
+          const games = rawGames.slice(0, playedCount || rawGames.length);
+          if (!games.length) throw new Error('Targeted series returned no played game IDs.');
+
+          const results = [];
+          for (const game of games) {
+            const snapshot = await fetch(`${base}/api/chatgpt?gameId=${encodeURIComponent(game.id)}&historical=1&_=${Date.now()}`).then(response => response.json());
+            const result = {
+              game: Number(game.number || 0),
+              gameId: String(game.id),
+              status: snapshot?.status,
+              frameTimestamp: snapshot?.source?.frameTimestamp || null,
+              blueKills: snapshot?.blue?.kills ?? null,
+              redKills: snapshot?.red?.kills ?? null,
+              blueGold: snapshot?.blue?.gold ?? null,
+              redGold: snapshot?.red?.gold ?? null,
+              probeCount: snapshot?.source?.probeCount ?? null
+            };
+            results.push(result);
+            if (snapshot?.status === 'pregame') throw new Error(`Game ${game.number} still returned a pregame frame.`);
+            if (snapshot?.status !== 'ok') throw new Error(`Game ${game.number} archive status is ${snapshot?.status || 'missing'}.`);
+            if ([result.blueKills, result.redKills, result.blueGold, result.redGold].some(value => value === null)) {
+              throw new Error(`Game ${game.number} archive is missing final gameplay totals.`);
+            }
+          }
+          console.log(JSON.stringify({ matchId, results }, null, 2));
+          NODE
+
       - name: Publish test URL
         shell: bash
         run: echo "RiftPulse draft dashboard is available at $DASHBOARD_PREVIEW_URL"
