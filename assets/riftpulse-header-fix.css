@@ -1,0 +1,70 @@
+/* Resilient RiftPulse header: working crystal asset + native metallic wordmark. */
+.brand-identity {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  gap: 12px;
+  text-decoration: none;
+}
+
+.brand-mark {
+  display: block;
+  width: clamp(50px, 4.4vw, 72px);
+  height: clamp(50px, 4.4vw, 72px);
+  flex: 0 0 auto;
+  object-fit: contain;
+  filter: drop-shadow(0 0 10px rgba(0,229,255,.35));
+}
+
+.brand-wordmark {
+  display: inline-flex;
+  align-items: baseline;
+  white-space: nowrap;
+  font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+  font-size: clamp(32px, 3.45vw, 54px);
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: -.075em;
+  line-height: .95;
+  transform: skewX(-7deg);
+  filter: drop-shadow(0 0 9px rgba(34,139,255,.22));
+}
+
+.brand-rift,
+.brand-pulse {
+  display: inline-block;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.brand-rift {
+  padding-right: .04em;
+  background-image: linear-gradient(180deg, #ffffff 3%, #e6ebf2 42%, #aebbd0 72%, #f7fbff 100%);
+  -webkit-text-stroke: .35px rgba(255,255,255,.28);
+  text-shadow: 0 1px 0 rgba(255,255,255,.18), 0 4px 10px rgba(0,0,0,.34);
+}
+
+.brand-pulse {
+  padding-right: .1em;
+  background-image: linear-gradient(180deg, #17c7ff 0%, #228bff 48%, #1459e7 100%);
+  -webkit-text-stroke: .35px rgba(0,229,255,.25);
+  text-shadow: 0 0 10px rgba(0,229,255,.26), 0 4px 12px rgba(0,0,0,.35);
+}
+
+@media (max-width: 1100px) {
+  .brand-mark {
+    width: 58px;
+    height: 58px;
+  }
+  .brand-wordmark { font-size: 40px; }
+}
+
+@media (max-width: 760px) {
+  .brand-identity { gap: 8px; }
+  .brand-mark {
+    width: 48px;
+    height: 48px;
+  }
+  .brand-wordmark { font-size: clamp(30px, 10vw, 42px); }
+}
