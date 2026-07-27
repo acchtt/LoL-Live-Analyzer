@@ -9,7 +9,7 @@ on:
       - worker-v2.4.js
       - worker-reliable-core.js
       - lib/**
-      - wrangler.preview.toml
+      - wrangler.toml
       - .github/workflows/deploy-preview.yml
 
 permissions:
@@ -21,36 +21,30 @@ concurrency:
 
 jobs:
   deploy-preview:
-    name: Deploy and smoke test preview
+    name: Upload and smoke test preview version
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-      LOL_ESPORTS_API_KEY: ${{ secrets.LOL_ESPORTS_API_KEY }}
-      PREVIEW_URL: https://riftpulse-reliability-preview.acchtt.workers.dev
+      PREVIEW_URL: https://reliability-lol-live-analyzer-api.acchtt.workers.dev
     steps:
       - name: Check out repository
         uses: actions/checkout@v6
 
-      - name: Verify required secrets
+      - name: Verify Cloudflare credentials
         shell: bash
         run: |
           test -n "$CLOUDFLARE_API_TOKEN" || { echo "::error::Missing CLOUDFLARE_API_TOKEN repository secret"; exit 1; }
           test -n "$CLOUDFLARE_ACCOUNT_ID" || { echo "::error::Missing CLOUDFLARE_ACCOUNT_ID repository secret"; exit 1; }
-          test -n "$LOL_ESPORTS_API_KEY" || { echo "::error::Missing LOL_ESPORTS_API_KEY repository secret; add it before deploying the isolated preview Worker"; exit 1; }
 
-      - name: Deploy isolated preview Worker
+      - name: Upload version without changing production traffic
         uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           wranglerVersion: "4"
-          command: deploy --config wrangler.preview.toml
-
-      - name: Sync Riot API key to preview Worker
-        shell: bash
-        run: printf '%s' "$LOL_ESPORTS_API_KEY" | npx --yes wrangler@4 secret put LOL_ESPORTS_API_KEY --config wrangler.preview.toml
+          command: versions upload --config wrangler.toml --preview-alias reliability --message "PR 1 live telemetry reliability preview" --keep-vars
 
       - name: Verify preview health
         shell: bash
@@ -62,7 +56,7 @@ jobs:
             fi
             sleep 5
           done
-          echo "::error::Preview health check did not confirm Worker v2.4 with Riot API access"
+          echo "::error::Preview URL did not confirm Worker v2.4 with Riot API access"
           exit 1
 
       - name: Smoke test Riot schedule route
