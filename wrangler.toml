@@ -3,6 +3,7 @@ name = "lol-live-analyzer-api"
 main = "worker-v2.4.js"
 compatibility_date = "2026-07-01"
 workers_dev = true
+preview_urls = true
 
 [[kv_namespaces]]
 binding = "ODDS_CACHE"
