@@ -1,15 +1,16 @@
-// Organizes the full-width Matches module into the reference hierarchy.
+// Keeps the compact schedule overview and match browser synchronized.
 (() => {
   'use strict';
 
   state.activeLeague = state.activeLeague || 'all';
 
   const tabs = document.querySelector('#scheduleTabs');
-  const primaryRow = document.querySelector('.matches-primary-row');
   const secondaryRow = document.querySelector('#matchesSecondaryRow');
-  const callout = document.querySelector('#matchesCallout');
   const activeControls = document.querySelector('#activeScheduleControls');
   const leagueFilter = document.querySelector('#activeLeagueFilter');
+  const browserSlot = document.querySelector('#browserControlSlot');
+  const browserHeading = document.querySelector('#browserHeading');
+  const browserCount = document.querySelector('#browserModeCount');
 
   function leagueName(event = {}) {
     return event?.league?.name || event?.league?.slug || 'LoL Esports';
@@ -28,23 +29,27 @@
     return (state.events || []).filter(event => statusOf(event) !== 'completed');
   }
 
+  function finishedEvents() {
+    return (state.events || []).filter(event => statusOf(event) === 'completed');
+  }
+
   function updateCounts() {
     const now = Date.now();
-    const events = state.events || [];
-    const live = events.filter(event => statusOf(event) === 'inProgress').length;
-    const upcomingEvents = events.filter(event => ['starting', 'unstarted'].includes(statusOf(event)));
-    const completed = events.filter(event => statusOf(event) === 'completed').length;
-    const next24 = upcomingEvents.filter(event => {
+    const active = activeEvents();
+    const finished = finishedEvents();
+    const live = active.filter(event => statusOf(event) === 'inProgress');
+    const upcoming = active.filter(event => statusOf(event) !== 'inProgress');
+    const next24 = upcoming.filter(event => {
       const start = eventStartMs(event);
-      return start !== null && start >= now && start <= now + (24 * 60 * 60 * 1000);
-    }).length;
+      return start !== null && start >= now && start <= now + 24 * 60 * 60 * 1000;
+    });
 
-    setText('activeMatchCount', live + upcomingEvents.length);
-    setText('finishedMatchCount', completed);
-    setText('liveNowCount', live);
-    setText('upcomingCount', upcomingEvents.length);
-    setText('next24Count', next24);
-    setText('completedCount', completed);
+    setText('activeMatchCount', active.length);
+    setText('finishedMatchCount', finished.length);
+    setText('liveNowCount', live.length);
+    setText('upcomingCount', upcoming.length);
+    setText('next24Count', next24.length);
+    setText('completedCount', finished.length);
   }
 
   function bindTabs() {
@@ -75,7 +80,7 @@
 
     if (leagueFilter.dataset.signature !== signature) {
       leagueFilter.dataset.signature = signature;
-      leagueFilter.replaceChildren(new Option('Filter · All leagues', 'all'));
+      leagueFilter.replaceChildren(new Option('All leagues', 'all'));
       leagues.forEach(league => leagueFilter.add(new Option(league, league)));
     }
 
@@ -86,28 +91,30 @@
   }
 
   function moveHistoryControls() {
-    const historyControls = document.querySelector('#matchHistoryControls');
-    if (!historyControls || !primaryRow) return historyControls;
-    if (historyControls.previousElementSibling !== primaryRow) {
-      primaryRow.insertAdjacentElement('afterend', historyControls);
-    }
-    return historyControls;
+    const controls = document.querySelector('#matchHistoryControls');
+    if (!controls || !browserSlot) return controls;
+    if (controls.parentElement !== browserSlot) browserSlot.appendChild(controls);
+    return controls;
   }
 
-  function updateViewVisibility() {
+  function updateView() {
     const history = state.scheduleTab === 'finished';
-    const historyControls = moveHistoryControls();
+    const controls = moveHistoryControls();
+    const active = activeEvents();
+    const finished = finishedEvents();
 
-    if (secondaryRow) secondaryRow.hidden = history;
-    if (callout) callout.hidden = history;
+    if (secondaryRow) secondaryRow.classList.toggle('history-view', history);
     if (activeControls) activeControls.hidden = history;
-    if (historyControls) historyControls.hidden = !history;
+    if (controls) controls.hidden = !history;
+    if (browserHeading) browserHeading.textContent = history ? 'Match history' : 'Live & upcoming';
 
     document.querySelectorAll('[data-schedule-tab]').forEach(button => {
       const selected = button.dataset.scheduleTab === state.scheduleTab;
       button.classList.toggle('active', selected);
       button.setAttribute('aria-selected', String(selected));
     });
+
+    return history ? finished : active;
   }
 
   function applyActiveFilter(events) {
@@ -116,9 +123,12 @@
       card.hidden = false;
     });
 
-    if (state.scheduleTab !== 'active' || state.activeLeague === 'all') return;
+    if (state.scheduleTab !== 'active' || state.activeLeague === 'all') {
+      if (browserCount) browserCount.textContent = String(events.length);
+      return;
+    }
 
-    const byId = new Map(events.map(event => [eventId(event), event]));
+    const byId = new Map(events.map(event => [String(eventId(event)), event]));
     let visible = 0;
     scheduleList.querySelectorAll('[data-event-id]').forEach(card => {
       const event = byId.get(String(card.dataset.eventId));
@@ -127,30 +137,32 @@
       if (show) visible += 1;
     });
 
+    if (browserCount) browserCount.textContent = String(visible);
     if (!visible) {
       const message = document.createElement('div');
       message.className = 'schedule-filter-empty';
-      message.innerHTML = `<strong>No active ${state.activeLeague} matches</strong><span>Choose another league or return to Filter · All leagues.</span>`;
+      message.innerHTML = `<strong>No ${state.activeLeague} matches</strong><span>Select another league to continue.</span>`;
       scheduleList.appendChild(message);
     }
   }
 
-  function syncMatchesShell() {
+  function syncScheduleShell() {
     bindTabs();
     bindLeagueFilter();
-    const events = activeEvents();
     updateCounts();
-    updateLeagueOptions(events);
-    updateViewVisibility();
-    applyActiveFilter(events);
+
+    const active = activeEvents();
+    updateLeagueOptions(active);
+    const visibleSet = updateView();
+    applyActiveFilter(visibleSet);
   }
 
   const baseRenderSchedule = renderSchedule;
-  renderSchedule = function organizedMatchesRender(...args) {
+  renderSchedule = function focusedScheduleRender(...args) {
     const result = baseRenderSchedule(...args);
-    syncMatchesShell();
+    syncScheduleShell();
     return result;
   };
 
-  syncMatchesShell();
+  syncScheduleShell();
 })();
