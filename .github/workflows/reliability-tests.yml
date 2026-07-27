@@ -1,0 +1,51 @@
+name: RiftPulse Reliability Tests
+
+on:
+  pull_request:
+    paths:
+      - index.html
+      - lib/**
+      - tests/**
+      - worker-reliable-core.js
+      - worker-v2.4.js
+      - package.json
+      - wrangler.toml
+      - .github/workflows/reliability-tests.yml
+  push:
+    branches:
+      - main
+    paths:
+      - index.html
+      - lib/**
+      - tests/**
+      - worker-reliable-core.js
+      - worker-v2.4.js
+      - package.json
+      - wrangler.toml
+      - .github/workflows/reliability-tests.yml
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Node reliability suite
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Check module syntax
+        shell: bash
+        run: |
+          for file in lib/*.js worker-reliable-core.js worker-v2.4.js tests/*.mjs; do
+            node --check "$file"
+          done
+
+      - name: Run reliability tests
+        run: npm test
