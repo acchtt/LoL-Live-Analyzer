@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { historicalCursorTimes } from '../lib/historical-snapshot.js';
+import { historicalCursorTimes, retainedFrameScanTimes } from '../lib/historical-snapshot.js';
 
 const anchor = Date.parse('2026-07-27T12:00:00.000Z');
 
@@ -19,6 +19,13 @@ test('historical recovery probes both Riot VOD anchor interpretations', () => {
   assert.ok(cursors.includes(new Date(anchor + 2_400_000).toISOString()));
   assert.ok(cursors.includes(new Date(anchor + 120_000 + 2_400_000).toISOString()));
   assert.ok(cursors.length <= 40);
+});
+
+test('games without VOD metadata scan forward from the retained pregame frame', () => {
+  const cursors = retainedFrameScanTimes(new Date(anchor).toISOString());
+  assert.equal(cursors.length, 35);
+  assert.equal(cursors[0], new Date(anchor + 2 * 60_000).toISOString());
+  assert.equal(cursors.at(-1), new Date(anchor + 70 * 60_000).toISOString());
 });
 
 test('historical pregame frames are never rendered as a live game', async () => {
