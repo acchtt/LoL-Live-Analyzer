@@ -16,5 +16,6 @@ test('production UI does not load inferred or hardcoded score authority layers',
     assert.equal(html.includes(script), false, `${script} must remain disabled`);
   }
   assert.equal(html.includes('assets/authoritative-ui.js'), true);
+  assert.equal(html.includes('assets/reliable-lifecycle.js'), true);
   assert.equal(html.includes('assets/match-history.js'), true);
 });
