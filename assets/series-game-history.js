@@ -1,0 +1,90 @@
+// Restores every played game's archived snapshot in completed-series history.
+(() => {
+  'use strict';
+
+  const style = document.createElement('style');
+  style.dataset.riftpulseSeriesHistory = 'all-games';
+  style.textContent = `
+    .history-game-nav { display: flex !important; }
+    .history-summary-meta::after { content: none !important; display: none !important; }
+  `;
+  document.head.appendChild(style);
+
+  function finiteScore(team = {}) {
+    const value = team?.result?.gameWins;
+    const parsed = Number(value);
+    return value === undefined || value === null || !Number.isFinite(parsed) || parsed < 0
+      ? null
+      : parsed;
+  }
+
+  function gameNumber(game, index) {
+    const parsed = Number(game?.number);
+    return Number.isInteger(parsed) && parsed > 0 ? parsed : index + 1;
+  }
+
+  function hasCompletionEvidence(game) {
+    return game?.state === 'completed' || (Array.isArray(game?.vods) && game.vods.length > 0);
+  }
+
+  function playedGames(event = {}) {
+    const rawGames = (Array.isArray(event?.match?.games) ? event.match.games : [])
+      .filter(game => game?.id)
+      .sort((left, right) => Number(left?.number || 0) - Number(right?.number || 0));
+    if (!rawGames.length) return [];
+
+    const scores = (event?.match?.teams || []).map(finiteScore);
+    const scoreCount = scores.length >= 2 && scores.every(score => score !== null)
+      ? scores.reduce((sum, score) => sum + score, 0)
+      : 0;
+
+    const evidenceCount = rawGames.reduce((highest, game, index) => (
+      hasCompletionEvidence(game) ? Math.max(highest, gameNumber(game, index)) : highest
+    ), 0);
+
+    // Riot occasionally marks only the last game completed. A final Game 3 plus a
+    // 2-1 series score still means Games 1-3 were played, even if Games 1-2 have
+    // stale state flags. Never use the best-of length because sweeps leave games unplayed.
+    const playedCount = Math.min(rawGames.length, Math.max(scoreCount, evidenceCount));
+    if (playedCount > 0) return rawGames.slice(0, playedCount);
+    return rawGames.filter(hasCompletionEvidence);
+  }
+
+  loadFinishedMatch = async function allGameHistory(id) {
+    gameContent.innerHTML = '<div class="empty hero-empty"><strong>Loading match history</strong><span>Finding every played game and its archived final frame…</span></div>';
+
+    const payload = await api(`/api/match-details?matchId=${encodeURIComponent(id)}`);
+    const event = payload.data?.event || payload.event || payload.data || payload;
+    const games = playedGames(event);
+    const finalGame = games[games.length - 1] || null;
+
+    state.historyMatch = {
+      matchId: String(id),
+      event,
+      games,
+      finalGame
+    };
+    state.selectedMatchState = 'completed';
+
+    if (!finalGame?.id) {
+      state.selectedGameId = null;
+      state.historyGameId = null;
+      jsonUrl.value = '';
+      copyJsonUrl.disabled = true;
+      jsonPreview.textContent = JSON.stringify({
+        status: 'history_without_game_telemetry',
+        matchId: String(id),
+        event
+      }, null, 2);
+      gameContent.innerHTML = '<div class="empty hero-empty"><strong>Series result available</strong><span>No archived game IDs were returned for this match.</span></div>';
+      setConnection('History · game archive unavailable', '');
+      return;
+    }
+
+    state.selectedGameId = String(finalGame.id);
+    state.historyGameId = state.selectedGameId;
+    setJsonEndpoint(state.selectedGameId, true);
+    await loadGame();
+    setConnection(`History · Game ${finalGame.number || games.length} of ${games.length}`, '');
+  };
+})();
