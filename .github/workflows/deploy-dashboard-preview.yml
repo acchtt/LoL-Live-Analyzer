@@ -104,9 +104,15 @@ jobs:
       - name: Validate ALMO Players history regression
         shell: bash
         run: |
-          node --input-type=module <<'NODE'
+          cat > history-regression.mjs <<'NODE'
           const base = process.env.DASHBOARD_PREVIEW_URL;
-          const schedule = await fetch(`${base}/api/schedule?_=${Date.now()}`).then(response => response.json());
+          const json = async url => {
+            const response = await fetch(url);
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(`${response.status} ${url}: ${JSON.stringify(payload)}`);
+            return payload;
+          };
+          const schedule = await json(`${base}/api/schedule?_=${Date.now()}`);
           const events = schedule?.data?.schedule?.events || schedule?.schedule?.events || schedule?.events || [];
           const normalized = value => String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
           const target = events.find(event => {
@@ -119,7 +125,7 @@ jobs:
           }
 
           const matchId = String(target?.match?.id || target?.id || '');
-          const detailPayload = await fetch(`${base}/api/match-details?matchId=${encodeURIComponent(matchId)}&_=${Date.now()}`).then(response => response.json());
+          const detailPayload = await json(`${base}/api/match-details?matchId=${encodeURIComponent(matchId)}&_=${Date.now()}`);
           const event = detailPayload?.data?.event || detailPayload?.event || detailPayload?.data || detailPayload;
           const rawGames = (event?.match?.games || []).filter(game => game?.id).sort((a, b) => Number(a?.number || 0) - Number(b?.number || 0));
           const scores = (event?.match?.teams || []).map(team => Number(team?.result?.gameWins));
@@ -129,29 +135,57 @@ jobs:
           const games = rawGames.slice(0, playedCount || rawGames.length);
           if (!games.length) throw new Error('Targeted series returned no played game IDs.');
 
+          console.log(JSON.stringify({
+            matchId,
+            scores,
+            games: games.map(game => ({
+              id: String(game.id),
+              number: game.number,
+              state: game.state,
+              vods: (game.vods || []).map(vod => ({
+                firstFrameTime: vod?.firstFrameTime ?? null,
+                startMillis: vod?.startMillis ?? null,
+                endMillis: vod?.endMillis ?? null
+              }))
+            }))
+          }, null, 2));
+
           const results = [];
+          let failure = null;
           for (const game of games) {
-            const snapshot = await fetch(`${base}/api/chatgpt?gameId=${encodeURIComponent(game.id)}&historical=1&_=${Date.now()}`).then(response => response.json());
+            const snapshot = await json(`${base}/api/chatgpt?gameId=${encodeURIComponent(game.id)}&historical=1&_=${Date.now()}`);
             const result = {
               game: Number(game.number || 0),
               gameId: String(game.id),
               status: snapshot?.status,
+              message: snapshot?.message || null,
               frameTimestamp: snapshot?.source?.frameTimestamp || null,
+              source: snapshot?.source || null,
+              quality: snapshot?.quality || null,
               blueKills: snapshot?.blue?.kills ?? null,
               redKills: snapshot?.red?.kills ?? null,
               blueGold: snapshot?.blue?.gold ?? null,
-              redGold: snapshot?.red?.gold ?? null,
-              probeCount: snapshot?.source?.probeCount ?? null
+              redGold: snapshot?.red?.gold ?? null
             };
             results.push(result);
-            if (snapshot?.status === 'pregame') throw new Error(`Game ${game.number} still returned a pregame frame.`);
-            if (snapshot?.status !== 'ok') throw new Error(`Game ${game.number} archive status is ${snapshot?.status || 'missing'}.`);
-            if ([result.blueKills, result.redKills, result.blueGold, result.redGold].some(value => value === null)) {
-              throw new Error(`Game ${game.number} archive is missing final gameplay totals.`);
+            if (!failure && snapshot?.status === 'pregame') failure = `Game ${game.number} still returned a pregame frame.`;
+            if (!failure && snapshot?.status !== 'ok') failure = `Game ${game.number} archive status is ${snapshot?.status || 'missing'}.`;
+            if (!failure && [result.blueKills, result.redKills, result.blueGold, result.redGold].some(value => value === null)) {
+              failure = `Game ${game.number} archive is missing final gameplay totals.`;
             }
           }
           console.log(JSON.stringify({ matchId, results }, null, 2));
+          if (failure) throw new Error(failure);
           NODE
+          set -o pipefail
+          node history-regression.mjs 2>&1 | tee history-regression-output.txt
+
+      - name: Upload history regression output
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: history-regression-output
+          path: history-regression-output.txt
 
       - name: Publish test URL
         shell: bash
