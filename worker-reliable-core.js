@@ -6,6 +6,10 @@ import {
 import { createRiotClient } from './lib/riot-client.js';
 import { buildLiveSnapshot } from './lib/live-snapshot.js';
 import { resolveActiveGame } from './lib/live-resolver.js';
+import {
+  normalizeAuthoritativeCompletion,
+  unresolvedPlaceholderEvent
+} from './lib/series-integrity.js';
 
 function cors() {
   return {
@@ -52,13 +56,25 @@ async function reliableSchedule(riot, leagueId) {
     ? (liveResult.value?.data?.schedule?.events || [])
     : [];
   const liveByMatch = new Map(liveEvents.map(event => [eventMatchId(event), event]));
+  const visibleEvents = [];
+
   for (const event of events) {
+    let completed = normalizeAuthoritativeCompletion(event);
     const live = liveByMatch.get(eventMatchId(event));
-    if (!live || event?.state === 'completed') continue;
-    event.state = 'inProgress';
-    event.liveSource = 'riot_getLive';
-    if (live?.match) event.match = { ...(event.match || {}), ...live.match };
+
+    if (live && !completed) {
+      if (live?.match) event.match = { ...(event.match || {}), ...live.match };
+      completed = normalizeAuthoritativeCompletion(event);
+      if (!completed) {
+        event.state = 'inProgress';
+        event.liveSource = 'riot_getLive';
+      }
+    }
+
+    if (!unresolvedPlaceholderEvent(event)) visibleEvents.push(event);
   }
+
+  events.splice(0, events.length, ...visibleEvents);
   return payload;
 }
 
@@ -80,7 +96,9 @@ export default {
             degradedFrameSeconds: DEGRADED_FRAME_SECONDS,
             futureToleranceSeconds: FUTURE_TOLERANCE_SECONDS,
             maximumWindowRequestsPerSnapshot: 3,
-            officialScoresFromTelemetryInference: false
+            officialScoresFromTelemetryInference: false,
+            clinchedSeriesRetiredFromLiveSchedule: true,
+            unresolvedPlaceholderMatchesHidden: true
           }
         });
       }
@@ -94,7 +112,9 @@ export default {
       }
       if (url.pathname === '/api/event' || url.pathname === '/api/match-details') {
         const matchId = required(url.searchParams.get('matchId') || url.searchParams.get('id'), 'match id');
-        return json(await riot.getEvent(matchId));
+        const event = await riot.getEvent(matchId);
+        normalizeAuthoritativeCompletion(event);
+        return json(event);
       }
       if (url.pathname === '/api/chatgpt') {
         const gameId = required(url.searchParams.get('gameId'), 'gameId');
