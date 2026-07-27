@@ -8,7 +8,9 @@ on:
     paths:
       - index.html
       - assets/**
-      - dashboard-preview-worker.js
+      - lib/**
+      - worker-v2.4.js
+      - worker-reliable-core.js
       - wrangler.dashboard-preview.toml
       - .github/workflows/deploy-dashboard-preview.yml
 
@@ -27,8 +29,8 @@ jobs:
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-      DASHBOARD_PREVIEW_URL: https://riftpulse-dashboard-preview.acchtt.workers.dev
-      API_PREVIEW_URL: https://reliability-lol-live-analyzer-api.acchtt.workers.dev
+      DASHBOARD_PREVIEW_URL: https://dashboard-lol-live-analyzer-api.acchtt.workers.dev
+      API_PREVIEW_URL: https://dashboard-lol-live-analyzer-api.acchtt.workers.dev
     steps:
       - name: Check out repository
         uses: actions/checkout@v6
@@ -74,28 +76,30 @@ jobs:
           grep -Fq "$API_PREVIEW_URL" preview-dist/assets/app.js
           ! grep -Fq "https://lol-live-analyzer-api.acchtt.workers.dev" preview-dist/assets/app.js
 
-      - name: Deploy standalone dashboard preview
+      - name: Upload dashboard as a non-production Worker version
         uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           wranglerVersion: "4"
-          command: deploy --config wrangler.dashboard-preview.toml
+          command: versions upload --config wrangler.dashboard-preview.toml --preview-alias dashboard --keep-vars
 
       - name: Smoke test dashboard and API wiring
         shell: bash
         run: |
           for attempt in {1..12}; do
-            if curl --silent --show-error --fail "$DASHBOARD_PREVIEW_URL/__preview-health" -o dashboard-health.json; then
-              node -e "const fs=require('fs');const p=JSON.parse(fs.readFileSync('dashboard-health.json'));if(!p.ok||p.apiPreview!==process.env.API_PREVIEW_URL)process.exit(1)" && break
+            if curl --silent --show-error --fail "$DASHBOARD_PREVIEW_URL/health" -o dashboard-health.json; then
+              node -e "const fs=require('fs');const p=JSON.parse(fs.readFileSync('dashboard-health.json'));if(!p.ok||p.version!=='2.4'||p.apiKeyConfigured!==true)process.exit(1)" && break
             fi
             sleep 5
           done
           curl --silent --show-error --fail --retry 3 --retry-delay 3 "$DASHBOARD_PREVIEW_URL/" -o preview-index.html
           curl --silent --show-error --fail --retry 3 --retry-delay 3 "$DASHBOARD_PREVIEW_URL/assets/app.js" -o preview-app.js
+          curl --silent --show-error --fail --retry 3 --retry-delay 3 "$DASHBOARD_PREVIEW_URL/api/schedule" -o preview-schedule.json
           grep -Fq "RiftPulse PR Preview" preview-index.html
           grep -Fq "$API_PREVIEW_URL" preview-app.js
           ! grep -Fq "https://lol-live-analyzer-api.acchtt.workers.dev" preview-app.js
+          node -e "const fs=require('fs');const p=JSON.parse(fs.readFileSync('preview-schedule.json'));const events=p?.data?.schedule?.events||p?.schedule?.events||p?.events;if(!Array.isArray(events))process.exit(1);console.log('Schedule events:',events.length)"
 
       - name: Publish test URL
         shell: bash
