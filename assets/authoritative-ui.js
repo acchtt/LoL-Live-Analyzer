@@ -37,14 +37,34 @@
     if (state.selectedGameId) setJsonEndpoint(state.selectedGameId, state.selectedMatchState === 'completed');
   }
 
-  function showPregame(snapshot) {
+  function restoreHistoryNavigation() {
+    if (typeof window.renderHistorySeriesSummary === 'function') {
+      window.renderHistorySeriesSummary();
+    }
+  }
+
+  function showPregame(snapshot, historical = false) {
     state.lastSnapshot = snapshot;
-    markMatchLive(state.selectedEventId);
     const blue = snapshot.blue || {};
     const red = snapshot.red || {};
     const league = snapshot.match?.league || selectedScheduleEvent()?.league?.name || 'LoL Esports';
     const gameNumber = snapshot.match?.gameNumber || '?';
 
+    if (historical) {
+      gameContent.innerHTML = `
+        <div class="authority-message">
+          <p class="eyebrow">${league} · MATCH HISTORY · GAME ${gameNumber}</p>
+          <h2>Archived game statistics unavailable</h2>
+          <span class="authority-badge">PREGAME FRAME REJECTED</span>
+          <p>Riot returned champion-select data but no progressing gameplay frame. RiftPulse will not display this as final game statistics.</p>
+        </div>`;
+      statusJson(snapshot);
+      restoreHistoryNavigation();
+      setConnection(`History · Game ${gameNumber} stats unavailable`, '');
+      return;
+    }
+
+    markMatchLive(state.selectedEventId);
     gameContent.innerHTML = `
       <div class="authority-message">
         <p class="eyebrow">${league} · LIVE SERIES · GAME ${gameNumber}</p>
@@ -60,10 +80,24 @@
     setConnection('LIVE · waiting for verified gameplay stats', 'live');
   }
 
-  function showUnavailable(snapshot) {
+  function showUnavailable(snapshot, historical = false) {
     state.lastSnapshot = snapshot;
     const event = selectedScheduleEvent();
     const [a, b] = eventTeams(event);
+    const gameNumber = snapshot?.match?.gameNumber || state.historyMatch?.games?.find(game => String(game.id) === String(state.selectedGameId))?.number || '?';
+
+    if (historical) {
+      gameContent.innerHTML = `
+        <div class="empty hero-empty">
+          <strong>Archived Game ${gameNumber} stats unavailable</strong>
+          <span>Riot did not retain a progressing gameplay frame for this game. No pregame or incomplete frame is being shown as the final result.</span>
+        </div>`;
+      statusJson(snapshot);
+      restoreHistoryNavigation();
+      setConnection(`History · Game ${gameNumber} archive unavailable`, '');
+      return;
+    }
+
     gameContent.innerHTML = `
       <div class="empty hero-empty">
         <strong>Live stats unavailable</strong>
@@ -81,7 +115,7 @@
     const frameTime = snapshot.source?.frameTimestamp
       ? new Date(snapshot.source.frameTimestamp).toLocaleTimeString()
       : new Date(snapshot.updatedAt).toLocaleTimeString();
-    setConnection(historical ? 'Finished · verified snapshot' : `LIVE · verified frame ${frameTime}`, historical ? '' : 'live');
+    setConnection(historical ? 'Finished · verified historical snapshot' : `LIVE · verified frame ${frameTime}`, historical ? '' : 'live');
   }
 
   loadGame = async function authoritativeLoadGame() {
@@ -99,17 +133,18 @@
       applySeries(snapshot.series);
 
       if (snapshot.status === 'pregame') {
-        showPregame(snapshot);
+        showPregame(snapshot, historical);
         return;
       }
       if (snapshot.status !== 'ok') {
-        showUnavailable(snapshot);
+        showUnavailable(snapshot, historical);
         return;
       }
       renderVerified(snapshot, historical);
     } catch (error) {
       setConnection(error.message, 'error');
       gameContent.innerHTML = `<div class="empty hero-empty"><strong>Feed unavailable</strong><span>${error.message}</span></div>`;
+      if (state.selectedMatchState === 'completed') restoreHistoryNavigation();
     }
   };
 })();
