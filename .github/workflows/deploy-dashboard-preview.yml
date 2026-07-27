@@ -2,15 +2,6 @@ name: Deploy RiftPulse Dashboard Preview
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - reliability/live-telemetry-v2-4-final
-    paths:
-      - index.html
-      - assets/**
-      - dashboard-preview-worker.js
-      - wrangler.dashboard-preview.toml
-      - .github/workflows/deploy-dashboard-preview.yml
   pull_request:
     branches:
       - main
