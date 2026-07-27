@@ -10,6 +10,15 @@
   `;
   document.head.appendChild(style);
 
+  function escapeHtml(value = '') {
+    return String(value)
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#039;');
+  }
+
   function finiteScore(team = {}) {
     const value = team?.result?.gameWins;
     const parsed = Number(value);
@@ -50,6 +59,40 @@
     return rawGames.filter(hasCompletionEvidence);
   }
 
+  function renderSeriesNavigation() {
+    if (state.selectedMatchState !== 'completed' || !state.historyMatch) return;
+    document.querySelector('#historySeriesSummary')?.remove();
+
+    const event = state.historyMatch.event || selectedScheduleEvent() || {};
+    const teams = eventTeams(event);
+    const a = teams[0] || {};
+    const b = teams[1] || {};
+    const games = state.historyMatch.games || [];
+    const aScore = finiteScore(a);
+    const bScore = finiteScore(b);
+    const summary = document.createElement('section');
+    summary.id = 'historySeriesSummary';
+    summary.className = 'history-series-summary';
+    summary.innerHTML = `
+      <div class="history-summary-heading">
+        <div><p class="eyebrow">Match history</p><h2>${escapeHtml(a.name || 'Team 1')} vs ${escapeHtml(b.name || 'Team 2')}</h2></div>
+        <div class="history-summary-meta"><strong>FINAL ${aScore ?? '—'}–${bScore ?? '—'}</strong><span>${games.length} played game${games.length === 1 ? '' : 's'}</span></div>
+      </div>
+      <div class="history-game-nav" role="tablist" aria-label="Played games">
+        ${games.map((game, index) => {
+          const id = String(game.id || '');
+          const number = gameNumber(game, index);
+          const selected = id === String(state.selectedGameId);
+          return `<button class="history-game-button ${selected ? 'active' : ''}" data-history-game-id="${escapeHtml(id)}" type="button" role="tab" aria-selected="${selected}">
+            <span>Game ${number}</span><small>${selected ? 'Selected' : 'Open archive'}</small>
+          </button>`;
+        }).join('')}
+      </div>`;
+    gameContent.insertBefore(summary, gameContent.firstChild);
+  }
+
+  window.renderHistorySeriesSummary = renderSeriesNavigation;
+
   loadFinishedMatch = async function allGameHistory(id) {
     gameContent.innerHTML = '<div class="empty hero-empty"><strong>Loading match history</strong><span>Finding every played game and its archived final frame…</span></div>';
 
@@ -77,6 +120,7 @@
         event
       }, null, 2);
       gameContent.innerHTML = '<div class="empty hero-empty"><strong>Series result available</strong><span>No archived game IDs were returned for this match.</span></div>';
+      renderSeriesNavigation();
       setConnection('History · game archive unavailable', '');
       return;
     }
@@ -85,6 +129,7 @@
     state.historyGameId = state.selectedGameId;
     setJsonEndpoint(state.selectedGameId, true);
     await loadGame();
+    renderSeriesNavigation();
     setConnection(`History · Game ${finalGame.number || games.length} of ${games.length}`, '');
   };
 })();
