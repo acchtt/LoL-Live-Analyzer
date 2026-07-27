@@ -1,0 +1,8 @@
+# Isolated reliability preview. This service must never replace production.
+name = "riftpulse-reliability-preview"
+main = "worker-v2.4.js"
+compatibility_date = "2026-07-01"
+workers_dev = true
+
+[observability]
+enabled = true
