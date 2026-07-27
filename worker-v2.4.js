@@ -1,5 +1,7 @@
 import workerV23 from './worker-v2.3.js';
 import reliableCore from './worker-reliable-core.js';
+import { createRiotClient } from './lib/riot-client.js';
+import { buildHistoricalSnapshot } from './lib/historical-snapshot.js';
 
 const WORKER_VERSION = '2.4';
 const GAME_ID_PATTERN = /^\d{8,}$/;
@@ -31,6 +33,16 @@ function versionedHeaders(original, extra = {}) {
   headers.set('X-RiftPulse-Reliability', 'strict-live');
   for (const [key, value] of Object.entries(extra)) headers.set(key, value);
   return headers;
+}
+
+function jsonResponse(payload, status = 200, extra = {}) {
+  return new Response(JSON.stringify(payload, null, 2), {
+    status,
+    headers: versionedHeaders(new Response(null), {
+      'Content-Type': 'application/json; charset=utf-8',
+      ...extra
+    })
+  });
 }
 
 async function decorateLiveResponse(response, incomingUrl, parsedPath) {
@@ -66,6 +78,43 @@ async function decorateLiveResponse(response, incomingUrl, parsedPath) {
   });
 }
 
+async function historicalResponse(incomingUrl, parsedPath, env) {
+  const gameId = parsedPath?.gameId || incomingUrl.searchParams.get('gameId');
+  if (!gameId || !GAME_ID_PATTERN.test(gameId)) {
+    return jsonResponse({ error: gameId ? 'Invalid game ID' : 'Missing game ID' }, 400);
+  }
+
+  try {
+    const snapshot = await buildHistoricalSnapshot(gameId, env, createRiotClient(env));
+    return jsonResponse({
+      ...snapshot,
+      request: {
+        ...(snapshot.request || {}),
+        gameId,
+        freshToken: parsedPath?.token || null,
+        format: parsedPath ? 'rotating-path' : 'query',
+        reliabilityPolicy: 'historical-recovery-v2.4'
+      }
+    }, 200, {
+      'X-Data-Quality': snapshot.status === 'ok' ? 'historical-recovered' : 'historical-unavailable',
+      'X-Feed-Format': parsedPath ? 'rotating-path' : 'query'
+    });
+  } catch (error) {
+    return jsonResponse({
+      schemaVersion: WORKER_VERSION,
+      status: 'historical_unavailable',
+      source: { gameId, live: false, historicalProbe: true },
+      quality: {
+        freshness: 'historical',
+        safeForLiveAnalysis: false,
+        historical: true,
+        criticalMissingFields: ['historicalGameplayFrame']
+      },
+      message: error instanceof Error ? error.message : 'Historical recovery failed.'
+    }, 200, { 'X-Data-Quality': 'historical-unavailable' });
+  }
+}
+
 async function healthResponse(request, env, ctx) {
   const response = await workerV23.fetch(request, env, ctx);
   const payload = await response.clone().json().catch(() => null);
@@ -80,7 +129,8 @@ async function healthResponse(request, env, ctx) {
       futureTimestampToleranceSeconds: 15,
       maximumWindowRequestsPerSnapshot: 3,
       missingValuesPreservedAsNull: true,
-      inferredTelemetryWinnersDisabled: true
+      inferredTelemetryWinnersDisabled: true,
+      historicalPregameFramesRejected: true
     }
   }, null, 2), {
     status: response.status,
@@ -98,28 +148,26 @@ export default {
     const historical = incomingUrl.searchParams.get('historical') === '1';
 
     if (parsedPath && (!GAME_ID_PATTERN.test(parsedPath.gameId) || (parsedPath.token && !TOKEN_PATTERN.test(parsedPath.token)))) {
-      return new Response(JSON.stringify({ error: 'Invalid feed path' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json; charset=utf-8', 'X-Worker-Version': WORKER_VERSION }
-      });
+      return jsonResponse({ error: 'Invalid feed path' }, 400);
     }
 
     if (incomingUrl.pathname === '/' || incomingUrl.pathname === '/health') {
       return healthResponse(request, env, ctx);
     }
 
-    if (!historical && parsedPath) {
+    if (historical && (parsedPath || incomingUrl.pathname === '/api/chatgpt')) {
+      return historicalResponse(incomingUrl, parsedPath, env);
+    }
+
+    if (parsedPath) {
       const response = await reliableCore.fetch(strictLiveRequest(request, incomingUrl, parsedPath.gameId), env, ctx);
       return decorateLiveResponse(response, incomingUrl, parsedPath);
     }
 
-    if (!historical && incomingUrl.pathname === '/api/chatgpt') {
+    if (incomingUrl.pathname === '/api/chatgpt') {
       const gameId = incomingUrl.searchParams.get('gameId');
       if (!gameId || !GAME_ID_PATTERN.test(gameId)) {
-        return new Response(JSON.stringify({ error: gameId ? 'Invalid game ID' : 'Missing game ID' }), {
-          status: 400,
-          headers: { 'Content-Type': 'application/json; charset=utf-8', 'X-Worker-Version': WORKER_VERSION }
-        });
+        return jsonResponse({ error: gameId ? 'Invalid game ID' : 'Missing game ID' }, 400);
       }
       const response = await reliableCore.fetch(request, env, ctx);
       return decorateLiveResponse(response, incomingUrl, null);
