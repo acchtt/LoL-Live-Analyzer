@@ -11,6 +11,15 @@ on:
       - lib/**
       - wrangler.preview.toml
       - .github/workflows/deploy-preview.yml
+  pull_request:
+    branches:
+      - main
+    paths:
+      - worker-v2.4.js
+      - worker-reliable-core.js
+      - lib/**
+      - wrangler.preview.toml
+      - .github/workflows/deploy-preview.yml
 
 permissions:
   contents: read
@@ -22,6 +31,7 @@ concurrency:
 jobs:
   deploy-preview:
     name: Deploy and smoke test preview
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
