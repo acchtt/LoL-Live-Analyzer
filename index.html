@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="description" content="RiftPulse combines live League of Legends esports telemetry, series context, and private odds data in one analysis dashboard.">
-  <meta name="theme-color" content="#228BFF">
+  <meta name="theme-color" content="#07101f">
   <meta property="og:title" content="RiftPulse · Live Esports Intelligence">
   <meta property="og:description" content="Live stats, odds, and match intelligence in one compact dashboard.">
   <meta property="og:type" content="website">
@@ -21,13 +21,13 @@
   <link rel="stylesheet" href="assets/riftpulse-brand.css?v=20260727-2">
   <link rel="stylesheet" href="assets/riftpulse-exact-header.css?v=20260727-1">
   <link rel="stylesheet" href="assets/match-history.css?v=20260727-1">
-  <link rel="stylesheet" href="assets/schedule-shell.css?v=20260728-4">
-  <link rel="stylesheet" href="assets/site-layout.css?v=20260728-2">
+  <link rel="stylesheet" href="assets/schedule-shell.css?v=20260728-6">
+  <link rel="stylesheet" href="assets/site-layout.css?v=20260728-3">
 </head>
 <body>
-  <div class="site-frame">
-    <header class="topbar site-header">
-      <div class="site-header-inner">
+  <div class="app-frame">
+    <header class="topbar app-header">
+      <div class="app-header-inner">
         <div class="brand-lockup">
           <span class="brand-identity" aria-label="RiftPulse">
             <img class="brand-mark" src="assets/riftpulse-mark.svg" alt="">
@@ -43,103 +43,79 @@
       </div>
     </header>
 
-    <main class="layout site-main">
-      <section class="panel matches-overview" aria-labelledby="matchesHeading">
-        <header class="matches-overview-header">
+    <main class="app-workspace">
+      <aside class="panel schedule-panel app-panel match-browser" aria-labelledby="scheduleHeading">
+        <div class="panel-heading app-panel-heading">
           <div>
-            <p class="eyebrow">Live esports</p>
-            <h2 id="matchesHeading">Matches</h2>
+            <p class="eyebrow">Matches</p>
+            <h2 id="scheduleHeading">Schedule</h2>
           </div>
-          <button id="refreshSchedule" class="ghost-button matches-refresh-button" type="button">
+          <button id="refreshSchedule" class="ghost-button compact-action" type="button" aria-label="Refresh schedule">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.34 5.66M20 4v7h-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             <span>Refresh</span>
           </button>
-        </header>
+        </div>
 
-        <div class="matches-overview-controls">
-          <div id="scheduleTabs" class="schedule-tabs matches-tabs" role="tablist" aria-label="Match status">
-            <button class="schedule-tab matches-tab" data-schedule-tab="active" role="tab" type="button">
-              <span class="schedule-tab-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.4" fill="currentColor"/><path d="M7.75 7.75a6 6 0 0 0 0 8.5M16.25 7.75a6 6 0 0 1 0 8.5M4.5 4.5a10.6 10.6 0 0 0 0 15M19.5 4.5a10.6 10.6 0 0 1 0 15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-              </span>
-              <span class="schedule-tab-label">Live &amp; Upcoming</span>
+        <div class="schedule-controls">
+          <div id="scheduleTabs" class="schedule-tabs" role="tablist" aria-label="Match status">
+            <button class="schedule-tab" data-schedule-tab="active" role="tab" type="button">
+              <span>Live &amp; Upcoming</span>
               <span id="activeMatchCount" class="schedule-tab-count">0</span>
             </button>
-            <button class="schedule-tab matches-tab" data-schedule-tab="finished" role="tab" type="button">
-              <span class="schedule-tab-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24"><path d="M3.5 12a8.5 8.5 0 1 0 2.3-5.82L3.5 8.5M3.5 4.5v4h4" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 7.5V12l3 2" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </span>
-              <span class="schedule-tab-label">Match History</span>
+            <button class="schedule-tab" data-schedule-tab="finished" role="tab" type="button">
+              <span>History</span>
               <span id="finishedMatchCount" class="schedule-tab-count">0</span>
             </button>
           </div>
 
-          <div id="matchesSecondaryRow" class="matches-secondary-row">
-            <div class="matches-stats" aria-label="Match totals">
-              <span class="matches-stat matches-stat-live"><i aria-hidden="true"></i><strong id="liveNowCount">0</strong> live</span>
-              <span class="matches-stat matches-stat-upcoming"><i aria-hidden="true"></i><strong id="upcomingCount">0</strong> upcoming</span>
-              <span class="matches-stat matches-stat-next"><i aria-hidden="true"></i><strong id="next24Count">0</strong> next 24h</span>
-              <span class="matches-stat matches-stat-completed"><i aria-hidden="true"></i><strong id="completedCount">0</strong> completed</span>
-            </div>
-
-            <div id="activeScheduleControls" class="active-schedule-controls">
-              <label class="active-league-filter matches-filter">
-                <span class="sr-only">Filter active matches by league</span>
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16l-6.3 7.1v5.3l-3.4 1.6v-6.9L4 5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
-                <select id="activeLeagueFilter"><option value="all">All leagues</option></select>
-                <svg class="filter-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 9.5 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </label>
-            </div>
+          <div id="activeScheduleControls" class="active-schedule-controls">
+            <label class="active-league-filter">
+              <span class="sr-only">Filter matches by league</span>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16l-6.3 7.1v5.3l-3.4 1.6v-6.9L4 5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+              <select id="activeLeagueFilter"><option value="all">All leagues</option></select>
+              <svg class="filter-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 9.5 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </label>
           </div>
-        </div>
-      </section>
 
-      <aside class="panel schedule-panel match-browser" aria-labelledby="browserHeading">
-        <div class="panel-heading browser-heading">
-          <div>
-            <p class="eyebrow">Schedule</p>
-            <h2 id="browserHeading">Match browser</h2>
-          </div>
-          <span id="browserModeCount" class="browser-count">0</span>
+          <div id="browserControlSlot" class="browser-control-slot"></div>
         </div>
-        <div id="browserControlSlot" class="browser-control-slot"></div>
+
         <div id="scheduleList" class="schedule-list">
           <div class="empty">Loading schedule…</div>
         </div>
       </aside>
 
-      <section class="panel game-panel workspace-card" aria-label="Selected match analysis">
+      <section class="panel game-panel app-panel" aria-label="Selected match analysis">
         <div id="gameContent" class="game-content">
           <div class="empty hero-empty">
             <strong>Select a match</strong>
-            <span>Choose a match from the browser to inspect verified telemetry.</span>
+            <span>Choose a match from the schedule to inspect verified telemetry.</span>
           </div>
         </div>
       </section>
 
-      <aside class="panel machine-panel workspace-card" aria-labelledby="feedHeading">
-        <div class="panel-heading">
+      <aside class="panel machine-panel app-panel" aria-labelledby="feedHeading">
+        <div class="panel-heading app-panel-heading">
           <div>
             <p class="eyebrow">Machine-readable</p>
             <h2 id="feedHeading">ChatGPT Feed</h2>
           </div>
-          <button id="copyJsonUrl" class="ghost-button" type="button" disabled>Copy URL</button>
+          <button id="copyJsonUrl" class="ghost-button compact-action" type="button" disabled>Copy URL</button>
         </div>
-        <p class="help">Only fresh, complete Riot frames receive <code>status: "ok"</code>. Historical snapshots are never safe for live analysis.</p>
-        <label for="jsonUrl">Public JSON URL</label>
-        <input id="jsonUrl" type="text" readonly placeholder="Select a live or finished game">
-        <pre id="jsonPreview" class="json-preview">{
+        <div class="feed-body">
+          <p class="help">Only fresh, complete Riot frames receive <code>status: "ok"</code>.</p>
+          <label for="jsonUrl">Public JSON URL</label>
+          <input id="jsonUrl" type="text" readonly placeholder="Select a live or finished game">
+          <pre id="jsonPreview" class="json-preview">{
   "status": "waiting_for_game"
 }</pre>
+        </div>
       </aside>
     </main>
 
-    <footer class="site-footer">
-      <div class="site-footer-inner">
-        <img class="footer-pulse" src="assets/riftpulse-mark.svg" alt="">
-        <span>RiftPulse · Real-time LoL esports intelligence</span>
-        <span class="footer-disclaimer">Unofficial community project. Not endorsed by Riot Games.</span>
-      </div>
+    <footer class="app-footer">
+      <span>RiftPulse · Unofficial community project</span>
+      <span>Riot Games does not endorse or sponsor this site.</span>
     </footer>
   </div>
 
@@ -156,6 +132,6 @@
   <script src="assets/match-history.js?v=20260727-1" defer></script>
   <script src="assets/series-game-history.js?v=20260728-2" defer></script>
   <script src="assets/schedule-integrity.js?v=20260728-1" defer></script>
-  <script src="assets/schedule-shell.js?v=20260728-5" defer></script>
+  <script src="assets/schedule-shell.js?v=20260728-6" defer></script>
 </body>
 </html>
