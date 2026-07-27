@@ -50,4 +50,14 @@ jobs:
           done
 
       - name: Run reliability tests
-        run: npm test
+        shell: bash
+        run: |
+          set -o pipefail
+          npm test 2>&1 | tee reliability-test-output.txt
+
+      - name: Upload test output
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: reliability-test-output
+          path: reliability-test-output.txt
