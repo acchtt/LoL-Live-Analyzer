@@ -61,6 +61,8 @@
 
   function renderSeriesNavigation() {
     if (state.selectedMatchState !== 'completed' || !state.historyMatch) return;
+    if (typeof document?.querySelector !== 'function' || typeof document?.createElement !== 'function'
+        || typeof gameContent?.insertBefore !== 'function') return;
     document.querySelector('#historySeriesSummary')?.remove();
 
     const event = state.historyMatch.event || selectedScheduleEvent() || {};
