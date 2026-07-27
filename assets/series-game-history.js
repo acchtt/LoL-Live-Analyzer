@@ -91,7 +91,7 @@
     gameContent.insertBefore(summary, gameContent.firstChild);
   }
 
-  window.renderHistorySeriesSummary = renderSeriesNavigation;
+  globalThis.renderHistorySeriesSummary = renderSeriesNavigation;
 
   loadFinishedMatch = async function allGameHistory(id) {
     gameContent.innerHTML = '<div class="empty hero-empty"><strong>Loading match history</strong><span>Finding every played game and its archived final frame…</span></div>';
