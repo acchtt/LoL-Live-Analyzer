@@ -45,7 +45,7 @@ jobs:
       - name: Check module syntax
         shell: bash
         run: |
-          for file in lib/*.js worker-reliable-core.js worker-v2.4.js assets/series-game-history.js tests/*.mjs; do
+          for file in lib/*.js worker-reliable-core.js worker-v2.4.js assets/authoritative-ui.js assets/series-game-history.js tests/*.mjs; do
             node --check "$file"
           done
 
