@@ -1,0 +1,75 @@
+name: Deploy RiftPulse Reliability Preview
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - reliability/live-telemetry-v2-4-final
+    paths:
+      - worker-v2.4.js
+      - worker-reliable-core.js
+      - lib/**
+      - wrangler.preview.toml
+      - .github/workflows/deploy-preview.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: riftpulse-reliability-preview
+  cancel-in-progress: true
+
+jobs:
+  deploy-preview:
+    name: Deploy and smoke test preview
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      LOL_ESPORTS_API_KEY: ${{ secrets.LOL_ESPORTS_API_KEY }}
+      PREVIEW_URL: https://riftpulse-reliability-preview.acchtt.workers.dev
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Verify required secrets
+        shell: bash
+        run: |
+          test -n "$CLOUDFLARE_API_TOKEN" || { echo "::error::Missing CLOUDFLARE_API_TOKEN repository secret"; exit 1; }
+          test -n "$CLOUDFLARE_ACCOUNT_ID" || { echo "::error::Missing CLOUDFLARE_ACCOUNT_ID repository secret"; exit 1; }
+          test -n "$LOL_ESPORTS_API_KEY" || { echo "::error::Missing LOL_ESPORTS_API_KEY repository secret; add it before deploying the isolated preview Worker"; exit 1; }
+
+      - name: Deploy isolated preview Worker
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: "4"
+          command: deploy --config wrangler.preview.toml
+
+      - name: Sync Riot API key to preview Worker
+        shell: bash
+        run: printf '%s' "$LOL_ESPORTS_API_KEY" | npx --yes wrangler@4 secret put LOL_ESPORTS_API_KEY --config wrangler.preview.toml
+
+      - name: Verify preview health
+        shell: bash
+        run: |
+          for attempt in {1..12}; do
+            if curl --silent --show-error --fail "$PREVIEW_URL/health" -o health.json; then
+              cat health.json
+              node -e "const fs=require('fs');const p=JSON.parse(fs.readFileSync('health.json'));if(!p.ok||p.version!=='2.4'||p.apiKeyConfigured!==true)process.exit(1)" && exit 0
+            fi
+            sleep 5
+          done
+          echo "::error::Preview health check did not confirm Worker v2.4 with Riot API access"
+          exit 1
+
+      - name: Smoke test Riot schedule route
+        shell: bash
+        run: |
+          curl --silent --show-error --fail --retry 3 --retry-delay 3 "$PREVIEW_URL/api/schedule" -o schedule.json
+          node -e "const fs=require('fs');const p=JSON.parse(fs.readFileSync('schedule.json'));const events=p?.data?.schedule?.events||p?.schedule?.events||p?.events;if(!Array.isArray(events))process.exit(1);console.log('Schedule events:',events.length)"
+
+      - name: Publish preview URL
+        shell: bash
+        run: echo "RiftPulse reliability preview is available at $PREVIEW_URL"
