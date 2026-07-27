@@ -1,0 +1,111 @@
+name: Deploy RiftPulse Dashboard Preview
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - reliability/live-telemetry-v2-4-final
+    paths:
+      - index.html
+      - assets/**
+      - dashboard-preview-worker.js
+      - wrangler.dashboard-preview.toml
+      - .github/workflows/deploy-dashboard-preview.yml
+  pull_request:
+    branches:
+      - main
+    paths:
+      - index.html
+      - assets/**
+      - dashboard-preview-worker.js
+      - wrangler.dashboard-preview.toml
+      - .github/workflows/deploy-dashboard-preview.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: riftpulse-dashboard-preview
+  cancel-in-progress: true
+
+jobs:
+  deploy-dashboard-preview:
+    name: Build and deploy dashboard preview
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      DASHBOARD_PREVIEW_URL: https://riftpulse-dashboard-preview.acchtt.workers.dev
+      API_PREVIEW_URL: https://reliability-lol-live-analyzer-api.acchtt.workers.dev
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Verify Cloudflare credentials
+        shell: bash
+        run: |
+          test -n "$CLOUDFLARE_API_TOKEN" || { echo "::error::Missing CLOUDFLARE_API_TOKEN repository secret"; exit 1; }
+          test -n "$CLOUDFLARE_ACCOUNT_ID" || { echo "::error::Missing CLOUDFLARE_ACCOUNT_ID repository secret"; exit 1; }
+
+      - name: Build isolated frontend preview
+        shell: bash
+        run: |
+          rm -rf preview-dist
+          mkdir -p preview-dist
+          cp index.html site.webmanifest preview-dist/
+          cp -R assets preview-dist/assets
+          python <<'PY'
+          import os
+          from pathlib import Path
+
+          api_preview = os.environ['API_PREVIEW_URL']
+          sha = os.environ.get('GITHUB_SHA', 'draft')[:8]
+          app_path = Path('preview-dist/assets/app.js')
+          app = app_path.read_text(encoding='utf-8')
+          production = 'https://lol-live-analyzer-api.acchtt.workers.dev'
+          if production not in app:
+              raise SystemExit('Production Worker URL was not found in the preview app build')
+          app_path.write_text(app.replace(production, api_preview), encoding='utf-8')
+
+          index_path = Path('preview-dist/index.html')
+          html = index_path.read_text(encoding='utf-8')
+          html = html.replace('<title>RiftPulse · Live Esports Intelligence</title>', '<title>RiftPulse PR Preview · Live Esports Intelligence</title>')
+          html = html.replace('assets/app.js?v=20260726-32', f'assets/app.js?v=pr-{sha}')
+          preview_style = '''<style id="prPreviewStyle">
+            .pr-preview-banner{position:fixed;z-index:9999;right:12px;bottom:12px;padding:8px 11px;border:1px solid var(--accent);border-radius:999px;background:rgba(5,11,24,.94);color:var(--text);font:700 10px/1 var(--rp-font-display);letter-spacing:.06em;text-transform:uppercase;box-shadow:0 0 18px rgba(34,139,255,.18)}
+          </style>'''
+          preview_badge = '<div class="pr-preview-banner" role="status">Draft PR preview · API v2.4</div>'
+          html = html.replace('</head>', preview_style + '\n</head>')
+          html = html.replace('<body>', '<body>\n  ' + preview_badge, 1)
+          index_path.write_text(html, encoding='utf-8')
+          PY
+          grep -Fq "$API_PREVIEW_URL" preview-dist/assets/app.js
+          ! grep -Fq "https://lol-live-analyzer-api.acchtt.workers.dev" preview-dist/assets/app.js
+
+      - name: Deploy standalone dashboard preview
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: "4"
+          command: deploy --config wrangler.dashboard-preview.toml
+
+      - name: Smoke test dashboard and API wiring
+        shell: bash
+        run: |
+          for attempt in {1..12}; do
+            if curl --silent --show-error --fail "$DASHBOARD_PREVIEW_URL/__preview-health" -o dashboard-health.json; then
+              node -e "const fs=require('fs');const p=JSON.parse(fs.readFileSync('dashboard-health.json'));if(!p.ok||p.apiPreview!==process.env.API_PREVIEW_URL)process.exit(1)" && break
+            fi
+            sleep 5
+          done
+          curl --silent --show-error --fail --retry 3 --retry-delay 3 "$DASHBOARD_PREVIEW_URL/" -o preview-index.html
+          curl --silent --show-error --fail --retry 3 --retry-delay 3 "$DASHBOARD_PREVIEW_URL/assets/app.js" -o preview-app.js
+          grep -Fq "RiftPulse PR Preview" preview-index.html
+          grep -Fq "$API_PREVIEW_URL" preview-app.js
+          ! grep -Fq "https://lol-live-analyzer-api.acchtt.workers.dev" preview-app.js
+
+      - name: Publish test URL
+        shell: bash
+        run: echo "RiftPulse draft dashboard is available at $DASHBOARD_PREVIEW_URL"
