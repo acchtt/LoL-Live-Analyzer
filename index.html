@@ -69,7 +69,7 @@
         </div>
         <button id="copyJsonUrl" class="ghost-button" type="button" disabled>Copy URL</button>
       </div>
-      <p class="help">Only a fresh, complete Riot frame receives <code>status: "ok"</code>. Degraded and stale frames are displayed as unavailable and are not safe for live analysis.</p>
+      <p class="help">For live requests, only a fresh, complete Riot frame receives <code>status: "ok"</code>. Historical snapshots are labeled separately and are never safe for live analysis.</p>
       <label for="jsonUrl">Public JSON URL</label>
       <input id="jsonUrl" type="text" readonly placeholder="Select a live or finished game">
       <pre id="jsonPreview" class="json-preview">{
@@ -87,7 +87,7 @@
   <script src="assets/app.js?v=20260726-32" defer></script>
   <script src="assets/series-phase.js?v=20260726-32" defer></script>
   <script src="assets/live-player-ui.js?v=20260726-32" defer></script>
-  <script src="assets/authoritative-ui.js?v=20260726-32" defer></script>
+  <script src="assets/authoritative-ui.js?v=20260728-2" defer></script>
   <script src="assets/live-refresh.js?v=20260726-32" defer></script>
   <script src="assets/reliable-lifecycle.js?v=20260728-1" defer></script>
   <script src="assets/feed-url.js?v=20260726-32" defer></script>
@@ -95,6 +95,6 @@
   <script src="assets/stats-board-alignment.js?v=20260727-1" defer></script>
   <script src="assets/odds-placement.js?v=20260727-2" defer></script>
   <script src="assets/match-history.js?v=20260727-1" defer></script>
-  <script src="assets/series-game-history.js?v=20260728-1" defer></script>
+  <script src="assets/series-game-history.js?v=20260728-2" defer></script>
 </body>
 </html>
