@@ -1,0 +1,407 @@
+/* RiftPulse site-wide layout system. Loaded last so page structure stays coherent. */
+
+:root {
+  --site-max: 1760px;
+  --site-gutter: clamp(16px, 2.2vw, 36px);
+  --site-gap: clamp(16px, 1.6vw, 26px);
+  --site-radius: 20px;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  min-width: 320px;
+  overflow-x: hidden;
+}
+
+.site-frame {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.site-header.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  min-height: 78px;
+  padding: 0;
+  border-bottom: 1px solid rgba(34, 139, 255, .18);
+  background: rgba(4, 10, 22, .88);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, .24);
+}
+
+.site-header-inner {
+  width: min(100%, var(--site-max));
+  min-height: 78px;
+  margin: 0 auto;
+  padding: 10px var(--site-gutter);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.site-header .brand-lockup { gap: 16px; }
+.site-header .brand-mark { width: 58px; height: 58px; }
+.site-header .brand-wordmark { font-size: clamp(31px, 3vw, 45px); }
+.site-header .brand-mode { min-height: 30px; font-size: 9px; }
+.site-header .status-wrap {
+  flex: 0 0 auto;
+  max-width: min(42vw, 520px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Main page grid */
+.site-main.layout {
+  width: min(100%, var(--site-max));
+  margin: 0 auto;
+  padding: var(--site-gap) var(--site-gutter) 34px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.75fr) minmax(330px, .75fr);
+  gap: var(--site-gap);
+  align-items: start;
+}
+
+.site-main > .matches-shell { grid-column: 1 / -1; }
+.site-main > .workspace-heading { grid-column: 1 / -1; }
+.site-main > .game-panel { grid-column: 1; }
+.site-main > .machine-panel { grid-column: 2; }
+
+/* Matches module: preserve reference hierarchy without swallowing the page. */
+.site-main .matches-shell {
+  padding: clamp(24px, 2.5vw, 42px);
+  border-radius: 26px;
+}
+
+.site-main .matches-hero.panel-heading {
+  margin-bottom: clamp(24px, 2.4vw, 36px);
+}
+
+.site-main .matches-title,
+.site-main .matches-hero.panel-heading h2 {
+  font-size: clamp(46px, 4.7vw, 70px);
+}
+
+.site-main .matches-primary-row {
+  gap: 20px;
+  padding: 16px 18px;
+}
+
+.site-main .schedule-tab.matches-tab {
+  min-width: clamp(220px, 19vw, 310px);
+  min-height: 70px !important;
+}
+
+.site-main .matches-refresh-button {
+  min-height: 70px;
+}
+
+.site-main .matches-secondary-row {
+  margin-bottom: 18px;
+}
+
+.site-main .matches-callout {
+  margin-bottom: 20px;
+  padding: 22px 24px;
+}
+
+.site-main .matches-callout-icon {
+  width: 72px;
+  height: 72px;
+}
+
+.site-main .matches-list,
+.site-main .schedule-list {
+  max-height: 390px;
+}
+
+/* Analysis section heading */
+.workspace-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 8px 4px 0;
+}
+
+.workspace-heading-copy { min-width: 0; }
+.workspace-heading .eyebrow { margin-bottom: 7px; }
+.workspace-heading h2 {
+  margin: 0;
+  color: var(--text);
+  font: 700 clamp(23px, 2.4vw, 34px)/1.05 var(--rp-font-display);
+  letter-spacing: -.035em;
+}
+
+.workspace-heading p:last-child {
+  max-width: 720px;
+  margin: 9px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.workspace-quality {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 9px;
+  min-height: 38px;
+  padding: 8px 12px;
+  border: 1px solid rgba(34, 139, 255, .20);
+  border-radius: 999px;
+  background: rgba(8, 18, 37, .72);
+  color: var(--muted);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.workspace-quality-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 11px rgba(0, 229, 255, .72);
+}
+
+/* Shared panel organization */
+.workspace-card.panel {
+  min-height: 680px;
+  border-radius: var(--site-radius);
+  overflow: hidden;
+}
+
+.game-panel.workspace-card {
+  border-color: rgba(0, 229, 255, .24);
+}
+
+.game-panel .game-content {
+  min-height: 680px;
+}
+
+.machine-panel.workspace-card {
+  position: sticky;
+  top: 96px;
+  min-height: 680px;
+  max-height: calc(100vh - 116px);
+  display: flex;
+  flex-direction: column;
+}
+
+.machine-panel .panel-heading {
+  flex: 0 0 auto;
+}
+
+.machine-panel .help {
+  flex: 0 0 auto;
+  margin-top: 16px;
+}
+
+.machine-panel label,
+.machine-panel input {
+  flex: 0 0 auto;
+}
+
+.machine-panel .json-preview {
+  flex: 1 1 auto;
+  min-height: 300px;
+  max-height: none;
+  margin-bottom: 0;
+  overflow: auto;
+}
+
+/* Empty states should read like designed content, not blank panels. */
+.game-panel .hero-empty {
+  min-height: 660px;
+  padding: 44px;
+  place-content: center;
+}
+
+.game-panel .hero-empty::before {
+  content: "";
+  width: 70px;
+  height: 70px;
+  margin: 0 auto 14px;
+  border: 1px solid rgba(0, 229, 255, .36);
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(0, 229, 255, .16), transparent 58%),
+    rgba(8, 18, 37, .72);
+  box-shadow: 0 0 24px rgba(0, 229, 255, .08);
+}
+
+/* Footer */
+.site-footer {
+  margin-top: auto;
+  padding: 0 var(--site-gutter) 26px;
+}
+
+.site-footer-inner {
+  width: min(100%, var(--site-max));
+  min-height: 58px;
+  margin: 0 auto;
+  padding: 12px 18px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  border: 1px solid rgba(34, 139, 255, .16);
+  border-radius: 14px;
+  background: rgba(5, 11, 24, .80);
+  color: var(--muted);
+  text-align: left;
+}
+
+.site-footer .footer-pulse {
+  width: 26px;
+  height: 26px;
+  margin: 0;
+}
+
+.site-footer .footer-essence { min-width: 0; }
+.site-footer .footer-disclaimer { text-align: right; }
+
+/* Medium screens */
+@media (max-width: 1180px) {
+  .site-main.layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .site-main > .game-panel,
+  .site-main > .machine-panel {
+    grid-column: 1;
+  }
+
+  .machine-panel.workspace-card {
+    position: static;
+    max-height: none;
+    min-height: 560px;
+  }
+
+  .machine-panel .json-preview { min-height: 360px; }
+
+  .site-main .matches-primary-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .site-main .schedule-tabs.matches-tabs {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  .site-main .schedule-tab.matches-tab {
+    min-width: 0;
+  }
+}
+
+/* Phones and narrow tablets */
+@media (max-width: 760px) {
+  .site-header-inner {
+    min-height: 70px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+
+  .site-header .brand-mark { width: 45px; height: 45px; }
+  .site-header .brand-wordmark { font-size: 28px; }
+  .site-header .brand-mode { display: none; }
+  .site-header .status-wrap { max-width: 42vw; font-size: 10px; }
+
+  .site-main.layout {
+    padding-top: 14px;
+    padding-bottom: 24px;
+  }
+
+  .site-main .matches-shell {
+    padding: 20px 14px;
+    border-radius: 20px;
+  }
+
+  .site-main .matches-title,
+  .site-main .matches-hero.panel-heading h2 {
+    font-size: 43px;
+  }
+
+  .site-main .matches-primary-row {
+    grid-template-columns: 1fr;
+    padding: 12px;
+  }
+
+  .site-main .matches-refresh-button {
+    width: 100%;
+    min-height: 48px;
+  }
+
+  .site-main .schedule-tabs.matches-tabs {
+    gap: 9px !important;
+  }
+
+  .site-main .schedule-tab.matches-tab {
+    min-height: 54px !important;
+    padding: 0 11px !important;
+  }
+
+  .site-main .matches-tab-label,
+  .site-main .schedule-tab-label {
+    font-size: 11px;
+  }
+
+  .site-main .matches-secondary-row {
+    grid-template-columns: 1fr;
+  }
+
+  .site-main .matches-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .site-main .matches-callout {
+    grid-template-columns: 56px minmax(0, 1fr);
+    gap: 14px;
+    padding: 18px;
+  }
+
+  .site-main .matches-callout-icon {
+    width: 54px;
+    height: 54px;
+  }
+
+  .site-main .matches-callout-copy h3 { font-size: 18px; }
+  .site-main .matches-callout-copy p { font-size: 12px; }
+
+  .workspace-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .workspace-quality { white-space: normal; }
+
+  .workspace-card.panel,
+  .game-panel .game-content,
+  .game-panel .hero-empty {
+    min-height: 520px;
+  }
+
+  .site-footer-inner {
+    grid-template-columns: auto 1fr;
+  }
+
+  .site-footer .footer-disclaimer {
+    grid-column: 1 / -1;
+    text-align: left;
+  }
+}
+
+@media (max-width: 480px) {
+  .site-header .status-wrap { display: none; }
+  .site-header-inner { justify-content: center; }
+  .site-main .schedule-tabs.matches-tabs { grid-template-columns: 1fr !important; }
+  .site-main .matches-stats { grid-template-columns: 1fr; }
+}
