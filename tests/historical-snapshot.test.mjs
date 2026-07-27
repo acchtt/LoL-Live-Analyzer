@@ -30,7 +30,7 @@ test('historical pregame frames are never rendered as a live game', async () => 
 
 test('per-game navigation remains available when an archive is missing', async () => {
   const source = await readFile(new URL('../assets/series-game-history.js', import.meta.url), 'utf8');
-  assert.match(source, /window\.renderHistorySeriesSummary = renderSeriesNavigation/);
+  assert.match(source, /globalThis\.renderHistorySeriesSummary = renderSeriesNavigation/);
   assert.match(source, /data-history-game-id/);
   assert.match(source, /Open archive/);
 });
