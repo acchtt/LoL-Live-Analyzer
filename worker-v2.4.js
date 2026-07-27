@@ -79,7 +79,8 @@ async function healthResponse(request, env, ctx) {
       degradedFrameSeconds: 90,
       futureTimestampToleranceSeconds: 15,
       maximumWindowRequestsPerSnapshot: 3,
-      missingValuesPreservedAsNull: true
+      missingValuesPreservedAsNull: true,
+      inferredTelemetryWinnersDisabled: true
     }
   }, null, 2), {
     status: response.status,
@@ -124,7 +125,13 @@ export default {
       return decorateLiveResponse(response, incomingUrl, null);
     }
 
-    if (incomingUrl.pathname === '/api/resolve-game' && request.method === 'GET') {
+    if ([
+      '/api/schedule',
+      '/api/live',
+      '/api/event',
+      '/api/match-details',
+      '/api/resolve-game'
+    ].includes(incomingUrl.pathname) && request.method === 'GET') {
       const response = await reliableCore.fetch(request, env, ctx);
       return new Response(response.body, {
         status: response.status,
