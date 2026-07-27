@@ -1,4 +1,4 @@
-// Compact option-2 redesign for the schedule panel header, tabs and active league filter.
+// Option 2 schedule redesign: prominent header, tab toolbar, league filter and update status.
 (() => {
   'use strict';
 
@@ -36,7 +36,7 @@
       auto = document.createElement('span');
       auto.className = 'schedule-auto-refresh';
       auto.setAttribute('title', 'The match list refreshes automatically every 30 seconds');
-      auto.innerHTML = `${icons.refresh}<span>Auto-refresh</span><span class="schedule-auto-refresh-dot" aria-hidden="true"></span>`;
+      auto.innerHTML = `${icons.refresh}<span>Auto-refresh On</span><span class="schedule-auto-refresh-dot" aria-hidden="true"></span>`;
       actions.appendChild(auto);
     }
 
@@ -65,9 +65,18 @@
     return tabs;
   }
 
-  function ensureActiveControls() {
+  function ensureToolbar() {
     const tabs = decorateTabs();
     if (!tabs) return null;
+
+    let toolbar = document.querySelector('#scheduleToolbar');
+    if (!toolbar) {
+      toolbar = document.createElement('div');
+      toolbar.id = 'scheduleToolbar';
+      toolbar.className = 'schedule-toolbar';
+      tabs.parentElement.insertBefore(toolbar, tabs);
+      toolbar.appendChild(tabs);
+    }
 
     let controls = document.querySelector('#activeScheduleControls');
     if (!controls) {
@@ -78,15 +87,17 @@
         <label class="active-league-filter">
           <span class="sr-only">Filter active matches by league</span>
           ${icons.filter}
-          <select id="activeLeagueFilter"><option value="all">All leagues</option></select>
+          <select id="activeLeagueFilter"><option value="all">All Leagues</option></select>
           ${icons.chevron}
         </label>`;
-      tabs.insertAdjacentElement('afterend', controls);
+      toolbar.appendChild(controls);
 
       controls.querySelector('#activeLeagueFilter').addEventListener('change', event => {
         state.activeLeague = event.target.value || 'all';
         renderSchedule();
       });
+    } else if (controls.parentElement !== toolbar) {
+      toolbar.appendChild(controls);
     }
 
     let status = document.querySelector('#scheduleStatusStrip');
@@ -94,11 +105,14 @@
       status = document.createElement('div');
       status.id = 'scheduleStatusStrip';
       status.className = 'schedule-status-strip';
-      status.innerHTML = '<span class="schedule-status-dot" aria-hidden="true"></span><span>Live matches update automatically. Completed series move to Match History.</span>';
-      controls.insertAdjacentElement('afterend', status);
+      status.innerHTML = '<span class="schedule-status-dot" aria-hidden="true"></span><span>Live matches update automatically</span>';
+      toolbar.insertAdjacentElement('afterend', status);
     }
 
-    return controls;
+    const historyControls = document.querySelector('#matchHistoryControls');
+    if (historyControls?.parentElement === toolbar) toolbar.insertAdjacentElement('afterend', historyControls);
+
+    return { toolbar, controls, status };
   }
 
   function activeEvents() {
@@ -113,7 +127,7 @@
     const signature = leagues.join('|');
     if (select.dataset.signature !== signature) {
       select.dataset.signature = signature;
-      select.replaceChildren(new Option('All leagues', 'all'));
+      select.replaceChildren(new Option('All Leagues', 'all'));
       leagues.forEach(league => select.add(new Option(league, league)));
     }
 
@@ -122,6 +136,7 @@
   }
 
   function applyActiveFilter(events) {
+    scheduleList.querySelector('.schedule-filter-empty')?.remove();
     if (state.scheduleTab !== 'active' || state.activeLeague === 'all') return;
 
     const byId = new Map(events.map(event => [eventId(event), event]));
@@ -136,7 +151,7 @@
     if (!visible) {
       const message = document.createElement('div');
       message.className = 'schedule-filter-empty';
-      message.innerHTML = `<strong>No active ${state.activeLeague} matches</strong><span>Choose another league or return to All leagues.</span>`;
+      message.innerHTML = `<strong>No active ${state.activeLeague} matches</strong><span>Choose another league or return to All Leagues.</span>`;
       scheduleList.appendChild(message);
     }
   }
@@ -144,13 +159,12 @@
   function syncShell() {
     decorateHeading();
     decorateTabs();
-    const controls = ensureActiveControls();
+    const shell = ensureToolbar();
     const historyControls = document.querySelector('#matchHistoryControls');
-    const status = document.querySelector('#scheduleStatusStrip');
     const active = state.scheduleTab !== 'finished';
 
-    if (controls) controls.hidden = !active;
-    if (status) status.hidden = !active;
+    if (shell?.controls) shell.controls.hidden = !active;
+    if (shell?.status) shell.status.hidden = !active;
     if (historyControls) historyControls.hidden = active;
 
     const events = activeEvents();
