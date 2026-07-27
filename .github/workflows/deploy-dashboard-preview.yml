@@ -11,7 +11,7 @@ on:
       - lib/**
       - worker-v2.4.js
       - worker-reliable-core.js
-      - wrangler.dashboard-preview.toml
+      - wrangler.toml
       - .github/workflows/deploy-dashboard-preview.yml
 
 permissions:
@@ -82,7 +82,7 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           wranglerVersion: "4"
-          command: versions upload --config wrangler.dashboard-preview.toml --preview-alias dashboard --keep-vars
+          command: versions upload --config wrangler.toml --preview-alias dashboard --keep-vars --assets preview-dist
 
       - name: Smoke test dashboard and API wiring
         shell: bash
