@@ -9,12 +9,16 @@
     .authority-lineup h3 { margin: 0 0 10px; }
     .authority-lineup .player-kda, .authority-lineup .player-cs { display: none; }
     .authority-badge { display: inline-flex; margin-top: 12px; padding: 5px 9px; border-radius: 999px; border: 1px solid var(--border); color: var(--accent); font-size: 12px; font-weight: 700; }
-    .authority-context-banner { display: grid; gap: 4px; margin: 0 12px 10px; padding: 10px 12px; border: 1px solid rgba(255,190,72,.28); border-radius: 10px; background: rgba(255,166,40,.055); }
-    .authority-context-banner strong { color: #ffd28a; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
-    .authority-context-banner span { color: #9eb0ca; font-size: 9px; line-height: 1.45; }
-    .authority-context-banner.is-stale { border-color: rgba(255,112,112,.28); background: rgba(255,76,76,.045); }
+    .authority-context-banner { display: flex; min-width: 0; align-items: center; justify-content: space-between; gap: 14px; margin: 0; padding: 8px 11px; border: 1px solid rgba(255,190,72,.24); border-radius: 10px; background: rgba(255,166,40,.045); }
+    .authority-context-banner strong { flex: 0 0 auto; color: #ffd28a; font-size: 9px; letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; }
+    .authority-context-banner span { min-width: 0; color: #9eb0ca; font-size: 9px; line-height: 1.4; text-align: right; }
+    .authority-context-banner.is-stale { border-color: rgba(255,112,112,.24); background: rgba(255,76,76,.04); }
     .authority-context-banner.is-stale strong { color: #ffaaaa; }
-    @media (max-width: 760px) { .authority-lineups { grid-template-columns: 1fr; } }
+    @media (max-width: 760px) {
+      .authority-lineups { grid-template-columns: 1fr; }
+      .authority-context-banner { align-items: flex-start; flex-direction: column; gap: 4px; }
+      .authority-context-banner span { text-align: left; }
+    }
   `;
   document.head.appendChild(style);
 
@@ -127,24 +131,46 @@
     return Boolean(blue.name || red.name) && values.filter(finite).length >= 4;
   }
 
+  function missingFields(snapshot) {
+    return Array.isArray(snapshot.quality?.criticalMissingFields)
+      ? snapshot.quality.criticalMissingFields.filter(Boolean)
+      : [];
+  }
+
+  function onlyItemDetailsMissing(snapshot) {
+    const fields = missingFields(snapshot);
+    return fields.length > 0 && fields.every(path => /\.players\.\d+\.items$/.test(path));
+  }
+
   function contextMessage(snapshot) {
     const stale = snapshot.status === 'telemetry_stale';
     const age = Number(snapshot.quality?.frameAgeSeconds ?? snapshot.source?.dataAgeSeconds);
-    const ageText = Number.isFinite(age) ? ` Last frame age: ${Math.round(age)} seconds.` : '';
-    const missingCount = Array.isArray(snapshot.quality?.criticalMissingFields)
-      ? snapshot.quality.criticalMissingFields.length
-      : 0;
+    const ageText = Number.isFinite(age) ? ` Frame age: ${Math.round(age)}s.` : '';
+    const fields = missingFields(snapshot);
+
     if (stale) {
       return {
         title: 'Stale telemetry context',
         detail: `Showing Riot’s last known map state because the current feed has not advanced.${ageText} Do not use these values as live betting inputs.`,
-        className: 'is-stale'
+        className: 'is-stale',
+        connection: `LIVE · stale context${Number.isFinite(age) ? ` · ${Math.round(age)}s old` : ''}`
       };
     }
+
+    if (onlyItemDetailsMissing(snapshot)) {
+      return {
+        title: 'Live map data',
+        detail: `Current score, gold, objectives, KDA and CS are available. Riot’s item-detail frame is still missing.${ageText} Betting validation remains incomplete.`,
+        className: '',
+        connection: `LIVE · map stats · items pending${Number.isFinite(age) ? ` · ${Math.round(age)}s old` : ''}`
+      };
+    }
+
     return {
       title: 'Partial live telemetry',
-      detail: `Current map totals are available, but detailed player or item data are incomplete${missingCount ? ` (${missingCount} missing fields)` : ''}.${ageText} Displayed for context only, not as a verified betting frame.`,
-      className: ''
+      detail: `Current map totals are available, but ${fields.length || 'some'} betting-critical detail fields are incomplete.${ageText} Displayed for context only.`,
+      className: '',
+      connection: `LIVE · partial stats${Number.isFinite(age) ? ` · ${Math.round(age)}s old` : ''}`
     };
   }
 
@@ -162,21 +188,14 @@
 
     const shell = gameContent.querySelector('.analysis-v2-shell, .analysis-shell');
     const header = shell?.querySelector('.analysis-v2-header, .analysis-header');
-    if (header) header.insertAdjacentElement('afterend', banner);
+    const seriesNav = shell?.querySelector('.live-series-nav');
+    if (seriesNav) seriesNav.insertAdjacentElement('afterend', banner);
+    else if (header) header.insertAdjacentElement('afterend', banner);
     else if (shell) shell.prepend(banner);
     else gameContent.prepend(banner);
 
     statusJson(snapshot);
-    const age = Number(snapshot.quality?.frameAgeSeconds ?? snapshot.source?.dataAgeSeconds);
-    const ageLabel = Number.isFinite(age) ? ` · ${Math.round(age)}s old` : '';
-    setConnection(
-      historical
-        ? 'History · partial gameplay snapshot'
-        : snapshot.status === 'telemetry_stale'
-          ? `LIVE · stale context${ageLabel}`
-          : `LIVE · partial stats${ageLabel}`,
-      historical ? '' : 'live'
-    );
+    setConnection(historical ? 'History · partial gameplay snapshot' : message.connection, historical ? '' : 'live');
   }
 
   function renderVerified(snapshot, historical) {
