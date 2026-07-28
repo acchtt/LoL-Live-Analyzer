@@ -103,6 +103,93 @@
       });
   }
 
+  function staleGameplayEvidence(resolution = {}, progress = {}) {
+    const expected = Number(progress.nextGameNumber || 0);
+    const entries = Object.entries(resolution.diagnostics || {})
+      .filter(([, detail]) => detail && typeof detail === 'object')
+      .filter(([, detail]) => detail.phase === 'gameplay' && detail.freshness === 'stale')
+      .filter(([, detail]) => !expected || Number(detail.gameNumber || 0) === expected)
+      .map(([gameId, detail]) => ({ gameId, ...detail }))
+      .sort((left, right) => Date.parse(right.timestamp || '') - Date.parse(left.timestamp || ''));
+    return entries[0] || null;
+  }
+
+  function displayableSnapshotFor(evidence = {}) {
+    const snapshot = state.lastSnapshot;
+    if (!snapshot || ['pregame', 'telemetry_unavailable'].includes(snapshot.status)) return null;
+    if (evidence.gameId && String(snapshot?.source?.gameId || '') !== String(evidence.gameId)) return null;
+    const values = [
+      snapshot?.blue?.gold, snapshot?.red?.gold,
+      snapshot?.blue?.kills, snapshot?.red?.kills,
+      snapshot?.blue?.towers, snapshot?.red?.towers,
+      snapshot?.clockSeconds
+    ];
+    return values.filter(value => value !== null && value !== undefined && Number.isFinite(Number(value))).length >= 4
+      ? snapshot
+      : null;
+  }
+
+  function addPostGameBanner(gameNumber, evidence = {}) {
+    const banner = document.createElement('section');
+    banner.className = 'authority-context-banner is-stale';
+    banner.setAttribute('role', 'status');
+    const age = Number(evidence.frameAgeSeconds);
+    const ageText = Number.isFinite(age) ? ` Last frame: ${Math.round(age)}s ago.` : '';
+    banner.innerHTML = `<strong>Game ${gameNumber} feed stopped</strong><span>The gameplay frame is no longer advancing.${ageText} Awaiting Riot’s official result or next-game confirmation; the last map state is context only.</span>`;
+
+    const shell = gameContent.querySelector('.analysis-v2-shell, .analysis-shell');
+    const header = shell?.querySelector('.analysis-v2-header, .analysis-header');
+    const seriesNav = shell?.querySelector('.live-series-nav');
+    if (seriesNav) seriesNav.insertAdjacentElement('afterend', banner);
+    else if (header) header.insertAdjacentElement('afterend', banner);
+    else if (shell) shell.prepend(banner);
+    else gameContent.prepend(banner);
+  }
+
+  function showPostGamePending(event, resolution, progress, evidence) {
+    const [a, b] = eventTeams(event || selectedScheduleEvent());
+    const title = `${a.name || 'Team 1'} vs ${b.name || 'Team 2'}`;
+    const gameNumber = Number(evidence?.gameNumber || progress.nextGameNumber || 0) || '?';
+    const snapshot = displayableSnapshotFor(evidence);
+
+    state.selectedMatchState = 'postGame';
+    clearInterval(state.pollTimer);
+    state.pollTimer = null;
+
+    if (evidence?.gameId) {
+      state.selectedGameId = String(evidence.gameId);
+      setJsonEndpoint(state.selectedGameId, false);
+    }
+
+    if (snapshot) {
+      renderGame(snapshot);
+      addPostGameBanner(gameNumber, evidence);
+    } else {
+      gameContent.innerHTML = `
+        <div class="empty hero-empty">
+          <strong>Game ${gameNumber} feed stopped</strong>
+          <span>${title} has no advancing gameplay frame. RiftPulse is waiting for Riot to publish the official result or confirm the next game instead of mislabeling this as champion select.</span>
+        </div>`;
+      jsonUrl.value = '';
+      copyJsonUrl.disabled = true;
+    }
+
+    jsonPreview.textContent = JSON.stringify({
+      status: 'post_game_result_pending',
+      matchId: state.selectedEventId,
+      gameId: evidence?.gameId || null,
+      gameNumber: gameNumber === '?' ? null : gameNumber,
+      completedGames: progress.playedCount,
+      broadcastReportedLive: Boolean(resolution.broadcastReportedLive),
+      checkedAt: resolution.checkedAt || new Date().toISOString(),
+      lastGameplayFrame: evidence?.timestamp || null,
+      frameAgeSeconds: evidence?.frameAgeSeconds ?? null,
+      message: 'The latest gameplay frame stopped advancing. Awaiting Riot result or next-game confirmation.'
+    }, null, 2);
+
+    setConnection(`Game ${gameNumber} feed stopped · result pending`, '');
+  }
+
   function showDraftOrBreak(event, resolution, progress) {
     const [a, b] = eventTeams(event || selectedScheduleEvent());
     const title = `${a.name || 'Team 1'} vs ${b.name || 'Team 2'}`;
@@ -138,11 +225,22 @@
     }
 
     const progress = inferSeriesProgress(event, resolution);
+    const stoppedGameplay = staleGameplayEvidence(resolution, progress);
+    if (!resolution.selectedGame && !resolution.pregameGame && stoppedGameplay) {
+      showPostGamePending(event, resolution, progress, stoppedGameplay);
+      return;
+    }
+
     if (!resolution.selectedGame && progress.hasNextGame) {
       showDraftOrBreak(event, resolution, progress);
       return;
     }
 
     baseShowWaiting(event, resolution);
+  };
+
+  globalThis.RiftPulseSeriesPhase = {
+    inferSeriesProgress,
+    staleGameplayEvidence
   };
 })();
