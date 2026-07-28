@@ -2,7 +2,7 @@
 
 @media (min-width: 1241px) {
   .app-workspace {
-    grid-template-columns: 390px minmax(0, 1fr) 320px;
+    grid-template-columns: 390px minmax(0, 1fr) 280px;
   }
 }
 
