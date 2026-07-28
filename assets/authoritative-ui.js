@@ -1,4 +1,4 @@
-// Final authority layer: render only normalized Worker snapshots and keep series scores fresh.
+// Final authority layer: render normalized Worker snapshots while preserving data-quality boundaries.
 (() => {
   const style = document.createElement('style');
   style.textContent = `
@@ -9,6 +9,11 @@
     .authority-lineup h3 { margin: 0 0 10px; }
     .authority-lineup .player-kda, .authority-lineup .player-cs { display: none; }
     .authority-badge { display: inline-flex; margin-top: 12px; padding: 5px 9px; border-radius: 999px; border: 1px solid var(--border); color: var(--accent); font-size: 12px; font-weight: 700; }
+    .authority-context-banner { display: grid; gap: 4px; margin: 0 12px 10px; padding: 10px 12px; border: 1px solid rgba(255,190,72,.28); border-radius: 10px; background: rgba(255,166,40,.055); }
+    .authority-context-banner strong { color: #ffd28a; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
+    .authority-context-banner span { color: #9eb0ca; font-size: 9px; line-height: 1.45; }
+    .authority-context-banner.is-stale { border-color: rgba(255,112,112,.28); background: rgba(255,76,76,.045); }
+    .authority-context-banner.is-stale strong { color: #ffaaaa; }
     @media (max-width: 760px) { .authority-lineups { grid-template-columns: 1fr; } }
   `;
   document.head.appendChild(style);
@@ -101,10 +106,77 @@
     gameContent.innerHTML = `
       <div class="empty hero-empty">
         <strong>Live stats unavailable</strong>
-        <span>${a.name || 'Team 1'} vs ${b.name || 'Team 2'} is active, but Riot has not returned a fresh verified telemetry frame. The dashboard will keep checking.</span>
+        <span>${a.name || 'Team 1'} vs ${b.name || 'Team 2'} is active, but Riot has not returned a usable gameplay frame. The dashboard will keep checking.</span>
       </div>`;
     statusJson(snapshot);
     setConnection('LIVE · stats unavailable', 'live');
+  }
+
+  function finite(value) {
+    return value !== null && value !== undefined && value !== '' && Number.isFinite(Number(value));
+  }
+
+  function hasDisplayableMapStats(snapshot = {}) {
+    const blue = snapshot.blue || {};
+    const red = snapshot.red || {};
+    const values = [
+      blue.gold, red.gold, blue.kills, red.kills,
+      blue.towers, red.towers, blue.barons, red.barons,
+      blue.inhibitors, red.inhibitors, snapshot.clockSeconds
+    ];
+    return Boolean(blue.name || red.name) && values.filter(finite).length >= 4;
+  }
+
+  function contextMessage(snapshot) {
+    const stale = snapshot.status === 'telemetry_stale';
+    const age = Number(snapshot.quality?.frameAgeSeconds ?? snapshot.source?.dataAgeSeconds);
+    const ageText = Number.isFinite(age) ? ` Last frame age: ${Math.round(age)} seconds.` : '';
+    const missingCount = Array.isArray(snapshot.quality?.criticalMissingFields)
+      ? snapshot.quality.criticalMissingFields.length
+      : 0;
+    if (stale) {
+      return {
+        title: 'Stale telemetry context',
+        detail: `Showing Riot’s last known map state because the current feed has not advanced.${ageText} Do not use these values as live betting inputs.`,
+        className: 'is-stale'
+      };
+    }
+    return {
+      title: 'Partial live telemetry',
+      detail: `Current map totals are available, but detailed player or item data are incomplete${missingCount ? ` (${missingCount} missing fields)` : ''}.${ageText} Displayed for context only, not as a verified betting frame.`,
+      className: ''
+    };
+  }
+
+  function renderContext(snapshot, historical = false) {
+    state.lastSnapshot = snapshot;
+    if (historical) snapshot.match = { ...(snapshot.match || {}), state: 'finished' };
+    else markMatchLive(state.selectedEventId);
+
+    renderGame(snapshot);
+    const message = contextMessage(snapshot);
+    const banner = document.createElement('section');
+    banner.className = `authority-context-banner ${message.className}`.trim();
+    banner.setAttribute('role', 'status');
+    banner.innerHTML = `<strong>${message.title}</strong><span>${message.detail}</span>`;
+
+    const shell = gameContent.querySelector('.analysis-v2-shell, .analysis-shell');
+    const header = shell?.querySelector('.analysis-v2-header, .analysis-header');
+    if (header) header.insertAdjacentElement('afterend', banner);
+    else if (shell) shell.prepend(banner);
+    else gameContent.prepend(banner);
+
+    statusJson(snapshot);
+    const age = Number(snapshot.quality?.frameAgeSeconds ?? snapshot.source?.dataAgeSeconds);
+    const ageLabel = Number.isFinite(age) ? ` · ${Math.round(age)}s old` : '';
+    setConnection(
+      historical
+        ? 'History · partial gameplay snapshot'
+        : snapshot.status === 'telemetry_stale'
+          ? `LIVE · stale context${ageLabel}`
+          : `LIVE · partial stats${ageLabel}`,
+      historical ? '' : 'live'
+    );
   }
 
   function renderVerified(snapshot, historical) {
@@ -136,11 +208,15 @@
         showPregame(snapshot, historical);
         return;
       }
-      if (snapshot.status !== 'ok') {
-        showUnavailable(snapshot, historical);
+      if (snapshot.status === 'ok') {
+        renderVerified(snapshot, historical);
         return;
       }
-      renderVerified(snapshot, historical);
+      if (['degraded', 'telemetry_stale'].includes(snapshot.status) && hasDisplayableMapStats(snapshot)) {
+        renderContext(snapshot, historical);
+        return;
+      }
+      showUnavailable(snapshot, historical);
     } catch (error) {
       setConnection(error.message, 'error');
       gameContent.innerHTML = `<div class="empty hero-empty"><strong>Feed unavailable</strong><span>${error.message}</span></div>`;
