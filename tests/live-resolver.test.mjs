@@ -58,7 +58,11 @@ function activeSeriesEvent() {
 function riotFor(event, overrides = {}) {
   return {
     getEvent: async () => event,
-    getGames: async () => ({ data: { games: event.match.games } }),
+    getGames: async ids => ({
+      data: {
+        games: event.match.games.filter(game => ids.includes(game.id))
+      }
+    }),
     getLive: async () => ({ data: { schedule: { events: [event] } } }),
     fetchWindow: async () => null,
     fetchBestLiveWindow: async () => null,
@@ -120,4 +124,32 @@ test('resolver keeps champion select as waiting state instead of exposing pregam
   assert.equal(result.selectedPhase, 'pregame');
   assert.equal(result.telemetryAvailable, false);
   assert.equal(result.quality.safeForLiveAnalysis, false);
+});
+
+test('resolver discovers a newly created live game ID from getLive when event details lag behind', async () => {
+  const event = activeSeriesEvent();
+  event.match.games = event.match.games.slice(0, 2);
+  const liveEvent = activeSeriesEvent();
+  liveEvent.match.games[2].state = 'inProgress';
+  const requestedGameLists = [];
+  const riot = riotFor(event, {
+    getLive: async () => ({ data: { schedule: { events: [liveEvent] } } }),
+    getGames: async ids => {
+      requestedGameLists.push([...ids]);
+      return {
+        data: {
+          games: liveEvent.match.games.filter(game => ids.includes(game.id))
+        }
+      };
+    },
+    fetchBestLiveWindow: async gameId => gameId === 'g3' ? gameplayPayload() : null
+  });
+
+  const result = await resolveActiveGame('match-1', riot);
+
+  assert.equal(result.selectedGame?.id, 'g3');
+  assert.equal(result.selectedPhase, 'gameplay');
+  assert.equal(result.telemetryAvailable, true);
+  assert.deepEqual(Array.from(result.diagnostics.liveAddedGameIds), ['g3']);
+  assert.ok(requestedGameLists.some(ids => ids.includes('g3')));
 });
