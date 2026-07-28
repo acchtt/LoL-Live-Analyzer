@@ -1,0 +1,105 @@
+/* Final scoreboard cleanup: two team cards, no duplicate center kills panel. */
+
+.analysis-v2-scoreboard {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 14px !important;
+}
+
+.analysis-v2-score-center {
+  display: none !important;
+}
+
+.analysis-v2-team {
+  min-height: 98px !important;
+  padding: 14px 16px !important;
+}
+
+.analysis-v2-team-logo {
+  width: 54px !important;
+  height: 54px !important;
+}
+
+.analysis-v2-team-copy h3 {
+  margin-bottom: 6px !important;
+  font-size: clamp(15px, 1.25vw, 20px) !important;
+}
+
+.analysis-v2-team-kills {
+  position: relative;
+  min-width: 76px !important;
+  min-height: 64px !important;
+  padding: 0 6px 13px 14px;
+  border-right: 0 !important;
+  border-left: 1px solid var(--app-border-soft) !important;
+  font-size: clamp(31px, 2.8vw, 44px) !important;
+}
+
+.analysis-v2-team-kills::after {
+  content: "kills";
+  position: absolute;
+  right: 6px;
+  bottom: 2px;
+  color: #667995;
+  font: 800 8px/1 var(--rp-font-ui);
+  letter-spacing: .11em;
+  text-transform: uppercase;
+}
+
+.analysis-v2-team.is-red .analysis-v2-team-kills {
+  border-right: 0 !important;
+  border-left: 1px solid var(--app-border-soft) !important;
+}
+
+.analysis-v2-series-score {
+  display: inline-flex;
+  min-height: 30px;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 10px;
+  border: 1px solid var(--app-border-soft);
+  border-radius: 9px;
+  background: #07111f;
+  color: #9eb0ca;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  white-space: nowrap;
+}
+
+.analysis-v2-quality.is-delayed {
+  border-color: rgba(0, 229, 255, .22);
+  background: rgba(0, 229, 255, .055);
+  color: #6cecff;
+}
+
+.authority-context-banner.is-delayed {
+  border-color: rgba(0, 229, 255, .2) !important;
+  background: rgba(0, 229, 255, .04) !important;
+}
+
+.authority-context-banner.is-delayed strong {
+  color: #6cecff !important;
+}
+
+@media (max-width: 900px) {
+  .analysis-v2-scoreboard {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 520px) {
+  .analysis-v2-team {
+    grid-template-columns: 44px minmax(0, 1fr) 62px !important;
+    padding: 11px !important;
+  }
+
+  .analysis-v2-team-logo {
+    width: 44px !important;
+    height: 44px !important;
+  }
+
+  .analysis-v2-team-kills {
+    min-width: 62px !important;
+    padding-left: 10px;
+  }
+}
