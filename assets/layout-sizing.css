@@ -1,0 +1,13 @@
+/* Final column sizing: widen the schedule sidebar and tighten the analysis area. */
+
+@media (min-width: 1241px) {
+  .app-workspace {
+    grid-template-columns: 350px minmax(0, 1fr) 340px;
+  }
+}
+
+@media (min-width: 821px) and (max-width: 1240px) {
+  .app-workspace {
+    grid-template-columns: 310px minmax(0, 1fr);
+  }
+}
