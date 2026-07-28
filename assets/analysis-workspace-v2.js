@@ -130,13 +130,11 @@
     </article>`;
   }
 
-  function oddsPlaceholder(historical) {
+  function oddsPlaceholder() {
     return `<div class="analysis-v2-odds-placeholder" data-odds-placeholder>
       <span>Bookmaker markets</span>
-      <h3>${historical ? 'No live market for this archive' : 'Waiting for matched odds'}</h3>
-      <p>${historical
-        ? 'Completed matches remain available for analysis, but live bookmaker markets are no longer active.'
-        : 'When the private odds bridge matches this event, the current markets will appear here automatically.'}</p>
+      <h3>Waiting for matched odds</h3>
+      <p>When the private odds bridge matches this event, current markets will appear here automatically.</p>
     </div>`;
   }
 
@@ -156,6 +154,11 @@
     const frameText = snapshot.source?.frameTimestamp
       ? new Date(snapshot.source.frameTimestamp).toLocaleTimeString()
       : 'Latest frame';
+
+    const oddsSection = historical ? '' : `
+      <section id="analysisOddsSlot" class="analysis-v2-odds" aria-label="Bookmaker odds">
+        ${oddsPlaceholder()}
+      </section>`;
 
     gameContent.innerHTML = `<div class="analysis-v2-shell">
       <header class="analysis-v2-header">
@@ -179,25 +182,24 @@
         ${teamCard(red, 'Red side', true)}
       </section>
 
-      <div class="analysis-v2-body">
+      <div class="analysis-v2-body ${historical ? 'is-archive' : 'is-live'}">
         <section class="analysis-v2-state" aria-label="Verified map state">
           <header><div><span>Map state</span><h3>Verified game totals</h3></div><small>Blue · Red</small></header>
-          <div class="analysis-v2-lead">
-            <span>Gold advantage</span>
-            <strong>${escapeHtml(leadText)}</strong>
-            <small>${formatted(blue.gold)} – ${formatted(red.gold)} team gold</small>
-          </div>
-          <div class="analysis-v2-objectives">
-            ${objectiveCard('Towers', integer(blue.towers), integer(red.towers))}
-            ${objectiveCard('Dragons', count(blue.dragons), count(red.dragons))}
-            ${objectiveCard('Barons', integer(blue.barons), integer(red.barons))}
-            ${objectiveCard('Inhibitors', integer(blue.inhibitors), integer(red.inhibitors))}
+          <div class="analysis-v2-state-content">
+            <div class="analysis-v2-lead">
+              <span>Gold advantage</span>
+              <strong>${escapeHtml(leadText)}</strong>
+              <small>${formatted(blue.gold)} – ${formatted(red.gold)} team gold</small>
+            </div>
+            <div class="analysis-v2-objectives">
+              ${objectiveCard('Towers', integer(blue.towers), integer(red.towers))}
+              ${objectiveCard('Dragons', count(blue.dragons), count(red.dragons))}
+              ${objectiveCard('Barons', integer(blue.barons), integer(red.barons))}
+              ${objectiveCard('Inhibitors', integer(blue.inhibitors), integer(red.inhibitors))}
+            </div>
           </div>
         </section>
-
-        <section id="analysisOddsSlot" class="analysis-v2-odds" aria-label="Bookmaker odds">
-          ${oddsPlaceholder(historical)}
-        </section>
+        ${oddsSection}
       </div>
 
       <section class="analysis-v2-lineups players" aria-label="Player lineups">
