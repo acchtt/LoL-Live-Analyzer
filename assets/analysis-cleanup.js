@@ -1,25 +1,8 @@
-// Final presentation cleanup for the live analysis workspace.
+// Final presentation cleanup for delayed-but-complete live frames.
 (() => {
   'use strict';
 
   let scheduled = false;
-
-  function integer(value) {
-    const parsed = Number(value);
-    return Number.isFinite(parsed) ? Math.round(parsed) : 0;
-  }
-
-  function seriesScore(snapshot) {
-    const event = typeof selectedScheduleEvent === 'function' ? selectedScheduleEvent() : null;
-    const eventTeams = event?.match?.teams || [];
-    if (eventTeams.length >= 2) {
-      return `${integer(eventTeams[0]?.result?.gameWins)}–${integer(eventTeams[1]?.result?.gameWins)}`;
-    }
-
-    const teams = Array.isArray(snapshot?.series?.teams) ? snapshot.series.teams : [];
-    if (teams.length >= 2) return `${integer(teams[0]?.wins)}–${integer(teams[1]?.wins)}`;
-    return null;
-  }
 
   function criticalMissing(snapshot) {
     return Array.isArray(snapshot?.quality?.criticalMissingFields)
@@ -34,29 +17,6 @@
 
   function setText(element, value) {
     if (element && element.textContent !== value) element.textContent = value;
-  }
-
-  function applyScoreboardCleanup(snapshot) {
-    const scoreboard = gameContent?.querySelector?.('.analysis-v2-scoreboard');
-    scoreboard?.querySelector?.('.analysis-v2-score-center')?.remove?.();
-
-    const meta = gameContent?.querySelector?.('.analysis-v2-header-meta');
-    if (!meta) return;
-
-    const score = seriesScore(snapshot);
-    let chip = meta.querySelector('.analysis-v2-series-score');
-    if (!score) {
-      chip?.remove();
-      return;
-    }
-
-    if (!chip) {
-      chip = document.createElement('span');
-      chip.className = 'analysis-v2-series-score';
-      const quality = meta.querySelector('.analysis-v2-quality');
-      meta.insertBefore(chip, quality || meta.firstChild);
-    }
-    setText(chip, `Series ${score}`);
   }
 
   function applyFreshnessPresentation(snapshot) {
@@ -92,7 +52,6 @@
     scheduled = false;
     const snapshot = typeof state === 'object' ? state?.lastSnapshot : null;
     if (!snapshot || !gameContent?.querySelector) return;
-    applyScoreboardCleanup(snapshot);
     applyFreshnessPresentation(snapshot);
   }
 
