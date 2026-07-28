@@ -18,10 +18,11 @@
 
     const panel = capturePanel();
     const players = gameContent?.querySelector('.players');
-    if (!panel || !players || !state?.selectedEventId) return;
+    const host = players?.parentElement;
+    if (!panel || !players || !host || !state?.selectedEventId) return;
 
-    if (panel.parentNode !== gameContent || panel.nextElementSibling !== players) {
-      gameContent.insertBefore(panel, players);
+    if (panel.parentNode !== host || panel.nextElementSibling !== players) {
+      host.insertBefore(panel, players);
     }
   }
 
