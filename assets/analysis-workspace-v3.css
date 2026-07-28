@@ -1,0 +1,108 @@
+/* Final balance pass for the analysis workspace. */
+
+.game-panel > .bookmaker-odds {
+  display: none !important;
+}
+
+.analysis-v2-shell {
+  gap: 10px;
+  padding: 12px;
+}
+
+.analysis-v2-scoreboard {
+  grid-template-columns: minmax(0, 1fr) 112px minmax(0, 1fr);
+}
+
+.analysis-v2-team {
+  min-height: 112px;
+  padding: 12px;
+}
+
+.analysis-v2-body {
+  align-items: start;
+}
+
+.analysis-v2-body.is-live {
+  grid-template-columns: minmax(300px, .85fr) minmax(360px, 1.15fr);
+}
+
+.analysis-v2-body.is-archive {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.analysis-v2-state-content {
+  min-width: 0;
+}
+
+.analysis-v2-body.is-archive .analysis-v2-state-content {
+  display: grid;
+  grid-template-columns: minmax(230px, .8fr) minmax(0, 1.7fr);
+  gap: 10px;
+  padding: 12px;
+}
+
+.analysis-v2-body.is-archive .analysis-v2-lead {
+  height: 100%;
+  margin: 0;
+}
+
+.analysis-v2-body.is-archive .analysis-v2-objectives {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  padding: 0;
+}
+
+.analysis-v2-body.is-archive .analysis-v2-objective {
+  display: grid;
+  min-height: 92px;
+  align-content: center;
+}
+
+.analysis-v2-odds {
+  min-height: 0;
+  padding: 12px;
+}
+
+.analysis-v2-odds-placeholder {
+  min-height: 150px;
+  padding: 20px;
+}
+
+.analysis-v2-odds > .bookmaker-odds {
+  display: block !important;
+}
+
+.analysis-v2-odds .bookmaker-market-grid {
+  max-height: 220px;
+}
+
+.analysis-v2-lineups.players {
+  align-items: start;
+}
+
+@media (max-width: 1500px) {
+  .analysis-v2-body.is-live {
+    grid-template-columns: minmax(280px, .8fr) minmax(320px, 1.2fr);
+  }
+
+  .analysis-v2-body.is-archive .analysis-v2-state-content {
+    grid-template-columns: minmax(210px, .72fr) minmax(0, 1.8fr);
+  }
+}
+
+@media (max-width: 1180px) {
+  .analysis-v2-body.is-live,
+  .analysis-v2-body.is-archive .analysis-v2-state-content {
+    grid-template-columns: 1fr;
+  }
+
+  .analysis-v2-body.is-archive .analysis-v2-objectives {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .analysis-v2-body.is-archive .analysis-v2-objectives {
+    grid-template-columns: 1fr 1fr;
+  }
+}
