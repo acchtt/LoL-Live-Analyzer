@@ -45,6 +45,29 @@ function tiedFinalGameEvent() {
   };
 }
 
+function staleGameSnapshot() {
+  const players = side => Array.from({ length: 5 }, (_, index) => ({
+    participantId: index + (side === 'blue' ? 1 : 6),
+    name: `${side}-${index + 1}`,
+    champion: index + 1,
+    kills: index,
+    deaths: 1,
+    assists: 2,
+    creepScore: 100 + index
+  }));
+  return {
+    status: 'telemetry_stale',
+    source: {
+      gameId: 'g3',
+      frameTimestamp: '2026-07-28T19:54:30.000Z'
+    },
+    quality: { frameAgeSeconds: 330 },
+    clockSeconds: 1900,
+    blue: { name: 'Blue', gold: 50000, kills: 15, towers: 8, players: players('blue') },
+    red: { name: 'Red', gold: 47000, kills: 10, towers: 4, players: players('red') }
+  };
+}
+
 test('series-complete resolution loads the deciding game as a historical snapshot', async () => {
   const event = completedEvent();
   let baseWaitingCalls = 0;
@@ -107,11 +130,13 @@ test('series-complete resolution loads the deciding game as a historical snapsho
   assert.match(connection, /loading final game/i);
 });
 
-test('stopped expected-game telemetry is classified as result pending instead of draft', () => {
+test('stopped expected-game telemetry restores the last champion and player board', async () => {
   const event = tiedFinalGameEvent();
   let baseWaitingCalls = 0;
   let connection = '';
   let endpoint = null;
+  let renderedSnapshot = null;
+  const prepended = [];
 
   const context = {
     showWaiting: () => { baseWaitingCalls += 1; },
@@ -126,11 +151,25 @@ test('stopped expected-game telemetry is classified as result pending instead of
     },
     selectedScheduleEvent: () => event,
     renderSchedule: () => {},
-    renderGame: () => {},
+    renderGame: snapshot => {
+      renderedSnapshot = snapshot;
+      context.gameContent.innerHTML = '<section class="analysis-v2-lineups">player boards</section>';
+    },
     setJsonEndpoint: (gameId, historical) => { endpoint = { gameId, historical }; },
     loadGame: async () => {},
+    api: async path => {
+      assert.match(path, /gameId=g3/);
+      return staleGameSnapshot();
+    },
     setConnection: label => { connection = label; },
-    gameContent: { innerHTML: '', prepend: () => {}, querySelector: () => null },
+    gameContent: {
+      innerHTML: '',
+      prepend: value => prepended.push(value),
+      querySelector: () => null
+    },
+    document: {
+      createElement: () => ({ className: '', innerHTML: '', setAttribute: () => {} })
+    },
     jsonPreview: { textContent: '' },
     jsonUrl: { value: '' },
     copyJsonUrl: { disabled: false },
@@ -147,7 +186,8 @@ test('stopped expected-game telemetry is classified as result pending instead of
     Object,
     Date,
     Set,
-    console
+    console,
+    encodeURIComponent
   };
 
   vm.runInNewContext(source, context, { filename: 'series-phase.js' });
@@ -168,15 +208,19 @@ test('stopped expected-game telemetry is classified as result pending instead of
       }
     }
   });
+  await new Promise(resolve => setImmediate(resolve));
 
   assert.equal(baseWaitingCalls, 0);
   assert.equal(context.state.selectedMatchState, 'postGame');
   assert.equal(context.state.selectedGameId, 'g3');
   assert.deepEqual(endpoint, { gameId: 'g3', historical: false });
-  assert.match(context.gameContent.innerHTML, /Game 3 feed stopped/i);
-  assert.doesNotMatch(context.gameContent.innerHTML, /draft \/ between games/i);
+  assert.equal(renderedSnapshot?.blue?.players?.length, 5);
+  assert.equal(renderedSnapshot?.red?.players?.length, 5);
+  assert.match(context.gameContent.innerHTML, /analysis-v2-lineups/);
   assert.match(context.jsonPreview.textContent, /post_game_result_pending/);
-  assert.match(connection, /result pending/i);
+  assert.match(context.jsonPreview.textContent, /blue-1/);
+  assert.match(connection, /player board restored/i);
+  assert.equal(prepended.length, 1);
 });
 
 test('stale gameplay from an earlier game does not block the real next-game break state', () => {
