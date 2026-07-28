@@ -1,0 +1,141 @@
+/* Final analysis hierarchy: scoreboard, odds, game overview, player boards. */
+
+.analysis-v2-odds {
+  min-height: 0 !important;
+  padding: 18px !important;
+  border-color: rgba(0, 229, 255, .20) !important;
+  background: linear-gradient(180deg, rgba(8, 22, 36, .96), rgba(5, 15, 27, .96)) !important;
+}
+
+.analysis-v2-odds.has-odds {
+  box-shadow: inset 0 1px rgba(255, 255, 255, .025);
+}
+
+.analysis-v2-odds-placeholder {
+  min-height: 150px !important;
+  padding: 24px !important;
+  border: 1px dashed rgba(72, 126, 188, .24);
+  border-radius: 12px;
+  background: rgba(3, 11, 21, .42);
+}
+
+.analysis-v2-odds-placeholder > span {
+  margin-bottom: 0 !important;
+}
+
+.analysis-v2-odds-placeholder h3 {
+  font-size: 17px !important;
+}
+
+.analysis-v2-odds-placeholder p {
+  max-width: 520px !important;
+  font-size: 11px !important;
+}
+
+.analysis-v2-odds-placeholder.is-archive {
+  min-height: 118px !important;
+  border-style: solid;
+  border-color: rgba(148, 163, 184, .14);
+  background: rgba(7, 17, 31, .7);
+}
+
+.analysis-v2-odds > .bookmaker-odds {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.analysis-v2-odds .bookmaker-odds-header {
+  min-height: 42px;
+  align-items: flex-end;
+  margin-bottom: 14px !important;
+}
+
+.analysis-v2-odds .bookmaker-odds-header .eyebrow {
+  margin-bottom: 5px;
+}
+
+.analysis-v2-odds .bookmaker-market-grid {
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+.analysis-v2-state {
+  border-color: rgba(72, 126, 188, .16) !important;
+  background: linear-gradient(180deg, rgba(7, 17, 31, .94), rgba(5, 14, 25, .96)) !important;
+}
+
+.analysis-v2-state-header {
+  display: flex !important;
+  min-height: 68px !important;
+  align-items: flex-end !important;
+  justify-content: space-between !important;
+  gap: 18px !important;
+  padding: 14px 18px !important;
+}
+
+.analysis-v2-state-heading {
+  min-width: 0;
+}
+
+.analysis-v2-state-heading > span {
+  display: block;
+  margin: 0 0 5px !important;
+  color: var(--accent) !important;
+  font-size: 9px !important;
+  font-weight: 800;
+  letter-spacing: .09em !important;
+  text-transform: uppercase;
+}
+
+.analysis-v2-state-heading > h3 {
+  margin: 0;
+  font-size: 19px !important;
+  line-height: 1.1;
+}
+
+.analysis-v2-state-legend {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 10px;
+  border: 1px solid rgba(72, 126, 188, .16);
+  border-radius: 999px;
+  background: rgba(4, 12, 23, .56);
+}
+
+.analysis-v2-state-header .analysis-v2-state-legend > span {
+  display: inline !important;
+  margin: 0 !important;
+  font-size: 9px !important;
+  font-weight: 800;
+  letter-spacing: .03em !important;
+  text-transform: uppercase;
+}
+
+.analysis-v2-state-legend .is-blue { color: #5fb5ff !important; }
+.analysis-v2-state-legend .is-red { color: #ff79a6 !important; }
+.analysis-v2-state-legend i { color: #526783; font-style: normal; }
+
+.analysis-v2-state-content,
+.analysis-v2-body.is-archive .analysis-v2-state-content {
+  padding-top: 14px !important;
+}
+
+.analysis-v2-lineups.players {
+  margin-top: 0 !important;
+}
+
+@media (max-width: 680px) {
+  .analysis-v2-state-header {
+    min-height: 0 !important;
+    align-items: flex-start !important;
+    flex-direction: column;
+    gap: 10px !important;
+  }
+
+  .analysis-v2-state-legend {
+    align-self: stretch;
+    justify-content: center;
+  }
+}
