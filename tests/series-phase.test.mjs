@@ -25,6 +25,26 @@ function completedEvent() {
   };
 }
 
+function tiedFinalGameEvent() {
+  return {
+    id: 'match-2',
+    state: 'inProgress',
+    match: {
+      id: 'match-2',
+      strategy: { type: 'bestOf', count: 3 },
+      teams: [
+        { name: 'Blue', result: { gameWins: 1 } },
+        { name: 'Red', result: { gameWins: 1 } }
+      ],
+      games: [
+        { id: 'g1', number: 1, state: 'completed' },
+        { id: 'g2', number: 2, state: 'completed' },
+        { id: 'g3', number: 3, state: 'inProgress' }
+      ]
+    }
+  };
+}
+
 test('series-complete resolution loads the deciding game as a historical snapshot', async () => {
   const event = completedEvent();
   let baseWaitingCalls = 0;
@@ -85,4 +105,94 @@ test('series-complete resolution loads the deciding game as a historical snapsho
   assert.equal(loadCalls, 1);
   assert.ok(rendered >= 1);
   assert.match(connection, /loading final game/i);
+});
+
+test('stopped expected-game telemetry is classified as result pending instead of draft', () => {
+  const event = tiedFinalGameEvent();
+  let baseWaitingCalls = 0;
+  let connection = '';
+  let endpoint = null;
+
+  const context = {
+    showWaiting: () => { baseWaitingCalls += 1; },
+    state: {
+      selectedEventId: 'match-2',
+      selectedGameId: null,
+      selectedMatchState: 'inProgress',
+      liveMatchIds: new Set(['match-2']),
+      eventRetryTimer: null,
+      pollTimer: 123,
+      lastSnapshot: null
+    },
+    selectedScheduleEvent: () => event,
+    renderSchedule: () => {},
+    renderGame: () => {},
+    setJsonEndpoint: (gameId, historical) => { endpoint = { gameId, historical }; },
+    loadGame: async () => {},
+    setConnection: label => { connection = label; },
+    gameContent: { innerHTML: '', prepend: () => {}, querySelector: () => null },
+    jsonPreview: { textContent: '' },
+    jsonUrl: { value: '' },
+    copyJsonUrl: { disabled: false },
+    eventTeams: value => value.match.teams,
+    markMatchLive: () => {},
+    clearTimeout: () => {},
+    clearInterval: () => {},
+    queueMicrotask: callback => callback(),
+    Promise,
+    JSON,
+    Number,
+    Array,
+    String,
+    Object,
+    Date,
+    Set,
+    console
+  };
+
+  vm.runInNewContext(source, context, { filename: 'series-phase.js' });
+  context.showWaiting(event, {
+    seriesComplete: false,
+    selectedGame: null,
+    pregameGame: null,
+    games: event.match.games,
+    checkedAt: '2026-07-28T20:00:00.000Z',
+    diagnostics: {
+      expectedGameNumber: 3,
+      g3: {
+        phase: 'gameplay',
+        freshness: 'stale',
+        frameAgeSeconds: 330,
+        timestamp: '2026-07-28T19:54:30.000Z',
+        gameNumber: 3
+      }
+    }
+  });
+
+  assert.equal(baseWaitingCalls, 0);
+  assert.equal(context.state.selectedMatchState, 'postGame');
+  assert.equal(context.state.selectedGameId, 'g3');
+  assert.deepEqual(endpoint, { gameId: 'g3', historical: false });
+  assert.match(context.gameContent.innerHTML, /Game 3 feed stopped/i);
+  assert.doesNotMatch(context.gameContent.innerHTML, /draft \/ between games/i);
+  assert.match(context.jsonPreview.textContent, /post_game_result_pending/);
+  assert.match(connection, /result pending/i);
+});
+
+test('stale gameplay from an earlier game does not block the real next-game break state', () => {
+  const context = { showWaiting: () => {} };
+  vm.runInNewContext(source, context, { filename: 'series-phase.js' });
+
+  const evidence = context.RiftPulseSeriesPhase.staleGameplayEvidence({
+    diagnostics: {
+      g2: {
+        phase: 'gameplay',
+        freshness: 'stale',
+        gameNumber: 2,
+        timestamp: '2026-07-28T19:00:00.000Z'
+      }
+    }
+  }, { nextGameNumber: 3 });
+
+  assert.equal(evidence, null);
 });
