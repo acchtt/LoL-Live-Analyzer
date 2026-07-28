@@ -1,5 +1,5 @@
-// Adds a distinct series phase when a previous game has ended but the next
-// game's live telemetry has not started yet.
+// Adds distinct active-series phases and moves completed live series into the
+// final historical game instead of leaving the dashboard between games.
 (() => {
   const baseShowWaiting = showWaiting;
 
@@ -31,6 +31,78 @@
     };
   }
 
+  function finalPlayedGame(event = {}, resolution = {}) {
+    const games = (Array.isArray(resolution.games) ? resolution.games : event?.match?.games || [])
+      .filter(game => game?.id)
+      .sort((left, right) => Number(left?.number || 0) - Number(right?.number || 0));
+    if (!games.length) return null;
+
+    const wins = (event?.match?.teams || []).map(team => Number(team?.result?.gameWins));
+    const playedCount = wins.length >= 2 && wins.every(Number.isFinite)
+      ? wins.reduce((sum, value) => sum + value, 0)
+      : 0;
+    const scoreTarget = playedCount > 0
+      ? games.find(game => Number(game?.number || 0) === playedCount)
+      : null;
+
+    return scoreTarget
+      || [...games].reverse().find(game => game?.state === 'completed')
+      || [...games].reverse().find(game => Array.isArray(game?.vods) && game.vods.length > 0)
+      || games[games.length - 1];
+  }
+
+  function applyCompletedEvent(event, matchId) {
+    const selected = selectedScheduleEvent();
+    if (!selected) return;
+    selected.state = 'completed';
+    selected.match = {
+      ...(selected.match || {}),
+      ...(event?.match || {}),
+      id: String(event?.match?.id || matchId)
+    };
+    if (event?.league) selected.league = { ...(selected.league || {}), ...event.league };
+  }
+
+  function showSeriesComplete(event, resolution = {}) {
+    const matchId = String(state.selectedEventId || event?.match?.id || event?.id || '');
+    const game = finalPlayedGame(event, resolution);
+
+    state.liveMatchIds.delete(matchId);
+    state.selectedMatchState = 'completed';
+    applyCompletedEvent(event, matchId);
+    clearTimeout(state.eventRetryTimer);
+    state.eventRetryTimer = null;
+    clearInterval(state.pollTimer);
+    state.pollTimer = null;
+    renderSchedule();
+
+    if (!game?.id) {
+      gameContent.innerHTML = '<div class="empty hero-empty"><strong>Series complete</strong><span>The final score is confirmed, but Riot has not exposed a final game ID for the archive yet.</span></div>';
+      jsonPreview.textContent = JSON.stringify(resolution, null, 2);
+      setConnection('Finished · final game archive pending', '');
+      return;
+    }
+
+    state.selectedGameId = String(game.id);
+    setJsonEndpoint(state.selectedGameId, true);
+    gameContent.innerHTML = '<div class="empty hero-empty"><strong>Series complete</strong><span>Loading the deciding game’s final telemetry frame…</span></div>';
+    setConnection('Finished · loading final game', '');
+
+    // resolveLiveEvent schedules its normal retry immediately after showWaiting
+    // returns. Cancel that retry on the next microtask now that the match is final.
+    queueMicrotask(() => {
+      clearTimeout(state.eventRetryTimer);
+      state.eventRetryTimer = null;
+    });
+
+    Promise.resolve()
+      .then(() => loadGame())
+      .catch(error => {
+        setConnection(error instanceof Error ? error.message : 'Final game archive unavailable', 'error');
+        gameContent.innerHTML = `<div class="empty hero-empty"><strong>Series complete</strong><span>${error instanceof Error ? error.message : 'The final game archive is not available yet.'}</span></div>`;
+      });
+  }
+
   function showDraftOrBreak(event, resolution, progress) {
     const [a, b] = eventTeams(event || selectedScheduleEvent());
     const title = `${a.name || 'Team 1'} vs ${b.name || 'Team 2'}`;
@@ -51,6 +123,8 @@
       nextGameNumber: progress.nextGameNumber || null,
       completedGames: progress.playedCount,
       checkedAt: resolution.checkedAt || new Date().toISOString(),
+      pregameGame: resolution.pregameGame || null,
+      diagnostics: resolution.diagnostics || null,
       message: 'The series is active, but the next game has not started publishing in-game telemetry.'
     }, null, 2);
 
@@ -58,8 +132,12 @@
   }
 
   showWaiting = function patchedShowWaiting(event, resolution = {}) {
-    const progress = inferSeriesProgress(event, resolution);
+    if (resolution.seriesComplete || resolution.selectedPhase === 'series_complete') {
+      showSeriesComplete(event, resolution);
+      return;
+    }
 
+    const progress = inferSeriesProgress(event, resolution);
     if (!resolution.selectedGame && progress.hasNextGame) {
       showDraftOrBreak(event, resolution, progress);
       return;
