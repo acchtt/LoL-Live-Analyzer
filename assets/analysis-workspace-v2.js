@@ -138,6 +138,21 @@
     </div>`;
   }
 
+  function qualityLabel(snapshot, historical, safeForLive) {
+    if (historical) return 'Verified archive';
+    if (safeForLive) return 'Verified live frame';
+    if (snapshot.status === 'degraded') return 'Live map data';
+    if (snapshot.status === 'telemetry_stale') return 'Stale context';
+    return 'Context only';
+  }
+
+  function stateHeading(snapshot, historical, safeForLive) {
+    if (historical) return 'Verified final totals';
+    if (safeForLive) return 'Verified game totals';
+    if (snapshot.status === 'telemetry_stale') return 'Last known game totals';
+    return 'Available live totals';
+  }
+
   renderGame = function rearrangedAnalysisRender(snapshot) {
     state.lastSnapshot = snapshot;
 
@@ -167,7 +182,7 @@
           <h2>${escapeHtml(blue.name || 'Blue side')} <span>vs</span> ${escapeHtml(red.name || 'Red side')}</h2>
         </div>
         <div class="analysis-v2-header-meta">
-          <span class="analysis-v2-quality ${safeForLive ? '' : 'is-context'}">${historical ? 'Verified archive' : safeForLive ? 'Verified live frame' : 'Context only'}</span>
+          <span class="analysis-v2-quality ${safeForLive ? '' : 'is-context'}">${escapeHtml(qualityLabel(snapshot, historical, safeForLive))}</span>
           <span class="analysis-v2-clock">${escapeHtml(snapshot.clock || '—')}</span>
         </div>
       </header>
@@ -183,8 +198,8 @@
       </section>
 
       <div class="analysis-v2-body ${historical ? 'is-archive' : 'is-live'}">
-        <section class="analysis-v2-state" aria-label="Verified map state">
-          <header><div><span>Map state</span><h3>Verified game totals</h3></div><small>Blue · Red</small></header>
+        <section class="analysis-v2-state" aria-label="Map state">
+          <header><div><span>Map state</span><h3>${escapeHtml(stateHeading(snapshot, historical, safeForLive))}</h3></div><small>Blue · Red</small></header>
           <div class="analysis-v2-state-content">
             <div class="analysis-v2-lead">
               <span>Gold advantage</span>
