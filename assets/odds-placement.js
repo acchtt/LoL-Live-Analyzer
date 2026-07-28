@@ -14,21 +14,33 @@
     return panelRef;
   }
 
+  function hasVisibleContent(panel) {
+    return Boolean(panel && panel.childElementCount > 0 && panel.textContent.trim());
+  }
+
   function placeOddsPanel() {
     placementQueued = false;
 
     const panel = capturePanel();
     const slot = gameContent?.querySelector(`#${SLOT_ID}`);
-    if (!slot || !state?.selectedEventId) return;
 
-    if (!panel) {
-      slot.classList.remove('has-odds');
+    if (!slot || !state?.selectedEventId) {
+      if (panel) panel.hidden = true;
       return;
     }
 
+    const placeholder = slot.querySelector('[data-odds-placeholder]');
+    if (!hasVisibleContent(panel)) {
+      slot.classList.remove('has-odds');
+      placeholder?.removeAttribute('hidden');
+      if (panel) panel.hidden = true;
+      return;
+    }
+
+    panel.hidden = false;
     if (panel.parentNode !== slot) slot.appendChild(panel);
     slot.classList.add('has-odds');
-    slot.querySelector('[data-odds-placeholder]')?.setAttribute('hidden', '');
+    placeholder?.setAttribute('hidden', '');
   }
 
   function queuePlacement(useMicrotask = false) {
