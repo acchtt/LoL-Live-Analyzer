@@ -1,4 +1,4 @@
-// Compact main analysis layout with a dedicated bookmaker-odds region.
+// Compact main analysis layout with a centered game clock and mirrored team cards.
 (() => {
   'use strict';
 
@@ -111,7 +111,7 @@
   }
 
   function teamCard(team, side, red = false) {
-    return `<article class="analysis-v2-team ${red ? 'is-red' : ''}">
+    return `<article class="analysis-v2-team ${red ? 'is-red' : 'is-blue'}">
       <div class="analysis-v2-team-logo">${logo(team)}</div>
       <div class="analysis-v2-team-copy">
         <span>${escapeHtml(side)}</span>
@@ -166,9 +166,6 @@
     const safeForLive = !historical && snapshot.status === 'ok' && snapshot.quality?.safeForLiveAnalysis !== false;
     const leadingTeam = goldDiff > 0 ? (blue.name || 'Blue side') : goldDiff < 0 ? (red.name || 'Red side') : 'Even game';
     const leadText = goldDiff === 0 ? 'Gold is even' : `${leadingTeam} +${formatted(Math.abs(goldDiff))}`;
-    const frameText = snapshot.source?.frameTimestamp
-      ? new Date(snapshot.source.frameTimestamp).toLocaleTimeString()
-      : 'Latest frame';
 
     const oddsSection = historical ? '' : `
       <section id="analysisOddsSlot" class="analysis-v2-odds" aria-label="Bookmaker odds">
@@ -183,16 +180,15 @@
         </div>
         <div class="analysis-v2-header-meta">
           <span class="analysis-v2-quality ${safeForLive ? '' : 'is-context'}">${escapeHtml(qualityLabel(snapshot, historical, safeForLive))}</span>
-          <span class="analysis-v2-clock">${escapeHtml(snapshot.clock || '—')}</span>
         </div>
       </header>
 
       <section class="analysis-v2-scoreboard" aria-label="Game scoreboard">
         ${teamCard(blue, 'Blue side')}
-        <div class="analysis-v2-score-center">
-          <span>KILLS</span>
-          <strong>${integer(blue.kills)} – ${integer(red.kills)}</strong>
-          <small>Series ${escapeHtml(seriesScore(snapshot))}<br>Frame ${escapeHtml(frameText)}</small>
+        <div class="analysis-v2-score-center" aria-label="Game time and series score">
+          <span>GAME TIME</span>
+          <strong class="analysis-v2-clock">${escapeHtml(snapshot.clock || '—')}</strong>
+          <small>Game ${escapeHtml(gameNumber)} · Series ${escapeHtml(seriesScore(snapshot))}</small>
         </div>
         ${teamCard(red, 'Red side', true)}
       </section>
