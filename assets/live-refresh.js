@@ -1,8 +1,8 @@
 // Keeps the selected live game updating without requiring another click.
 (() => {
-  const BUILD = '20260726-27';
-  const LIVE_REFRESH_MS = 5_000;
-  const RESOLVE_REFRESH_MS = 8_000;
+  const BUILD = '20260729-1';
+  const LIVE_REFRESH_MS = 4_000;
+  const RESOLVE_REFRESH_MS = 6_000;
 
   let refreshTimer = null;
   let inFlight = false;
@@ -46,7 +46,7 @@
     }
 
     if (inFlight) {
-      scheduleRefresh(1_000);
+      scheduleRefresh(750);
       return;
     }
 
@@ -63,7 +63,7 @@
     } finally {
       inFlight = false;
       const changed = before !== selectionKey();
-      scheduleRefresh(changed || !state.selectedGameId ? 500 : (state.selectedGameId ? LIVE_REFRESH_MS : RESOLVE_REFRESH_MS));
+      scheduleRefresh(changed || !state.selectedGameId ? 400 : (state.selectedGameId ? LIVE_REFRESH_MS : RESOLVE_REFRESH_MS));
     }
   }
 
@@ -72,21 +72,21 @@
     clearInterval(state.pollTimer);
     state.pollTimer = null;
     stopRefresh();
-    scheduleRefresh(100);
+    scheduleRefresh(75);
   };
 
   const previousSelectEvent = selectEvent;
   selectEvent = async function refreshAwareSelectEvent(id) {
     stopRefresh();
     const result = await previousSelectEvent(id);
-    if (!isFinished()) scheduleRefresh(100);
+    if (!isFinished()) scheduleRefresh(75);
     return result;
   };
 
   const previousResolveLiveEvent = resolveLiveEvent;
   resolveLiveEvent = async function refreshAwareResolveLiveEvent(id, isRetry = false) {
     const result = await previousResolveLiveEvent(id, isRetry);
-    if (!isFinished()) scheduleRefresh(state.selectedGameId ? 100 : RESOLVE_REFRESH_MS);
+    if (!isFinished()) scheduleRefresh(state.selectedGameId ? 75 : RESOLVE_REFRESH_MS);
     return result;
   };
 
@@ -96,15 +96,15 @@
       refreshTimer = null;
       return;
     }
-    if (state.selectedEventId && !isFinished()) scheduleRefresh(50);
+    if (state.selectedEventId && !isFinished()) scheduleRefresh(25);
   });
 
   window.addEventListener('focus', () => {
-    if (state.selectedEventId && !isFinished()) scheduleRefresh(50);
+    if (state.selectedEventId && !isFinished()) scheduleRefresh(25);
   });
 
   const footer = document.querySelector('footer');
   if (footer) footer.insertAdjacentHTML('beforeend', `<span class="build-mark"> Live refresh · ${BUILD}</span>`);
 
-  if (state.selectedEventId && !isFinished()) scheduleRefresh(500);
+  if (state.selectedEventId && !isFinished()) scheduleRefresh(250);
 })();
