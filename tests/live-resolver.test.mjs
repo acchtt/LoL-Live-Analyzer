@@ -200,3 +200,29 @@ test('resolver does not reopen a fresh earlier game while waiting for the expect
   assert.equal(result.telemetryAvailable, false);
   assert.equal(result.diagnostics.expectedGameNumber, 3);
 });
+
+test('resolver ignores stale completed flags when getLive still reports a tied active series', async () => {
+  const event = activeSeriesEvent();
+  event.state = 'completed';
+  event.match.state = 'completed';
+
+  const liveEvent = structuredClone(event);
+  liveEvent.state = 'inProgress';
+  delete liveEvent.match.state;
+  liveEvent.match.games[2].state = 'inProgress';
+
+  const riot = riotFor(event, {
+    getLive: async () => ({ data: { schedule: { events: [liveEvent] } } }),
+    fetchBestLiveWindow: async gameId => gameId === 'g3' ? gameplayPayload() : null
+  });
+
+  const result = await resolveActiveGame('match-1', riot);
+
+  assert.equal(result.seriesComplete, false);
+  assert.equal(result.event.state, 'inProgress');
+  assert.equal(result.event.match.state, 'inProgress');
+  assert.equal(result.selectedGame?.id, 'g3');
+  assert.equal(result.selectedPhase, 'gameplay');
+  assert.deepEqual(result.diagnostics.ignoredStaleCompletion?.wins, [1, 1]);
+  assert.equal(result.diagnostics.ignoredStaleCompletion?.target, 2);
+});
