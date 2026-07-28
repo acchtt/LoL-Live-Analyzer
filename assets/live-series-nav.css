@@ -1,0 +1,42 @@
+/* Active-series game navigation. */
+.live-series-nav {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--app-border-soft);
+  border-radius: 11px;
+  background: #06101d;
+}
+.live-series-nav-copy { display: grid; gap: 3px; min-width: 104px; }
+.live-series-nav-copy span { color: var(--accent); font-size: 8px; font-weight: 800; letter-spacing: .11em; text-transform: uppercase; }
+.live-series-nav-copy strong { color: #8fa1bd; font-size: 9px; font-weight: 700; }
+.live-series-nav-buttons { display: flex; min-width: 0; gap: 7px; overflow-x: auto; scrollbar-width: thin; }
+.live-series-game,
+.live-series-return {
+  flex: 0 0 auto;
+  min-height: 38px;
+  border: 1px solid var(--app-border-soft);
+  border-radius: 9px;
+  background: #07111f;
+  color: #8ea0bb;
+  font-family: var(--rp-font-ui);
+  cursor: pointer;
+}
+.live-series-game { display: grid; min-width: 88px; place-content: center; gap: 2px; padding: 6px 10px; text-align: center; }
+.live-series-game span { color: inherit; font-size: 10px; font-weight: 800; }
+.live-series-game small { color: #657792; font-size: 7px; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; }
+.live-series-game:hover,
+.live-series-return:hover { border-color: rgba(0, 229, 255, .34); color: var(--text); }
+.live-series-game.is-live small { color: #52e6b0; }
+.live-series-game.is-selected { border-color: rgba(0, 229, 255, .55); background: rgba(0, 229, 255, .07); color: var(--text); box-shadow: inset 0 -2px var(--accent); }
+.live-series-return { padding: 0 12px; color: var(--accent); font-size: 9px; font-weight: 800; white-space: nowrap; }
+@media (max-width: 1180px) {
+  .live-series-nav { grid-template-columns: 1fr auto; }
+  .live-series-nav-copy { grid-column: 1 / -1; }
+}
+@media (max-width: 720px) {
+  .live-series-nav { grid-template-columns: 1fr; }
+  .live-series-return { min-height: 38px; }
+}
