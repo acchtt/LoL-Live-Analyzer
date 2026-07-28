@@ -16,6 +16,9 @@ on:
       - worker-v2.1.js
       - worker-v2.2.js
       - worker-v2.3.js
+      - worker-v2.4.js
+      - worker-reliable-core.js
+      - lib/**
       - wrangler.toml
       - .github/workflows/deploy-worker.yml
 

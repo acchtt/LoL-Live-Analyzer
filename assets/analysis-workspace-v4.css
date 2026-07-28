@@ -1,0 +1,201 @@
+/* Symmetrical scoreboard: blue team, centered game time, mirrored red team. */
+
+.analysis-v2-scoreboard {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 132px minmax(0, 1fr) !important;
+  gap: 12px !important;
+  align-items: stretch;
+}
+
+.analysis-v2-team {
+  display: grid !important;
+  min-width: 0;
+  min-height: 100px !important;
+  align-items: center;
+  gap: 14px !important;
+  padding: 14px 16px !important;
+}
+
+.analysis-v2-team.is-blue {
+  grid-template-columns: 56px minmax(0, 1fr) 78px !important;
+  grid-template-areas: "logo copy kills";
+}
+
+.analysis-v2-team.is-red {
+  grid-template-columns: 78px minmax(0, 1fr) 56px !important;
+  grid-template-areas: "kills copy logo";
+}
+
+.analysis-v2-team-logo {
+  grid-area: logo;
+  width: 56px !important;
+  height: 56px !important;
+}
+
+.analysis-v2-team.is-red .analysis-v2-team-logo {
+  justify-self: end;
+}
+
+.analysis-v2-team-copy {
+  grid-area: copy;
+}
+
+.analysis-v2-team.is-red .analysis-v2-team-copy {
+  text-align: right;
+}
+
+.analysis-v2-team-copy h3 {
+  margin-bottom: 6px !important;
+  font-size: clamp(15px, 1.22vw, 20px) !important;
+}
+
+.analysis-v2-team-kills {
+  position: relative;
+  grid-area: kills;
+  min-width: 78px !important;
+  min-height: 66px !important;
+  padding: 0 8px 14px !important;
+  border: 0 !important;
+  color: var(--text);
+  font-size: clamp(31px, 2.7vw, 44px) !important;
+  text-align: center;
+}
+
+.analysis-v2-team.is-blue .analysis-v2-team-kills {
+  border-left: 1px solid var(--app-border-soft) !important;
+}
+
+.analysis-v2-team.is-red .analysis-v2-team-kills {
+  border-right: 1px solid var(--app-border-soft) !important;
+}
+
+.analysis-v2-team-kills::after {
+  content: "kills";
+  position: absolute;
+  right: 0;
+  bottom: 2px;
+  left: 0;
+  color: #667995;
+  font: 800 8px/1 var(--rp-font-ui);
+  letter-spacing: .11em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.analysis-v2-score-center {
+  display: grid !important;
+  min-width: 0;
+  min-height: 100px;
+  place-content: center;
+  gap: 7px;
+  padding: 12px 8px;
+  border: 1px solid var(--app-border-soft);
+  border-radius: 12px;
+  background: #06101d;
+  text-align: center;
+}
+
+.analysis-v2-score-center > span {
+  color: #687a95;
+  font-size: 8px;
+  font-weight: 850;
+  letter-spacing: .14em;
+}
+
+.analysis-v2-score-center .analysis-v2-clock {
+  display: block;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--text);
+  font: 850 clamp(22px, 2vw, 30px)/1 var(--rp-font-display);
+}
+
+.analysis-v2-score-center small {
+  color: #8294af;
+  font-size: 8px;
+  line-height: 1.35;
+  white-space: nowrap;
+}
+
+.analysis-v2-series-score {
+  display: none !important;
+}
+
+.analysis-v2-quality.is-delayed {
+  border-color: rgba(0, 229, 255, .22);
+  background: rgba(0, 229, 255, .055);
+  color: #6cecff;
+}
+
+.authority-context-banner.is-delayed {
+  border-color: rgba(0, 229, 255, .2) !important;
+  background: rgba(0, 229, 255, .04) !important;
+}
+
+.authority-context-banner.is-delayed strong {
+  color: #6cecff !important;
+}
+
+@media (max-width: 1120px) {
+  .analysis-v2-scoreboard {
+    grid-template-columns: minmax(0, 1fr) 112px minmax(0, 1fr) !important;
+  }
+
+  .analysis-v2-team.is-blue {
+    grid-template-columns: 48px minmax(0, 1fr) 64px !important;
+  }
+
+  .analysis-v2-team.is-red {
+    grid-template-columns: 64px minmax(0, 1fr) 48px !important;
+  }
+
+  .analysis-v2-team-logo {
+    width: 48px !important;
+    height: 48px !important;
+  }
+
+  .analysis-v2-team-kills {
+    min-width: 64px !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .analysis-v2-scoreboard {
+    grid-template-columns: 1fr !important;
+  }
+
+  .analysis-v2-score-center {
+    min-height: 76px;
+    grid-row: 2;
+  }
+}
+
+@media (max-width: 520px) {
+  .analysis-v2-team {
+    gap: 10px !important;
+    padding: 11px !important;
+  }
+
+  .analysis-v2-team.is-blue {
+    grid-template-columns: 44px minmax(0, 1fr) 58px !important;
+  }
+
+  .analysis-v2-team.is-red {
+    grid-template-columns: 58px minmax(0, 1fr) 44px !important;
+  }
+
+  .analysis-v2-team-logo {
+    width: 44px !important;
+    height: 44px !important;
+  }
+
+  .analysis-v2-team-kills {
+    min-width: 58px !important;
+    padding-right: 4px !important;
+    padding-left: 4px !important;
+  }
+}

@@ -1,0 +1,15 @@
+# Pull-request dashboard preview uploaded as a non-production version of the existing Worker.
+name = "lol-live-analyzer-api"
+main = "worker-v2.4.js"
+compatibility_date = "2026-07-28"
+workers_dev = true
+preview_urls = true
+
+[[kv_namespaces]]
+binding = "ODDS_CACHE"
+
+[assets]
+directory = "./preview-dist"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+run_worker_first = [ "/api/*", "/feed/*", "/health" ]

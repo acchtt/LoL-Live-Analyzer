@@ -1,9 +1,10 @@
-// Keeps the live odds section directly above the champion/player board.
+// Keeps the bookmaker panel inside the dedicated analysis-odds region.
 // Retains the actual panel node while gameContent is replaced during telemetry refreshes.
 (() => {
   'use strict';
 
   const PANEL_ID = 'bookmakerOddsPanel';
+  const SLOT_ID = 'analysisOddsSlot';
   let panelRef = null;
   let placementQueued = false;
 
@@ -13,16 +14,33 @@
     return panelRef;
   }
 
+  function hasVisibleContent(panel) {
+    return Boolean(panel && panel.childElementCount > 0 && panel.textContent.trim());
+  }
+
   function placeOddsPanel() {
     placementQueued = false;
 
     const panel = capturePanel();
-    const players = gameContent?.querySelector('.players');
-    if (!panel || !players || !state?.selectedEventId) return;
+    const slot = gameContent?.querySelector(`#${SLOT_ID}`);
 
-    if (panel.parentNode !== gameContent || panel.nextElementSibling !== players) {
-      gameContent.insertBefore(panel, players);
+    if (!slot || !state?.selectedEventId) {
+      if (panel) panel.hidden = true;
+      return;
     }
+
+    const placeholder = slot.querySelector('[data-odds-placeholder]');
+    if (!hasVisibleContent(panel)) {
+      slot.classList.remove('has-odds');
+      placeholder?.removeAttribute('hidden');
+      if (panel) panel.hidden = true;
+      return;
+    }
+
+    panel.hidden = false;
+    if (panel.parentNode !== slot) slot.appendChild(panel);
+    slot.classList.add('has-odds');
+    placeholder?.setAttribute('hidden', '');
   }
 
   function queuePlacement(useMicrotask = false) {
@@ -47,15 +65,13 @@
           }
         }
       }
-      // MutationObserver runs immediately after innerHTML replacement, so restore
-      // the retained panel before the next paint instead of waiting for polling.
       queuePlacement(true);
     });
     observer.observe(gamePanel, { childList: true, subtree: true });
   }
 
   const previousRenderGame = renderGame;
-  renderGame = function oddsFirstRenderGame(...args) {
+  renderGame = function oddsSlotRenderGame(...args) {
     capturePanel();
     const result = previousRenderGame(...args);
     queuePlacement(true);
@@ -64,6 +80,6 @@
 
   capturePanel();
   queuePlacement();
-  // Covers non-renderGame screens such as pregame, breaks and unavailable telemetry.
-  setInterval(() => queuePlacement(), 250);
+  // Covers delayed bridge responses and panels rebuilt by the polling layer.
+  setInterval(() => queuePlacement(), 500);
 })();

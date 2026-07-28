@@ -1,0 +1,224 @@
+name: Deploy RiftPulse Dashboard Preview
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - index.html
+      - assets/**
+      - lib/**
+      - worker-v2.4.js
+      - worker-reliable-core.js
+      - wrangler.toml
+      - .github/workflows/deploy-dashboard-preview.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: riftpulse-dashboard-preview
+  cancel-in-progress: true
+
+jobs:
+  deploy-dashboard-preview:
+    name: Build and deploy dashboard preview
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      DASHBOARD_PREVIEW_URL: https://dashboard-lol-live-analyzer-api.acchtt.workers.dev
+      API_PREVIEW_URL: https://dashboard-lol-live-analyzer-api.acchtt.workers.dev
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Verify Cloudflare credentials
+        shell: bash
+        run: |
+          test -n "$CLOUDFLARE_API_TOKEN" || { echo "::error::Missing CLOUDFLARE_API_TOKEN repository secret"; exit 1; }
+          test -n "$CLOUDFLARE_ACCOUNT_ID" || { echo "::error::Missing CLOUDFLARE_ACCOUNT_ID repository secret"; exit 1; }
+
+      - name: Build isolated frontend preview
+        shell: bash
+        run: |
+          rm -rf preview-dist
+          mkdir -p preview-dist
+          cp index.html site.webmanifest preview-dist/
+          cp -R assets preview-dist/assets
+          python <<'PY'
+          import os
+          from pathlib import Path
+
+          api_preview = os.environ['API_PREVIEW_URL']
+          sha = os.environ.get('GITHUB_SHA', 'draft')[:8]
+          app_path = Path('preview-dist/assets/app.js')
+          app = app_path.read_text(encoding='utf-8')
+          production = 'https://lol-live-analyzer-api.acchtt.workers.dev'
+          if production not in app:
+              raise SystemExit('Production Worker URL was not found in the preview app build')
+          app_path.write_text(app.replace(production, api_preview), encoding='utf-8')
+
+          index_path = Path('preview-dist/index.html')
+          html = index_path.read_text(encoding='utf-8')
+          html = html.replace('<title>RiftPulse · Live Esports Intelligence</title>', '<title>RiftPulse PR Preview · Live Esports Intelligence</title>')
+          html = html.replace('assets/app.js?v=20260726-32', f'assets/app.js?v=pr-{sha}')
+          preview_style = '''<style id="prPreviewStyle">
+            .pr-preview-banner{position:fixed;z-index:9999;right:12px;bottom:12px;padding:8px 11px;border:1px solid var(--accent);border-radius:999px;background:rgba(5,11,24,.94);color:var(--text);font:700 10px/1 var(--rp-font-display);letter-spacing:.06em;text-transform:uppercase;box-shadow:0 0 18px rgba(34,139,255,.18)}
+          </style>'''
+          preview_badge = '<div class="pr-preview-banner" role="status">Draft PR preview · API v2.4</div>'
+          html = html.replace('</head>', preview_style + '\n</head>')
+          html = html.replace('<body>', '<body>\n  ' + preview_badge, 1)
+          index_path.write_text(html, encoding='utf-8')
+          PY
+          grep -Fq "$API_PREVIEW_URL" preview-dist/assets/app.js
+          ! grep -Fq "https://lol-live-analyzer-api.acchtt.workers.dev" preview-dist/assets/app.js
+
+      - name: Upload dashboard as a non-production Worker version
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: "4"
+          command: versions upload --config wrangler.toml --preview-alias dashboard --keep-vars --assets preview-dist
+
+      - name: Smoke test dashboard and API wiring
+        shell: bash
+        run: |
+          for attempt in {1..12}; do
+            if curl --silent --show-error --fail "$DASHBOARD_PREVIEW_URL/health" -o dashboard-health.json; then
+              node -e "const fs=require('fs');const p=JSON.parse(fs.readFileSync('dashboard-health.json'));if(!p.ok||p.version!=='2.4'||p.apiKeyConfigured!==true)process.exit(1)" && break
+            fi
+            sleep 5
+          done
+          curl --silent --show-error --fail --retry 3 --retry-delay 3 "$DASHBOARD_PREVIEW_URL/" -o preview-index.html
+          curl --silent --show-error --fail --retry 3 --retry-delay 3 "$DASHBOARD_PREVIEW_URL/assets/app.js" -o preview-app.js
+          curl --silent --show-error --fail --retry 3 --retry-delay 3 "$DASHBOARD_PREVIEW_URL/api/schedule" -o preview-schedule.json
+          grep -Fq "RiftPulse PR Preview" preview-index.html
+          grep -Fq "$API_PREVIEW_URL" preview-app.js
+          ! grep -Fq "https://lol-live-analyzer-api.acchtt.workers.dev" preview-app.js
+          node -e "const fs=require('fs');const p=JSON.parse(fs.readFileSync('preview-schedule.json'));const events=p?.data?.schedule?.events||p?.schedule?.events||p?.events;if(!Array.isArray(events))process.exit(1);console.log('Schedule events:',events.length)"
+
+      - name: Probe active series resolution
+        shell: bash
+        run: |
+          node <<'NODE'
+          const base = process.env.DASHBOARD_PREVIEW_URL;
+          const json = async url => {
+            const response = await fetch(url);
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(`${response.status} ${url}: ${JSON.stringify(payload)}`);
+            return payload;
+          };
+          const livePayload = await json(`${base}/api/live?_=${Date.now()}`);
+          const liveEvents = livePayload?.data?.schedule?.events || livePayload?.schedule?.events || livePayload?.events || [];
+          console.log(`Live events reported by Riot: ${liveEvents.length}`);
+          for (const event of liveEvents.slice(0, 10)) {
+            const matchId = String(event?.match?.id || event?.id || '');
+            if (!matchId) continue;
+            const teams = (event?.match?.teams || []).map(team => team?.name || team?.code || 'TBD');
+            const resolution = await json(`${base}/api/resolve-game?matchId=${encodeURIComponent(matchId)}&_=${Date.now()}`);
+            console.log(JSON.stringify({
+              matchId,
+              teams,
+              selectedGame: resolution?.selectedGame || null,
+              pregameGame: resolution?.pregameGame || null,
+              selectedPhase: resolution?.selectedPhase || null,
+              telemetryAvailable: Boolean(resolution?.telemetryAvailable),
+              quality: resolution?.quality || null,
+              diagnostics: resolution?.diagnostics || null
+            }, null, 2));
+          }
+          NODE
+
+      - name: Validate ALMO Players history regression
+        shell: bash
+        run: |
+          cat > history-regression.mjs <<'NODE'
+          const base = process.env.DASHBOARD_PREVIEW_URL;
+          const json = async url => {
+            const response = await fetch(url);
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(`${response.status} ${url}: ${JSON.stringify(payload)}`);
+            return payload;
+          };
+          const schedule = await json(`${base}/api/schedule?_=${Date.now()}`);
+          const events = schedule?.data?.schedule?.events || schedule?.schedule?.events || schedule?.events || [];
+          const normalized = value => String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
+          const target = events.find(event => {
+            const names = (event?.match?.teams || []).map(team => normalized(`${team?.name || ''} ${team?.code || ''}`));
+            return names.some(name => name.includes('almo')) && names.some(name => name.includes('teamphantasma'));
+          });
+          if (!target) {
+            console.log('ALMO Players vs Team Phantasma is outside the current schedule window; targeted archive check skipped.');
+            process.exit(0);
+          }
+
+          const matchId = String(target?.match?.id || target?.id || '');
+          const detailPayload = await json(`${base}/api/match-details?matchId=${encodeURIComponent(matchId)}&_=${Date.now()}`);
+          const event = detailPayload?.data?.event || detailPayload?.event || detailPayload?.data || detailPayload;
+          const rawGames = (event?.match?.games || []).filter(game => game?.id).sort((a, b) => Number(a?.number || 0) - Number(b?.number || 0));
+          const scores = (event?.match?.teams || []).map(team => Number(team?.result?.gameWins));
+          const playedCount = scores.length >= 2 && scores.every(Number.isFinite)
+            ? Math.min(rawGames.length, scores.reduce((sum, score) => sum + score, 0))
+            : rawGames.filter(game => game?.state === 'completed' || (game?.vods || []).length).length;
+          const games = rawGames.slice(0, playedCount || rawGames.length);
+          if (!games.length) throw new Error('Targeted series returned no played game IDs.');
+
+          console.log(JSON.stringify({
+            matchId,
+            scores,
+            games: games.map(game => ({
+              id: String(game.id),
+              number: game.number,
+              state: game.state,
+              vods: (game.vods || []).map(vod => ({
+                firstFrameTime: vod?.firstFrameTime ?? null,
+                startMillis: vod?.startMillis ?? null,
+                endMillis: vod?.endMillis ?? null
+              }))
+            }))
+          }, null, 2));
+
+          const results = [];
+          let failure = null;
+          for (const game of games) {
+            const snapshot = await json(`${base}/api/chatgpt?gameId=${encodeURIComponent(game.id)}&historical=1&_=${Date.now()}`);
+            const result = {
+              game: Number(game.number || 0),
+              gameId: String(game.id),
+              status: snapshot?.status,
+              message: snapshot?.message || null,
+              frameTimestamp: snapshot?.source?.frameTimestamp || null,
+              source: snapshot?.source || null,
+              quality: snapshot?.quality || null,
+              blueKills: snapshot?.blue?.kills ?? null,
+              redKills: snapshot?.red?.kills ?? null,
+              blueGold: snapshot?.blue?.gold ?? null,
+              redGold: snapshot?.red?.gold ?? null
+            };
+            results.push(result);
+            if (!failure && snapshot?.status === 'pregame') failure = `Game ${game.number} still returned a pregame frame.`;
+            if (!failure && snapshot?.status !== 'ok') failure = `Game ${game.number} archive status is ${snapshot?.status || 'missing'}.`;
+            if (!failure && [result.blueKills, result.redKills, result.blueGold, result.redGold].some(value => value === null)) {
+              failure = `Game ${game.number} archive is missing final gameplay totals.`;
+            }
+          }
+          console.log(JSON.stringify({ matchId, results }, null, 2));
+          if (failure) throw new Error(failure);
+          NODE
+          set -o pipefail
+          node history-regression.mjs 2>&1 | tee history-regression-output.txt
+
+      - name: Upload history regression output
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: history-regression-output
+          path: history-regression-output.txt
+
+      - name: Publish test URL
+        shell: bash
+        run: echo "RiftPulse draft dashboard is available at $DASHBOARD_PREVIEW_URL"
