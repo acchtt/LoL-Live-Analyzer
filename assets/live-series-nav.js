@@ -36,10 +36,14 @@
     return game.state === 'completed' || (Array.isArray(game.vods) && game.vods.length > 0);
   }
 
-  function playedSeriesGames(event = {}, currentGameId = '') {
-    const rawGames = (Array.isArray(event?.match?.games) ? event.match.games : [])
+  function orderedGames(event = {}) {
+    return (Array.isArray(event?.match?.games) ? event.match.games : [])
       .filter(game => game?.id)
       .sort((left, right) => gameNumber(left) - gameNumber(right));
+  }
+
+  function playedSeriesGames(event = {}, currentGameId = '') {
+    const rawGames = orderedGames(event);
     if (!rawGames.length) return [];
 
     const currentIndex = rawGames.findIndex(game => String(game.id) === String(currentGameId));
@@ -55,6 +59,31 @@
     return playedCount > 0 ? rawGames.slice(0, playedCount) : rawGames.filter(hasCompletionEvidence);
   }
 
+  function inferredCurrentGameId(event = {}, selectedGameId = '') {
+    const games = orderedGames(event);
+    if (!games.length) return '';
+
+    if (selectedGameId && games.some(game => String(game.id) === String(selectedGameId))) {
+      return String(selectedGameId);
+    }
+
+    const reported = [...games]
+      .filter(game => game.state === 'inProgress')
+      .sort((left, right) => gameNumber(right) - gameNumber(left))[0];
+    if (reported?.id) return String(reported.id);
+
+    const scores = (event?.match?.teams || []).map(finiteScore);
+    const scoreCount = scores.length >= 2 && scores.every(score => score !== null)
+      ? scores.reduce((sum, score) => sum + score, 0)
+      : 0;
+    const evidenceCount = games.reduce((highest, game, index) => (
+      hasCompletionEvidence(game) ? Math.max(highest, gameNumber(game, index)) : highest
+    ), 0);
+    const nextNumber = Math.max(scoreCount, evidenceCount) + 1;
+    const next = games.find((game, index) => gameNumber(game, index) === nextNumber);
+    return next?.id ? String(next.id) : '';
+  }
+
   function resetSeries() {
     state.liveSeries = null;
     state.seriesArchiveMode = false;
@@ -62,13 +91,36 @@
     document.getElementById(NAV_ID)?.remove();
   }
 
-  function selectedGameLabel(game, index) {
-    const number = gameNumber(game, index);
-    const liveId = String(state.liveSeries?.liveGameId || '');
-    const gameId = String(game.id || '');
-    if (gameId === liveId) return `Game ${number} · Live`;
-    if (hasCompletionEvidence(game) || gameId !== liveId) return `Game ${number} · Final`;
-    return `Game ${number}`;
+  function seriesEvent(event = {}, games = []) {
+    return {
+      ...event,
+      match: {
+        ...(event?.match || {}),
+        games: Array.isArray(games) && games.length ? games : (event?.match?.games || [])
+      }
+    };
+  }
+
+  function syncSeriesFromResolution(event = {}, resolution = {}) {
+    const matchId = String(state.selectedEventId || event?.match?.id || event?.id || '');
+    if (!matchId) return;
+
+    const resolvedEvent = seriesEvent(
+      resolution.event || event || selectedScheduleEvent() || {},
+      resolution.games || []
+    );
+    const selectedId = String(resolution.selectedGame?.id || '');
+    const currentGameId = inferredCurrentGameId(resolvedEvent, selectedId);
+    const previous = state.liveSeries;
+
+    state.liveSeries = {
+      matchId,
+      event: resolvedEvent,
+      games: playedSeriesGames(resolvedEvent, currentGameId),
+      liveGameId: selectedId || (state.seriesArchiveMode ? String(previous?.liveGameId || '') : ''),
+      currentGameId,
+      fetchedAt: Date.now()
+    };
   }
 
   function renderSeriesNavigation() {
@@ -80,35 +132,39 @@
     if (!Array.isArray(context.games) || context.games.length <= 1) return;
 
     const shell = gameContent.querySelector('.analysis-v2-shell, .analysis-shell');
-    if (!shell) return;
+    const waitingView = gameContent.querySelector('.hero-empty, .analysis-empty');
+    if (!shell && !waitingView) return;
 
     const nav = document.createElement('section');
     nav.id = NAV_ID;
-    nav.className = 'live-series-nav';
+    nav.className = `live-series-nav ${shell ? '' : 'is-waiting'}`.trim();
     nav.setAttribute('aria-label', 'Series games');
 
     const activeId = String(state.selectedGameId || '');
     nav.innerHTML = `
       <div class="live-series-nav-copy">
         <span>Series games</span>
-        <strong>${context.games.length} played / active</strong>
+        <strong>${context.games.length} game${context.games.length === 1 ? '' : 's'} available</strong>
       </div>
       <div class="live-series-nav-buttons" role="tablist" aria-label="Series game navigation">
         ${context.games.map((game, index) => {
           const id = String(game.id || '');
           const selected = id === activeId;
           const isLive = id === String(context.liveGameId || '');
-          return `<button class="live-series-game ${selected ? 'is-selected' : ''} ${isLive ? 'is-live' : ''}" data-live-series-game-id="${escapeHtml(id)}" type="button" role="tab" aria-selected="${selected}">
+          const isWaiting = !isLive && id === String(context.currentGameId || '') && !hasCompletionEvidence(game);
+          const label = isLive ? 'Live' : isWaiting ? 'Waiting' : 'Final';
+          return `<button class="live-series-game ${selected ? 'is-selected' : ''} ${isLive ? 'is-live' : ''} ${isWaiting ? 'is-waiting' : ''}" data-live-series-game-id="${escapeHtml(id)}" type="button" role="tab" aria-selected="${selected}" ${isWaiting ? 'disabled aria-disabled="true"' : ''}>
             <span>Game ${gameNumber(game, index)}</span>
-            <small>${isLive ? 'Live' : 'Final'}</small>
+            <small>${label}</small>
           </button>`;
         }).join('')}
       </div>
-      ${state.seriesArchiveMode ? '<button class="live-series-return" data-return-live-game type="button">Return to live game</button>' : ''}`;
+      ${state.seriesArchiveMode ? '<button class="live-series-return" data-return-live-game type="button">Return to series</button>' : ''}`;
 
-    const header = shell.querySelector('.analysis-v2-header, .analysis-header');
+    const header = shell?.querySelector('.analysis-v2-header, .analysis-header');
     if (header) header.insertAdjacentElement('afterend', nav);
-    else shell.prepend(nav);
+    else if (shell) shell.prepend(nav);
+    else gameContent.prepend(nav);
   }
 
   async function refreshSeriesDetails(force = false) {
@@ -118,7 +174,7 @@
 
     const existing = state.liveSeries;
     const now = Date.now();
-    const liveGameId = state.seriesArchiveMode
+    const selectedId = state.seriesArchiveMode
       ? String(existing?.liveGameId || '')
       : String(state.selectedGameId || existing?.liveGameId || '');
 
@@ -128,7 +184,10 @@
       String(existing.matchId) === matchId &&
       now - Number(existing.fetchedAt || 0) < DETAILS_REFRESH_MS
     ) {
-      if (liveGameId) existing.liveGameId = liveGameId;
+      if (selectedId) {
+        existing.liveGameId = selectedId;
+        existing.currentGameId = selectedId;
+      }
       renderSeriesNavigation();
       return;
     }
@@ -139,12 +198,14 @@
         const payload = await api(`/api/match-details?matchId=${encodeURIComponent(matchId)}`);
         if (String(state.selectedEventId || '') !== matchId) return;
         const event = payload.data?.event || payload.event || payload.data || payload;
-        const currentId = liveGameId || String(state.selectedGameId || '');
+        const resolvedEvent = seriesEvent(event, event?.match?.games || []);
+        const currentGameId = inferredCurrentGameId(resolvedEvent, selectedId);
         state.liveSeries = {
           matchId,
-          event,
-          games: playedSeriesGames(event, currentId),
-          liveGameId: currentId,
+          event: resolvedEvent,
+          games: playedSeriesGames(resolvedEvent, currentGameId),
+          liveGameId: selectedId,
+          currentGameId,
           fetchedAt: Date.now()
         };
         renderSeriesNavigation();
@@ -157,6 +218,14 @@
     return detailsPromise;
   }
 
+  const previousShowWaiting = showWaiting;
+  showWaiting = function liveSeriesAwareShowWaiting(event, resolution = {}) {
+    const result = previousShowWaiting(event, resolution);
+    syncSeriesFromResolution(event, resolution);
+    queueMicrotask(renderSeriesNavigation);
+    return result;
+  };
+
   const previousRenderGame = renderGame;
   renderGame = function liveSeriesAwareRenderGame(...args) {
     const result = previousRenderGame(...args);
@@ -165,6 +234,7 @@
         ...(state.liveSeries || {}),
         matchId: String(state.selectedEventId || ''),
         liveGameId: String(state.selectedGameId),
+        currentGameId: String(state.selectedGameId),
         games: state.liveSeries?.games || [],
         fetchedAt: state.liveSeries?.fetchedAt || 0
       };
@@ -192,11 +262,20 @@
     const returnButton = event.target.closest('[data-return-live-game]');
     if (returnButton) {
       const liveGameId = String(state.liveSeries?.liveGameId || '');
-      if (!liveGameId) return;
-
       state.seriesArchiveMode = false;
       state.seriesArchiveLoading = false;
       state.selectedMatchState = 'inProgress';
+
+      if (!liveGameId) {
+        state.selectedGameId = null;
+        jsonUrl.value = '';
+        copyJsonUrl.disabled = true;
+        setConnection('Returning to active series…', '');
+        await resolveLiveEvent(String(state.selectedEventId), true);
+        await refreshSeriesDetails(true);
+        return;
+      }
+
       state.selectedGameId = liveGameId;
       setJsonEndpoint(liveGameId, false);
       setConnection('Returning to live game…', '');
@@ -208,7 +287,7 @@
 
     const button = event.target.closest('[data-live-series-game-id]');
     const gameId = String(button?.dataset.liveSeriesGameId || '');
-    if (!gameId || !state.liveSeries) return;
+    if (!gameId || !state.liveSeries || button.disabled) return;
     if (gameId === String(state.selectedGameId || '')) return;
 
     if (gameId === String(state.liveSeries.liveGameId || '')) {
@@ -240,8 +319,12 @@
       state.seriesArchiveLoading = false;
       renderSeriesNavigation();
     }
-    setConnection(`Series archive · Game ${number} · live game paused`, '');
+    setConnection(`Series archive · Game ${number} · active series paused`, '');
   });
 
-  globalThis.RiftPulseLiveSeries = { playedSeriesGames };
+  globalThis.RiftPulseLiveSeries = {
+    playedSeriesGames,
+    syncSeriesFromResolution,
+    renderSeriesNavigation
+  };
 })();
