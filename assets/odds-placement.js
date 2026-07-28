@@ -1,9 +1,10 @@
-// Keeps the live odds section directly above the champion/player board.
+// Keeps the bookmaker panel inside the dedicated analysis-odds region.
 // Retains the actual panel node while gameContent is replaced during telemetry refreshes.
 (() => {
   'use strict';
 
   const PANEL_ID = 'bookmakerOddsPanel';
+  const SLOT_ID = 'analysisOddsSlot';
   let panelRef = null;
   let placementQueued = false;
 
@@ -17,13 +18,17 @@
     placementQueued = false;
 
     const panel = capturePanel();
-    const players = gameContent?.querySelector('.players');
-    const host = players?.parentElement;
-    if (!panel || !players || !host || !state?.selectedEventId) return;
+    const slot = gameContent?.querySelector(`#${SLOT_ID}`);
+    if (!slot || !state?.selectedEventId) return;
 
-    if (panel.parentNode !== host || panel.nextElementSibling !== players) {
-      host.insertBefore(panel, players);
+    if (!panel) {
+      slot.classList.remove('has-odds');
+      return;
     }
+
+    if (panel.parentNode !== slot) slot.appendChild(panel);
+    slot.classList.add('has-odds');
+    slot.querySelector('[data-odds-placeholder]')?.setAttribute('hidden', '');
   }
 
   function queuePlacement(useMicrotask = false) {
@@ -48,15 +53,13 @@
           }
         }
       }
-      // MutationObserver runs immediately after innerHTML replacement, so restore
-      // the retained panel before the next paint instead of waiting for polling.
       queuePlacement(true);
     });
     observer.observe(gamePanel, { childList: true, subtree: true });
   }
 
   const previousRenderGame = renderGame;
-  renderGame = function oddsFirstRenderGame(...args) {
+  renderGame = function oddsSlotRenderGame(...args) {
     capturePanel();
     const result = previousRenderGame(...args);
     queuePlacement(true);
@@ -65,6 +68,6 @@
 
   capturePanel();
   queuePlacement();
-  // Covers non-renderGame screens such as pregame, breaks and unavailable telemetry.
-  setInterval(() => queuePlacement(), 250);
+  // Covers delayed bridge responses and panels rebuilt by the polling layer.
+  setInterval(() => queuePlacement(), 500);
 })();
