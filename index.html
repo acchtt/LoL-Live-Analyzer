@@ -24,6 +24,7 @@
   <link rel="stylesheet" href="assets/schedule-shell.css?v=20260728-6">
   <link rel="stylesheet" href="assets/site-layout.css?v=20260728-3">
   <link rel="stylesheet" href="assets/layout-sizing.css?v=20260728-2">
+  <link rel="stylesheet" href="assets/analysis-workspace.css?v=20260728-1">
 </head>
 <body>
   <div class="app-frame">
@@ -54,6 +55,21 @@
           <button id="refreshSchedule" class="ghost-button compact-action" type="button" aria-label="Refresh schedule">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.34 5.66M20 4v7h-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             <span>Refresh</span>
+          </button>
+        </div>
+
+        <div class="sport-switcher" aria-label="Supported esports">
+          <button class="sport-option is-active" type="button" aria-current="page">
+            <strong>LoL</strong>
+            <small>Live data</small>
+          </button>
+          <button class="sport-option is-placeholder" type="button" disabled title="Counter-Strike 2 match support is coming later">
+            <strong>CS2</strong>
+            <small>Coming soon</small>
+          </button>
+          <button class="sport-option is-placeholder" type="button" disabled title="Dota 2 match support is coming later">
+            <strong>Dota 2</strong>
+            <small>Coming soon</small>
           </button>
         </div>
 
@@ -88,9 +104,17 @@
 
       <section class="panel game-panel app-panel" aria-label="Selected match analysis">
         <div id="gameContent" class="game-content">
-          <div class="empty hero-empty">
-            <strong>Select a match</strong>
-            <span>Choose a match from the schedule to inspect verified telemetry.</span>
+          <div class="analysis-empty">
+            <div class="analysis-empty-mark" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M4 18V9m5 9V5m5 13v-7m5 7V3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </div>
+            <h2>Select a League of Legends match</h2>
+            <p>Choose a live, upcoming, or completed match from the schedule to open the verified analysis workspace.</p>
+            <div class="analysis-empty-features" aria-hidden="true">
+              <span>Gold and objectives</span>
+              <span>Player state</span>
+              <span>Live odds</span>
+            </div>
           </div>
         </div>
       </section>
@@ -134,5 +158,6 @@
   <script src="assets/series-game-history.js?v=20260728-2" defer></script>
   <script src="assets/schedule-integrity.js?v=20260728-1" defer></script>
   <script src="assets/schedule-shell.js?v=20260728-6" defer></script>
+  <script src="assets/analysis-workspace.js?v=20260728-1" defer></script>
 </body>
 </html>
