@@ -1,0 +1,30 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+
+function scriptSources(html) {
+  return [...html.matchAll(/<script\s+src="([^"]+)"/g)].map(match => match[1]);
+}
+
+test('authoritative live loader remains the final data renderer before lifecycle recovery', async () => {
+  const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+  const scripts = scriptSources(html);
+  const authorityIndex = scripts.findIndex(src => src.startsWith('assets/authoritative-ui.js'));
+  const lifecycleIndex = scripts.findIndex(src => src.startsWith('assets/reliable-lifecycle.js'));
+
+  assert.ok(authorityIndex >= 0, 'authoritative-ui.js must be loaded');
+  assert.ok(lifecycleIndex > authorityIndex, 'reliable-lifecycle.js must wrap the authoritative loader');
+  assert.equal(
+    scripts.some(src => src.includes('live-fetch-acceleration.js')),
+    false,
+    'a later loader override must not bypass authoritative status handling and game re-resolution'
+  );
+});
+
+test('authoritative loader requests advancing frames without replacing lifecycle handling', async () => {
+  const source = await readFile(new URL('../assets/authoritative-ui.js', import.meta.url), 'utf8');
+
+  assert.match(source, /query\.set\('after', after\)/);
+  assert.match(source, /state\.lastSnapshot\s*=\s*snapshot/);
+  assert.match(source, /\['degraded', 'telemetry_stale'\]/);
+});
