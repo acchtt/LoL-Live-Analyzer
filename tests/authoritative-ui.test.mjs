@@ -93,14 +93,25 @@ function degradedSnapshot(status = 'degraded') {
   };
 }
 
-test('degraded live telemetry renders available map stats instead of an unavailable screen', async () => {
+test('degraded map data with only item details missing stays visible and gets a compact label', async () => {
   const { context, calls } = await loadAuthority(degradedSnapshot());
+  await context.loadGame();
+
+  assert.equal(calls.renders, 1);
+  assert.match(calls.connection, /^LIVE · map stats · items pending/);
+  assert.match(calls.banner?.innerHTML || '', /Live map data/);
+  assert.doesNotMatch(context.gameContent.innerHTML, /Live stats unavailable/);
+});
+
+test('other missing betting-critical fields remain labeled partial', async () => {
+  const snapshot = degradedSnapshot();
+  snapshot.quality.criticalMissingFields = ['blue.players.0.level'];
+  const { context, calls } = await loadAuthority(snapshot);
   await context.loadGame();
 
   assert.equal(calls.renders, 1);
   assert.match(calls.connection, /^LIVE · partial stats/);
   assert.match(calls.banner?.innerHTML || '', /Partial live telemetry/);
-  assert.doesNotMatch(context.gameContent.innerHTML, /Live stats unavailable/);
 });
 
 test('stale cached gameplay renders as clearly labeled context', async () => {
