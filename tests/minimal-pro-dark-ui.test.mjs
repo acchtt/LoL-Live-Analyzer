@@ -6,6 +6,7 @@ const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
 const css = await readFile(new URL('../assets/minimal-pro-dark-v2.css', import.meta.url), 'utf8');
 const fixes = await readFile(new URL('../assets/minimal-pro-dark-v2-fixes.css', import.meta.url), 'utf8');
 const polish = await readFile(new URL('../assets/minimal-pro-dark-v2-polish.css', import.meta.url), 'utf8');
+const compact = await readFile(new URL('../assets/compact-series-scoreboard.css', import.meta.url), 'utf8');
 const analysis = await readFile(new URL('../assets/analysis-workspace-v2.js', import.meta.url), 'utf8');
 const players = await readFile(new URL('../assets/live-player-ui.js', import.meta.url), 'utf8');
 const drawer = await readFile(new URL('../assets/data-drawer.js', import.meta.url), 'utf8');
@@ -16,8 +17,15 @@ test('minimal pro dark v2 styles load in final cache-safe order', () => {
   const minimalIndex = html.indexOf('minimal-pro-dark-v2.css');
   const fixesIndex = html.indexOf('minimal-pro-dark-v2-fixes.css');
   const polishIndex = html.indexOf('minimal-pro-dark-v2-polish.css');
-  assert.ok(heroIndex >= 0 && minimalIndex > heroIndex && fixesIndex > minimalIndex && polishIndex > fixesIndex);
-  assert.match(html, /<body class="minimal-pro-dark-v2" data-ui-build="minimal-pro-dark-v2-polish-1">/);
+  const compactIndex = html.indexOf('compact-series-scoreboard.css');
+  assert.ok(
+    heroIndex >= 0 &&
+    minimalIndex > heroIndex &&
+    fixesIndex > minimalIndex &&
+    polishIndex > fixesIndex &&
+    compactIndex > polishIndex
+  );
+  assert.match(html, /<body class="minimal-pro-dark-v2" data-ui-build="compact-series-scoreboard-1">/);
   assert.match(css, /RIFTPULSE_MINIMAL_PRO_DARK_V2/);
   assert.match(css, /--rp-bg:\s*#0b0f15/);
   assert.match(css, /grid-template-areas:\s*"schedule game"\s*"feed feed"/);
@@ -49,6 +57,20 @@ test('hover treatment is consistent and motion-free', () => {
   assert.match(polish, /\.schedule-tab\.active:hover/);
   assert.match(polish, /transform:\s*none\s*!important/);
   assert.match(polish, /:focus-visible/);
+});
+
+test('scoreboard is a tighter mirrored three-column strip', () => {
+  assert.match(compact, /grid-template-columns:\s*minmax\(0, 1fr\) 104px minmax\(0, 1fr\)/);
+  assert.match(compact, /analysis-v2-team\.is-blue[\s\S]*34px minmax\(0, 1fr\) 52px/);
+  assert.match(compact, /analysis-v2-team\.is-red[\s\S]*52px minmax\(0, 1fr\) 34px/);
+  assert.match(compact, /min-height:\s*66px\s*!important/);
+});
+
+test('series header is a compact two-row information bar', () => {
+  assert.match(compact, /series-hero-top[\s\S]*grid-template-columns:\s*112px minmax\(0, 1fr\) 92px/);
+  assert.match(compact, /series-hero-main[\s\S]*display:\s*contents\s*!important/);
+  assert.match(compact, /series-hero-score[\s\S]*position:\s*static\s*!important/);
+  assert.match(compact, /series-hero-rail[\s\S]*min-height:\s*48px\s*!important/);
 });
 
 test('analysis order is scoreboard, overview, odds, then player tables', () => {
