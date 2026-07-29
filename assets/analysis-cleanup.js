@@ -19,6 +19,36 @@
     if (element && element.textContent !== value) element.textContent = value;
   }
 
+  function applySeriesHeroPresentation(snapshot, age) {
+    const hero = gameContent?.querySelector?.('.series-hero--live');
+    if (!hero) return;
+
+    setText(hero.querySelector('.series-hero-kicker strong'), 'Delayed live data');
+
+    const score = hero.querySelector('.series-hero-score');
+    score?.classList.remove('is-live', 'is-stale');
+    score?.classList.add('is-pending');
+    setText(score?.querySelector(':scope > span'), 'Delayed');
+    const gameNumber = snapshot?.match?.gameNumber ?? '?';
+    setText(
+      score?.querySelector(':scope > small'),
+      age === null ? `Latest delayed Riot frame · Game ${gameNumber}` : `${age}s behind · Game ${gameNumber}`
+    );
+
+    const badge = hero.querySelector('.series-hero-badge');
+    badge?.classList.remove('is-live', 'is-stale');
+    badge?.classList.add('is-pending');
+    setText(badge?.querySelector('span'), 'Delayed frame');
+
+    const selectedGame = hero.querySelector('.series-hero-game.is-selected');
+    selectedGame?.classList.remove('is-live', 'is-stale');
+    selectedGame?.classList.add('is-waiting');
+    setText(selectedGame?.querySelector('small'), 'Delayed');
+
+    const contextLabels = hero.querySelectorAll('.series-hero-context > span:not(.series-hero-context-icon)');
+    setText(contextLabels?.[0], 'Delayed live data');
+  }
+
   function applyFreshnessPresentation(snapshot) {
     if (snapshot?.status !== 'degraded') return;
 
@@ -26,7 +56,7 @@
     if (fields.length !== 0) return;
 
     const age = frameAge(snapshot);
-    const ageText = age === null ? '' : ` Riot’s latest frame is ${age}s old.`;
+    const ageText = age === null ? '' : ` Riot’s latest frame is ${age}s behind the current time.`;
     const quality = gameContent?.querySelector?.('.analysis-v2-quality');
     if (quality) {
       quality.classList.add('is-delayed');
@@ -35,16 +65,19 @@
 
     const banner = gameContent?.querySelector?.('.authority-context-banner');
     if (banner) {
+      banner.classList.remove('is-stale');
       banner.classList.add('is-delayed');
-      setText(banner.querySelector('strong'), 'Delayed live frame');
+      setText(banner.querySelector('strong'), 'Delayed live telemetry');
       setText(
         banner.querySelector('span'),
-        `Score, gold, objectives, KDA, CS and available player details are loaded.${ageText} Betting verification remains paused until a fresher frame arrives.`
+        `Score, gold, objectives, KDA, CS and available player details are loaded.${ageText} RiftPulse is polling for newer Riot frames; betting verification remains paused until a fresh frame arrives.`
       );
     }
 
+    applySeriesHeroPresentation(snapshot, age);
+
     if (typeof setConnection === 'function') {
-      setConnection(`LIVE · full stats${age === null ? '' : ` · ${age}s delayed`}`, 'live');
+      setConnection(`LIVE · delayed telemetry${age === null ? '' : ` · ${age}s behind`}`, 'live');
     }
   }
 
