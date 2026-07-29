@@ -11,6 +11,8 @@
     panel.classList.toggle('is-open', open);
     toggle.setAttribute('aria-expanded', String(open));
     body.hidden = !open;
+    body.setAttribute('aria-hidden', String(!open));
+    body.style.setProperty('display', open ? 'grid' : 'none', 'important');
   }
 
   toggle.addEventListener('click', () => {
