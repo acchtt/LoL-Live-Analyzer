@@ -7,6 +7,7 @@ const css = await readFile(new URL('../assets/minimal-pro-dark-v2.css', import.m
 const fixes = await readFile(new URL('../assets/minimal-pro-dark-v2-fixes.css', import.meta.url), 'utf8');
 const polish = await readFile(new URL('../assets/minimal-pro-dark-v2-polish.css', import.meta.url), 'utf8');
 const compact = await readFile(new URL('../assets/compact-series-scoreboard.css', import.meta.url), 'utf8');
+const readable = await readFile(new URL('../assets/readable-density.css', import.meta.url), 'utf8');
 const analysis = await readFile(new URL('../assets/analysis-workspace-v2.js', import.meta.url), 'utf8');
 const players = await readFile(new URL('../assets/live-player-ui.js', import.meta.url), 'utf8');
 const drawer = await readFile(new URL('../assets/data-drawer.js', import.meta.url), 'utf8');
@@ -18,14 +19,16 @@ test('minimal pro dark v2 styles load in final cache-safe order', () => {
   const fixesIndex = html.indexOf('minimal-pro-dark-v2-fixes.css');
   const polishIndex = html.indexOf('minimal-pro-dark-v2-polish.css');
   const compactIndex = html.indexOf('compact-series-scoreboard.css');
+  const readableIndex = html.indexOf('readable-density.css');
   assert.ok(
     heroIndex >= 0 &&
     minimalIndex > heroIndex &&
     fixesIndex > minimalIndex &&
     polishIndex > fixesIndex &&
-    compactIndex > polishIndex
+    compactIndex > polishIndex &&
+    readableIndex > compactIndex
   );
-  assert.match(html, /<body class="minimal-pro-dark-v2" data-ui-build="compact-series-scoreboard-1">/);
+  assert.match(html, /<body class="minimal-pro-dark-v2" data-ui-build="readable-density-1">/);
   assert.match(css, /RIFTPULSE_MINIMAL_PRO_DARK_V2/);
   assert.match(css, /--rp-bg:\s*#0b0f15/);
   assert.match(css, /grid-template-areas:\s*"schedule game"\s*"feed feed"/);
@@ -59,18 +62,26 @@ test('hover treatment is consistent and motion-free', () => {
   assert.match(polish, /:focus-visible/);
 });
 
-test('scoreboard is a tighter mirrored three-column strip', () => {
+test('scoreboard remains compact but uses readable desktop sizing', () => {
   assert.match(compact, /grid-template-columns:\s*minmax\(0, 1fr\) 104px minmax\(0, 1fr\)/);
-  assert.match(compact, /analysis-v2-team\.is-blue[\s\S]*34px minmax\(0, 1fr\) 52px/);
-  assert.match(compact, /analysis-v2-team\.is-red[\s\S]*52px minmax\(0, 1fr\) 34px/);
-  assert.match(compact, /min-height:\s*66px\s*!important/);
+  assert.match(readable, /grid-template-columns:\s*minmax\(0, 1fr\) 112px minmax\(0, 1fr\)/);
+  assert.match(readable, /analysis-v2-team,[\s\S]*min-height:\s*78px\s*!important/);
+  assert.match(readable, /analysis-v2-team-copy h3[\s\S]*font-size:\s*15px\s*!important/);
+  assert.match(readable, /analysis-v2-team-kills[\s\S]*font-size:\s*26px\s*!important/);
 });
 
-test('series header is a compact two-row information bar', () => {
-  assert.match(compact, /series-hero-top[\s\S]*grid-template-columns:\s*112px minmax\(0, 1fr\) 92px/);
+test('series header keeps the compact two-row structure with legible labels', () => {
   assert.match(compact, /series-hero-main[\s\S]*display:\s*contents\s*!important/);
-  assert.match(compact, /series-hero-score[\s\S]*position:\s*static\s*!important/);
-  assert.match(compact, /series-hero-rail[\s\S]*min-height:\s*48px\s*!important/);
+  assert.match(readable, /series-hero-top[\s\S]*grid-template-columns:\s*130px minmax\(0, 1fr\) 104px/);
+  assert.match(readable, /series-hero-game > span[\s\S]*font-size:\s*10px\s*!important/);
+  assert.match(readable, /series-hero-score > strong[\s\S]*font-size:\s*25px\s*!important/);
+});
+
+test('schedule and player tables have readable minimum sizes', () => {
+  assert.match(readable, /\.team-name\s*\{[\s\S]*font-size:\s*13px\s*!important/);
+  assert.match(readable, /enhanced-player-row,[\s\S]*min-height:\s*56px\s*!important/);
+  assert.match(readable, /player-copy strong[\s\S]*font-size:\s*12px\s*!important/);
+  assert.match(readable, /champion-portrait[\s\S]*width:\s*38px\s*!important/);
 });
 
 test('analysis order is scoreboard, overview, odds, then player tables', () => {
