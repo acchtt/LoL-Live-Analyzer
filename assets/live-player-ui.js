@@ -1,4 +1,4 @@
-// Champion portraits and a reliability-aware in-game clock.
+// Champion portraits, compact player tables, and a reliability-aware in-game clock.
 (() => {
   const DDRAGON_BASE = 'https://ddragon.leagueoflegends.com';
   const championCatalog = new Map();
@@ -30,6 +30,13 @@
   function displayInteger(value) {
     const parsed = finiteNumber(value);
     return parsed === null ? '—' : String(Math.round(parsed));
+  }
+
+  function displayGold(value) {
+    const parsed = finiteNumber(value);
+    if (parsed === null) return '—';
+    if (Math.abs(parsed) >= 1000) return `${(parsed / 1000).toFixed(parsed >= 10000 ? 1 : 2).replace(/\.0+$/, '')}k`;
+    return Math.round(parsed).toLocaleString('en-US');
   }
 
   async function loadChampionCatalog() {
@@ -103,21 +110,49 @@
     </span>`;
   }
 
+  function itemId(value) {
+    if (value === null || value === undefined) return null;
+    if (typeof value === 'object') {
+      return finiteNumber(value.itemId ?? value.id ?? value.itemID);
+    }
+    return finiteNumber(value);
+  }
+
+  function playerItems(items) {
+    const ids = (Array.isArray(items) ? items : [])
+      .map(itemId)
+      .filter(value => value !== null && value > 0)
+      .slice(0, 6);
+    const cells = Array.from({ length: 6 }, (_, index) => {
+      const id = ids[index];
+      if (!id || !dataDragonVersion) return '<span class="player-item-empty" aria-hidden="true"></span>';
+      const url = `${DDRAGON_BASE}/cdn/${encodeURIComponent(dataDragonVersion)}/img/item/${encodeURIComponent(String(Math.round(id)))}.png`;
+      return `<span class="player-item"><img src="${escapeHtml(url)}" alt="" loading="lazy"></span>`;
+    });
+    return `<span class="player-items" aria-label="Player items">${cells.join('')}</span>`;
+  }
+
   playerRows = function enhancedPlayerRows(players = []) {
     if (!players.length) return '<div class="empty">Player details unavailable.</div>';
 
     return players.map(player => `<div class="player-row enhanced-player-row">
       ${playerIdentity(player)}
       <span class="player-kda">${displayInteger(player?.kills)}/${displayInteger(player?.deaths)}/${displayInteger(player?.assists)}</span>
-      <span class="player-cs">${displayInteger(player?.creepScore)} CS</span>
+      <span class="player-cs">${displayInteger(player?.creepScore)}</span>
+      <span class="player-gold">${displayGold(player?.totalGold)}</span>
+      ${playerItems(player?.items)}
     </div>`).join('');
   };
 
   document.addEventListener('error', event => {
     const image = event.target;
-    if (!(image instanceof HTMLImageElement) || !image.closest('.champion-portrait')) return;
-    image.hidden = true;
-    image.closest('.champion-portrait')?.classList.add('image-failed');
+    if (!(image instanceof HTMLImageElement)) return;
+    if (image.closest('.champion-portrait')) {
+      image.hidden = true;
+      image.closest('.champion-portrait')?.classList.add('image-failed');
+      return;
+    }
+    if (image.closest('.player-item')) image.closest('.player-item')?.classList.add('image-failed');
   }, true);
 
   function parseClock(value) {
