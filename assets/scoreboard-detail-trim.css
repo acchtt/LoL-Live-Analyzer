@@ -1,0 +1,17 @@
+/* Removes duplicated gold totals from team cards and softens series-win labels. */
+body.minimal-pro-dark-v2 .analysis-v2-team .analysis-v2-team-copy > small {
+  display: none !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero[data-series-scoreboard-v3="true"] .series-scoreboard-team-copy {
+  gap: 2px !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero[data-series-scoreboard-v3="true"] .series-scoreboard-team-result {
+  color: var(--rp-faint) !important;
+  font-size: 9px !important;
+  font-weight: 500 !important;
+  line-height: 1.1 !important;
+  letter-spacing: .02em !important;
+  opacity: .58 !important;
+}
