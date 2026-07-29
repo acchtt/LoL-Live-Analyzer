@@ -9,6 +9,7 @@ const polish = await readFile(new URL('../assets/minimal-pro-dark-v2-polish.css'
 const compact = await readFile(new URL('../assets/compact-series-scoreboard.css', import.meta.url), 'utf8');
 const readable = await readFile(new URL('../assets/readable-density.css', import.meta.url), 'utf8');
 const comfortable = await readFile(new URL('../assets/comfortable-reading-layout.css', import.meta.url), 'utf8');
+const controlDock = await readFile(new URL('../assets/series-control-dock.css', import.meta.url), 'utf8');
 const analysis = await readFile(new URL('../assets/analysis-workspace-v2.js', import.meta.url), 'utf8');
 const players = await readFile(new URL('../assets/live-player-ui.js', import.meta.url), 'utf8');
 const drawer = await readFile(new URL('../assets/data-drawer.js', import.meta.url), 'utf8');
@@ -22,6 +23,7 @@ test('minimal pro dark styles load in final cache-safe order', () => {
   const compactIndex = html.indexOf('compact-series-scoreboard.css');
   const readableIndex = html.indexOf('readable-density.css');
   const comfortableIndex = html.indexOf('comfortable-reading-layout.css');
+  const controlDockIndex = html.indexOf('series-control-dock.css');
   assert.ok(
     heroIndex >= 0 &&
     minimalIndex > heroIndex &&
@@ -29,9 +31,10 @@ test('minimal pro dark styles load in final cache-safe order', () => {
     polishIndex > fixesIndex &&
     compactIndex > polishIndex &&
     readableIndex > compactIndex &&
-    comfortableIndex > readableIndex
+    comfortableIndex > readableIndex &&
+    controlDockIndex > comfortableIndex
   );
-  assert.match(html, /<body class="minimal-pro-dark-v2" data-ui-build="comfortable-reading-layout-1">/);
+  assert.match(html, /<body class="minimal-pro-dark-v2" data-ui-build="series-control-dock-1">/);
   assert.match(css, /RIFTPULSE_MINIMAL_PRO_DARK_V2/);
   assert.match(css, /--rp-bg:\s*#0b0f15/);
   assert.match(fixes, /data-drawer:not\(\.is-open\) \.feed-body/);
@@ -78,6 +81,14 @@ test('series header keeps two rows with larger labels and controls', () => {
   assert.match(comfortable, /series-hero-top[\s\S]*grid-template-columns:\s*150px minmax\(0, 1fr\) 120px/);
   assert.match(comfortable, /series-hero-game > span[\s\S]*font-size:\s*12px\s*!important/);
   assert.match(comfortable, /series-hero-score > strong[\s\S]*font-size:\s*30px\s*!important/);
+});
+
+test('archive status and return action use a dedicated header dock', () => {
+  assert.match(controlDock, /series-hero\s*\{[\s\S]*grid-template-columns:\s*minmax\(0, 1fr\) 176px/);
+  assert.match(controlDock, /series-hero-rail\s*\{[\s\S]*display:\s*contents/);
+  assert.match(controlDock, /series-hero-actions,[\s\S]*history-archive-badge[\s\S]*grid-column:\s*2/);
+  assert.match(controlDock, /series-hero-games[\s\S]*grid-column:\s*1 \/ -1/);
+  assert.match(controlDock, /live-series-return[\s\S]*width:\s*100%/);
 });
 
 test('game overview wraps into a spacious two-row layout', () => {
