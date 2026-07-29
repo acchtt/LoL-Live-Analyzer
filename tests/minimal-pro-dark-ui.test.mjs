@@ -15,6 +15,8 @@ const comparisonCss = await readFile(new URL('../assets/player-comparison-board.
 const comparisonJs = await readFile(new URL('../assets/player-comparison-board.js', import.meta.url), 'utf8');
 const seriesScoreboardCss = await readFile(new URL('../assets/series-scoreboard-v3.css', import.meta.url), 'utf8');
 const symmetryCss = await readFile(new URL('../assets/scoreboard-symmetry.css', import.meta.url), 'utf8');
+const overviewCss = await readFile(new URL('../assets/overview-panel-v2.css', import.meta.url), 'utf8');
+const overviewJs = await readFile(new URL('../assets/overview-panel-v2.js', import.meta.url), 'utf8');
 const seriesScoreboardJs = await readFile(new URL('../assets/series-scoreboard-v3.js', import.meta.url), 'utf8');
 const analysis = await readFile(new URL('../assets/analysis-workspace-v2.js', import.meta.url), 'utf8');
 const players = await readFile(new URL('../assets/live-player-ui.js', import.meta.url), 'utf8');
@@ -34,6 +36,7 @@ test('minimal pro dark styles load in final cache-safe order', () => {
   const comparisonIndex = html.indexOf('player-comparison-board.css');
   const seriesScoreboardIndex = html.indexOf('series-scoreboard-v3.css');
   const symmetryIndex = html.indexOf('scoreboard-symmetry.css');
+  const overviewIndex = html.indexOf('overview-panel-v2.css');
   assert.ok(
     heroIndex >= 0 &&
     minimalIndex > heroIndex &&
@@ -46,7 +49,8 @@ test('minimal pro dark styles load in final cache-safe order', () => {
     headerV2Index > controlDockIndex &&
     comparisonIndex > headerV2Index &&
     seriesScoreboardIndex > comparisonIndex &&
-    symmetryIndex > seriesScoreboardIndex
+    symmetryIndex > seriesScoreboardIndex &&
+    overviewIndex > symmetryIndex
   );
   assert.match(html, /series-control-dock\.css\?v=20260730-2/);
   assert.match(html, /series-header-layout-v2\.css\?v=20260730-1/);
@@ -54,8 +58,10 @@ test('minimal pro dark styles load in final cache-safe order', () => {
   assert.match(html, /player-comparison-board\.js\?v=20260730-1/);
   assert.match(html, /series-scoreboard-v3\.css\?v=20260730-1/);
   assert.match(html, /scoreboard-symmetry\.css\?v=20260730-1/);
+  assert.match(html, /overview-panel-v2\.css\?v=20260730-1/);
+  assert.match(html, /overview-panel-v2\.js\?v=20260730-1/);
   assert.match(html, /series-scoreboard-v3\.js\?v=20260730-2/);
-  assert.match(html, /<body class="minimal-pro-dark-v2" data-ui-build="scoreboard-symmetry-1">/);
+  assert.match(html, /<body class="minimal-pro-dark-v2" data-ui-build="overview-panel-v2-1">/);
   assert.match(css, /RIFTPULSE_MINIMAL_PRO_DARK_V2/);
   assert.match(css, /--rp-bg:\s*#0b0f15/);
   assert.match(fixes, /data-drawer:not\(\.is-open\) \.feed-body/);
@@ -111,11 +117,15 @@ test('series and current-game scoreboards mirror both sides around the center', 
   assert.match(symmetryCss, /analysis-v2-team\.is-red[\s\S]*grid-template-areas:\s*"kills copy logo"/);
 });
 
-test('game overview wraps into a spacious two-row layout', () => {
-  assert.match(analysis, /analysis-v2-overview-grid/);
-  assert.match(comfortable, /analysis-v2-overview-grid[\s\S]*grid-template-columns:\s*repeat\(4, minmax\(0, 1fr\)\)/);
-  assert.match(comfortable, /analysis-v2-lead\s*\{[\s\S]*grid-column:\s*1 \/ -1/);
-  assert.match(comfortable, /analysis-v2-objective\s*\{[\s\S]*min-height:\s*112px/);
+test('game overview becomes a gold summary and objective comparison dashboard', () => {
+  assert.match(overviewJs, /overview-gold-summary/);
+  assert.match(overviewJs, /overview-objective-grid-v2/);
+  assert.match(overviewJs, /objectiveCard\('Towers'/);
+  assert.match(overviewJs, /objectiveCard\('Dragons'/);
+  assert.match(overviewJs, /content\.replaceChildren\(dashboard\)/);
+  assert.match(overviewCss, /overview-gold-summary[\s\S]*grid-template-columns:\s*minmax\(0, 1fr\) 214px minmax\(0, 1fr\)/);
+  assert.match(overviewCss, /overview-objective-grid-v2[\s\S]*grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\)/);
+  assert.match(overviewCss, /overview-objective-track/);
 });
 
 test('player boards become one mirrored role-by-role comparison table', () => {
