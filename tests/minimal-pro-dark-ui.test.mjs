@@ -5,17 +5,19 @@ import { readFile } from 'node:fs/promises';
 const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
 const css = await readFile(new URL('../assets/minimal-pro-dark-v2.css', import.meta.url), 'utf8');
 const fixes = await readFile(new URL('../assets/minimal-pro-dark-v2-fixes.css', import.meta.url), 'utf8');
+const polish = await readFile(new URL('../assets/minimal-pro-dark-v2-polish.css', import.meta.url), 'utf8');
 const analysis = await readFile(new URL('../assets/analysis-workspace-v2.js', import.meta.url), 'utf8');
 const players = await readFile(new URL('../assets/live-player-ui.js', import.meta.url), 'utf8');
 const drawer = await readFile(new URL('../assets/data-drawer.js', import.meta.url), 'utf8');
 const unavailable = await readFile(new URL('../assets/telemetry-unavailable-ui.js', import.meta.url), 'utf8');
 
-test('minimal pro dark v2 stylesheet and focused fixes are final cache-safe overrides', () => {
+test('minimal pro dark v2 styles load in final cache-safe order', () => {
   const heroIndex = html.indexOf('series-hero-refinement.css');
   const minimalIndex = html.indexOf('minimal-pro-dark-v2.css');
   const fixesIndex = html.indexOf('minimal-pro-dark-v2-fixes.css');
-  assert.ok(heroIndex >= 0 && minimalIndex > heroIndex && fixesIndex > minimalIndex);
-  assert.match(html, /<body class="minimal-pro-dark-v2" data-ui-build="minimal-pro-dark-v2-fixes-1">/);
+  const polishIndex = html.indexOf('minimal-pro-dark-v2-polish.css');
+  assert.ok(heroIndex >= 0 && minimalIndex > heroIndex && fixesIndex > minimalIndex && polishIndex > fixesIndex);
+  assert.match(html, /<body class="minimal-pro-dark-v2" data-ui-build="minimal-pro-dark-v2-polish-1">/);
   assert.match(css, /RIFTPULSE_MINIMAL_PRO_DARK_V2/);
   assert.match(css, /--rp-bg:\s*#0b0f15/);
   assert.match(css, /grid-template-areas:\s*"schedule game"\s*"feed feed"/);
@@ -40,12 +42,29 @@ test('broadcast-live state does not claim telemetry is available', () => {
   assert.match(unavailable, /state\.telemetryUnavailable = true/);
 });
 
+test('hover treatment is consistent and motion-free', () => {
+  assert.match(polish, /@media \(hover: hover\)/);
+  assert.match(polish, /\.match-card:hover:not\(\.active\)/);
+  assert.match(polish, /\.series-hero-game:hover:not\(:disabled\):not\(\.is-selected\)/);
+  assert.match(polish, /\.schedule-tab\.active:hover/);
+  assert.match(polish, /transform:\s*none\s*!important/);
+  assert.match(polish, /:focus-visible/);
+});
+
 test('analysis order is scoreboard, overview, odds, then player tables', () => {
   const scoreboard = analysis.indexOf('analysis-v2-scoreboard');
   const overview = analysis.indexOf('${overviewSection}');
   const odds = analysis.indexOf('${oddsSection}');
   const lineups = analysis.indexOf('analysis-v2-lineups players');
   assert.ok(scoreboard >= 0 && overview > scoreboard && odds > overview && lineups > odds);
+});
+
+test('game overview uses one responsive gold-and-objective grid', () => {
+  assert.match(analysis, /analysis-v2-overview-grid/);
+  assert.match(analysis, /class="is-blue"/);
+  assert.match(analysis, /class="is-red"/);
+  assert.match(polish, /grid-template-columns:\s*minmax\(250px, 1\.7fr\) repeat\(4, minmax\(105px, 1fr\)\)/);
+  assert.match(polish, /analysis-v2-lead\s*\{[\s\S]*grid-template-rows/);
 });
 
 test('player tables expose KDA, CS, gold, and item columns without zero-filling missing data', () => {
