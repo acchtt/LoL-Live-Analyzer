@@ -25,10 +25,6 @@
     return parsed === null ? '—' : String(Math.round(parsed));
   }
 
-  function count(value) {
-    return Array.isArray(value) ? String(value.length) : integer(value);
-  }
-
   function formatted(value) {
     const parsed = finiteNumber(value);
     return parsed === null ? '—' : Math.round(parsed).toLocaleString('en-US');
@@ -70,7 +66,7 @@
     if (!(section instanceof HTMLElement) || section.dataset.overviewPanelV2 === 'true') return;
 
     const content = section.querySelector('.analysis-v2-state-content');
-    const snapshot = globalThis.state?.lastSnapshot;
+    const snapshot = typeof state === 'object' && state ? state.lastSnapshot : null;
     if (!content || !snapshot) return;
 
     const blue = snapshot.blue || {};
