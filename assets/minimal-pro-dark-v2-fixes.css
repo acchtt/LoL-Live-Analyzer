@@ -1,8 +1,27 @@
 /* Focused fixes for the Minimal Pro Dark v2 preview. */
+body.minimal-pro-dark-v2 .brand-identity {
+  display: inline-flex !important;
+  width: auto !important;
+  height: auto !important;
+  aspect-ratio: auto !important;
+  flex: 0 0 auto !important;
+  align-items: center !important;
+  gap: 8px !important;
+  background: none !important;
+  background-image: none !important;
+}
+
 body.minimal-pro-dark-v2 .brand-mark {
+  display: block !important;
   width: 25px !important;
   height: 25px !important;
   filter: grayscale(1) brightness(1.45) opacity(.82) !important;
+}
+
+body.minimal-pro-dark-v2 .brand-wordmark {
+  display: inline-flex !important;
+  align-items: baseline !important;
+  font-style: normal !important;
 }
 
 body.minimal-pro-dark-v2 .brand-wordmark,
@@ -63,10 +82,22 @@ body.minimal-pro-dark-v2 .analysis-empty-features {
 }
 
 /* The API feed must remain a compact drawer when closed. */
-body.minimal-pro-dark-v2 .data-drawer {
-  min-height: 0 !important;
-  max-height: none !important;
+body.minimal-pro-dark-v2 .machine-panel.data-drawer {
+  align-self: start !important;
+  min-height: 46px !important;
   overflow: hidden !important;
+}
+
+body.minimal-pro-dark-v2 .machine-panel.data-drawer:not(.is-open) {
+  height: 46px !important;
+  min-height: 46px !important;
+  max-height: 46px !important;
+}
+
+body.minimal-pro-dark-v2 .machine-panel.data-drawer.is-open {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: min(520px, 62vh) !important;
 }
 
 body.minimal-pro-dark-v2 .data-drawer .app-panel-heading,
@@ -153,6 +184,8 @@ body.minimal-pro-dark-v2 .data-drawer:not(.is-open) .feed-body {
 
 body.minimal-pro-dark-v2 .data-drawer.is-open .feed-body {
   display: grid !important;
+  min-height: 0 !important;
+  overflow: auto !important;
 }
 
 /* Broadcast-live does not imply that Riot telemetry is available. */
