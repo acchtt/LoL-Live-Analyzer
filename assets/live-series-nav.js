@@ -192,6 +192,17 @@
     return Math.max(1, Math.min(format, played + 1));
   }
 
+  function telemetryState(activeId) {
+    const snapshot = state.lastSnapshot || {};
+    const sameGame = Boolean(activeId) && String(snapshot?.source?.gameId || '') === String(activeId);
+    if (!sameGame) return { status: '', age: null };
+    const age = Number(snapshot?.quality?.frameAgeSeconds ?? snapshot?.source?.dataAgeSeconds);
+    return {
+      status: String(snapshot?.status || ''),
+      age: Number.isFinite(age) ? age : null
+    };
+  }
+
   function renderSeriesNavigation() {
     document.getElementById(NAV_ID)?.remove();
 
@@ -225,14 +236,66 @@
     const playedCount = Math.min(format, Math.max(scoreCount, evidenceCount));
     const currentNumber = currentSlotNumber(availableGames, context, activeId, format);
     const league = context.event?.league?.name || context.event?.league?.slug || 'League of Legends';
+    const snapshotState = telemetryState(activeId);
     const isPending = state.selectedMatchState === 'postGame';
-    const modeLabel = state.seriesArchiveMode ? 'Series archive' : isPending ? 'Result pending' : 'Live series';
-    const scoreLabel = state.seriesArchiveMode ? 'Archive' : isPending ? 'Pending' : 'Live';
+    const isStale = !state.seriesArchiveMode && !isPending && snapshotState.status === 'telemetry_stale';
+    const isPartial = !state.seriesArchiveMode && !isPending && snapshotState.status === 'degraded';
+    const isPregame = !state.seriesArchiveMode && !isPending && snapshotState.status === 'pregame';
+    const modeLabel = state.seriesArchiveMode
+      ? 'Series archive'
+      : isPending
+        ? 'Result pending'
+        : isStale
+          ? 'Stale context'
+          : isPartial
+            ? 'Partial telemetry'
+            : isPregame
+              ? 'Waiting for gameplay'
+              : 'Live series';
+    const scoreLabel = state.seriesArchiveMode
+      ? 'Archive'
+      : isPending
+        ? 'Pending'
+        : isStale
+          ? 'Stale'
+          : isPartial
+            ? 'Context'
+            : isPregame
+              ? 'Waiting'
+              : 'Live';
+    const ageText = snapshotState.age === null ? '' : `${Math.round(snapshotState.age)}s old · `;
     const scoreDetail = isPending
       ? `Game ${currentNumber} result pending`
-      : `${playedCount} completed · Game ${currentNumber}`;
-    const badgeLabel = state.seriesArchiveMode ? 'Archive view' : isPending ? 'Result pending' : 'Live telemetry';
-    const badgeClass = state.seriesArchiveMode ? 'is-archive' : isPending ? 'is-pending' : 'is-live';
+      : isStale
+        ? `${ageText}Game ${currentNumber}`
+        : isPregame
+          ? `Game ${currentNumber} has not started`
+          : `${playedCount} completed · Game ${currentNumber}`;
+    const badgeLabel = state.seriesArchiveMode
+      ? 'Archive view'
+      : isPending
+        ? 'Result pending'
+        : isStale
+          ? 'Stale frame'
+          : isPartial
+            ? 'Partial telemetry'
+            : isPregame
+              ? 'Waiting for stats'
+              : 'Live telemetry';
+    const badgeClass = state.seriesArchiveMode
+      ? 'is-archive'
+      : isPending || isPartial || isPregame
+        ? 'is-pending'
+        : isStale
+          ? 'is-stale'
+          : 'is-live';
+    const scoreClass = state.seriesArchiveMode
+      ? 'is-archive'
+      : isPending || isPartial || isPregame
+        ? 'is-pending'
+        : isStale
+          ? 'is-stale'
+          : 'is-live';
 
     nav.innerHTML = `
       <div class="series-hero-top">
@@ -253,7 +316,7 @@
             </article>
           </div>
         </div>
-        <div class="series-hero-score ${state.seriesArchiveMode ? 'is-archive' : isPending ? 'is-pending' : 'is-live'}">
+        <div class="series-hero-score ${scoreClass}">
           <span>${scoreLabel}</span>
           <strong>${aScore ?? '—'}–${bScore ?? '—'}</strong>
           <small>${scoreDetail}</small>
@@ -266,21 +329,24 @@
             const game = gameForSlot(availableGames, number, context, activeId);
             const id = String(game?.id || '');
             const selected = Boolean(id) && id === activeId;
-            const isLive = Boolean(id) && id === String(context.liveGameId || '');
+            const currentStale = isStale && selected;
+            const isLive = Boolean(id) && id === String(context.liveGameId || '') && !currentStale;
             const completed = Boolean(game) && hasCompletionEvidence(game);
-            const isWaiting = Boolean(id) && !isLive && !completed && id === String(context.currentGameId || '');
-            const isLocked = !id || (!completed && !isLive && !isWaiting);
-            const label = isLive
-              ? 'Live'
-              : selected && state.seriesArchiveMode
-                ? 'Selected'
-                : completed
-                  ? 'Final'
-                  : isWaiting
-                    ? 'Waiting'
-                    : 'Locked';
+            const isWaiting = Boolean(id) && !isLive && !completed && id === String(context.currentGameId || '') && !currentStale;
+            const isLocked = !id || (!completed && !isLive && !isWaiting && !currentStale);
+            const label = currentStale
+              ? 'Stale'
+              : isLive
+                ? 'Live'
+                : selected && state.seriesArchiveMode
+                  ? 'Selected'
+                  : completed
+                    ? 'Final'
+                    : isWaiting
+                      ? 'Waiting'
+                      : 'Locked';
             const disabled = isWaiting || isLocked;
-            return `<button class="live-series-game series-hero-game ${selected ? 'is-selected' : ''} ${completed ? 'is-complete' : ''} ${isLive ? 'is-live' : ''} ${isWaiting ? 'is-waiting' : ''} ${isLocked ? 'is-locked' : ''}" ${id ? `data-live-series-game-id="${escapeHtml(id)}"` : ''} type="button" role="tab" aria-selected="${selected}" ${disabled ? 'disabled aria-disabled="true"' : ''}>
+            return `<button class="live-series-game series-hero-game ${selected ? 'is-selected' : ''} ${completed ? 'is-complete' : ''} ${isLive ? 'is-live' : ''} ${currentStale ? 'is-stale' : ''} ${isWaiting ? 'is-waiting' : ''} ${isLocked ? 'is-locked' : ''}" ${id ? `data-live-series-game-id="${escapeHtml(id)}"` : ''} type="button" role="tab" aria-selected="${selected}" ${disabled ? 'disabled aria-disabled="true"' : ''}>
               <span>Game ${number}</span>
               <small>${label}</small>
             </button>`;
