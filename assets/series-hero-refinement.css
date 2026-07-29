@@ -167,6 +167,205 @@
   background: linear-gradient(180deg, rgba(255, 153, 72, .08), #06111f) !important;
 }
 
+/* Completed-match history: balanced compact header, full-width BO rail, and quieter framing. */
+.series-hero--history {
+  border-color: rgba(38, 111, 173, .30) !important;
+  background: linear-gradient(180deg, #071426, #050f1d) !important;
+  box-shadow: none !important;
+}
+
+.series-hero--history::after {
+  display: none !important;
+}
+
+.series-hero--history .series-hero-top {
+  grid-template-columns: minmax(0, 1fr) 122px;
+  min-height: 88px;
+  gap: 14px;
+  padding: 11px 14px;
+}
+
+.series-hero--history .series-hero-main {
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 18px;
+}
+
+.series-hero--history .series-hero-kicker {
+  min-width: 92px;
+  gap: 7px;
+}
+
+.series-hero--history .series-hero-kicker-icon {
+  width: 25px;
+  height: 25px;
+}
+
+.series-hero--history .series-hero-kicker-icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+.series-hero--history .series-hero-kicker strong {
+  font-size: 8px;
+}
+
+.series-hero--history .series-hero-kicker small {
+  font-size: 6px;
+}
+
+.series-hero--history .series-hero-matchup {
+  grid-template-columns: minmax(0, 1fr) 28px minmax(0, 1fr);
+  gap: 10px;
+}
+
+.series-hero--history .series-hero-team {
+  gap: 9px;
+}
+
+.series-hero--history .series-hero-team.is-left {
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.series-hero--history .series-hero-team.is-right {
+  justify-content: flex-start;
+  text-align: left;
+}
+
+.series-hero--history .series-hero-team-logo {
+  width: 38px;
+  height: 38px;
+  flex-basis: 38px;
+  border-radius: 9px;
+  font-size: 11px;
+}
+
+.series-hero--history .series-hero-team-logo img {
+  padding: 4px;
+}
+
+.series-hero--history .series-hero-team strong {
+  font-size: clamp(14px, 1.35vw, 19px);
+}
+
+.series-hero--history .series-hero-versus {
+  font-size: 10px;
+  text-align: center;
+}
+
+.series-hero--history .series-hero-score {
+  gap: 3px;
+  padding: 8px;
+  border-radius: 10px;
+  background: rgba(3, 14, 27, .72);
+}
+
+.series-hero--history .series-hero-score > span {
+  font-size: 8px;
+}
+
+.series-hero--history .series-hero-score > strong {
+  font-size: clamp(26px, 2.5vw, 34px);
+}
+
+.series-hero--history .series-hero-score > small {
+  font-size: 7px;
+}
+
+.series-hero--history .series-hero-rail {
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  min-height: 62px !important;
+  gap: 12px !important;
+  padding: 8px 14px !important;
+  background: rgba(2, 10, 20, .44) !important;
+}
+
+.series-hero--history .series-hero-games {
+  max-width: none !important;
+  justify-self: stretch !important;
+  gap: 8px !important;
+  padding: 1px 0 !important;
+}
+
+.series-hero--history[data-series-length="1"] .series-hero-games {
+  grid-template-columns: minmax(150px, 220px) !important;
+  justify-content: start !important;
+}
+
+.series-hero--history[data-series-length="2"] .series-hero-games {
+  grid-template-columns: repeat(2, minmax(120px, 1fr)) !important;
+  max-width: none !important;
+}
+
+.series-hero--history[data-series-length="3"] .series-hero-games {
+  grid-template-columns: repeat(3, minmax(104px, 1fr)) !important;
+  max-width: none !important;
+}
+
+.series-hero--history[data-series-length="5"] .series-hero-games {
+  grid-template-columns: repeat(5, minmax(82px, 1fr)) !important;
+}
+
+.series-hero--history .series-hero-games::before {
+  right: 0;
+  left: 0;
+  background: rgba(53, 113, 165, .36);
+}
+
+.series-hero--history .series-hero-game {
+  min-height: 42px !important;
+  gap: 3px !important;
+  padding: 6px 8px !important;
+  border-radius: 8px !important;
+  clip-path: none !important;
+}
+
+.series-hero--history .series-hero-game::after {
+  display: none !important;
+}
+
+.series-hero--history .series-hero-game > span {
+  font-size: 9px !important;
+}
+
+.series-hero--history .series-hero-game > small {
+  font-size: 6px !important;
+}
+
+.series-hero--history .series-hero-badge {
+  min-height: 30px !important;
+  padding: 0 11px !important;
+  font-size: 7px !important;
+}
+
+.series-hero--history .series-hero-badge svg {
+  width: 14px;
+  height: 14px;
+}
+
+.series-hero--history .series-hero-context {
+  min-height: 31px;
+  gap: 7px;
+  padding: 5px 12px;
+  background: rgba(4, 13, 24, .72);
+}
+
+.series-hero--history .series-hero-context-icon {
+  width: 22px;
+  height: 22px;
+}
+
+.series-hero--history .series-hero-context-icon svg {
+  width: 13px;
+  height: 13px;
+}
+
+.series-hero--history .series-hero-context strong,
+.series-hero--history .series-hero-context span {
+  font-size: 7px;
+}
+
 @media (max-width: 1180px) {
   .series-hero--live .series-hero-top {
     grid-template-columns: minmax(0, 1fr) 104px;
@@ -180,25 +379,61 @@
   .series-hero--live .series-hero-actions {
     justify-content: flex-end;
   }
+
+  .series-hero--history .series-hero-main {
+    grid-template-columns: 1fr;
+    gap: 7px;
+  }
+
+  .series-hero--history .series-hero-kicker {
+    min-width: 0;
+  }
 }
 
 @media (max-width: 760px) {
-  .series-hero--live .series-hero-top {
+  .series-hero--live .series-hero-top,
+  .series-hero--history .series-hero-top {
     grid-template-columns: 1fr;
   }
 
-  .series-hero--live .series-hero-score {
+  .series-hero--live .series-hero-score,
+  .series-hero--history .series-hero-score {
     grid-template-columns: auto auto 1fr;
     justify-items: start;
     align-items: center;
     gap: 8px;
   }
 
-  .series-hero--live .series-hero-score::after {
+  .series-hero--live .series-hero-score::after,
+  .series-hero--history .series-hero-score::after {
     display: none;
   }
 
-  .series-hero--live .series-hero-score > strong {
+  .series-hero--live .series-hero-score > strong,
+  .series-hero--history .series-hero-score > strong {
     font-size: 24px;
+  }
+
+  .series-hero--history .series-hero-matchup {
+    grid-template-columns: 1fr;
+    gap: 7px;
+  }
+
+  .series-hero--history .series-hero-team.is-left,
+  .series-hero--history .series-hero-team.is-right {
+    justify-content: flex-start;
+    text-align: left;
+  }
+
+  .series-hero--history .series-hero-versus {
+    display: none;
+  }
+
+  .series-hero--history .series-hero-rail {
+    grid-template-columns: 1fr !important;
+  }
+
+  .series-hero--history .series-hero-badge {
+    justify-self: start;
   }
 }
