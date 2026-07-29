@@ -5,17 +5,19 @@ import { readFile } from 'node:fs/promises';
 const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
 const css = await readFile(new URL('../assets/series-scoreboard-v3.css', import.meta.url), 'utf8');
 const symmetry = await readFile(new URL('../assets/scoreboard-symmetry.css', import.meta.url), 'utf8');
+const trim = await readFile(new URL('../assets/scoreboard-detail-trim.css', import.meta.url), 'utf8');
 const script = await readFile(new URL('../assets/series-scoreboard-v3.js', import.meta.url), 'utf8');
 
-test('series scoreboard loads before the final symmetry and overview layers', () => {
+test('series scoreboard loads before the final symmetry, overview, and detail layers', () => {
   const previous = html.indexOf('player-comparison-board.css');
   const scoreboard = html.indexOf('series-scoreboard-v3.css');
   const symmetryIndex = html.indexOf('scoreboard-symmetry.css');
   const overviewIndex = html.indexOf('overview-panel-v2.css');
-  assert.ok(previous >= 0 && scoreboard > previous && symmetryIndex > scoreboard && overviewIndex > symmetryIndex);
-  assert.match(html, /data-ui-build="overview-panel-v2-runtime-1"/);
-  assert.match(html, /series-scoreboard-v3\.js\?v=20260730-2/);
-  assert.match(html, /scoreboard-symmetry\.css\?v=20260730-1/);
+  const trimIndex = html.indexOf('scoreboard-detail-trim.css');
+  assert.ok(previous >= 0 && scoreboard > previous && symmetryIndex > scoreboard && overviewIndex > symmetryIndex && trimIndex > overviewIndex);
+  assert.match(html, /data-ui-build="scoreboard-detail-trim-1"/);
+  assert.match(html, /series-scoreboard-v3\.js\?v=20260730-3/);
+  assert.match(html, /scoreboard-detail-trim\.css\?v=20260730-1/);
   assert.doesNotMatch(html, /series-header-layout-v2\.js\?v=20260730-1/);
 });
 
@@ -46,4 +48,10 @@ test('current-game scoreboard mirrors kills beside the center clock', () => {
   assert.match(symmetry, /analysis-v2-scoreboard[\s\S]*grid-template-columns:\s*minmax\(0, 1fr\) 144px minmax\(0, 1fr\)/);
   assert.match(symmetry, /analysis-v2-team\.is-blue[\s\S]*grid-template-areas:\s*"logo copy kills"/);
   assert.match(symmetry, /analysis-v2-team\.is-red[\s\S]*grid-template-areas:\s*"kills copy logo"/);
+});
+
+test('secondary details do not compete with the team names', () => {
+  assert.match(trim, /analysis-v2-team[\s\S]*analysis-v2-team-copy > small[\s\S]*display:\s*none\s*!important/);
+  assert.match(trim, /series-scoreboard-team-result[\s\S]*font-size:\s*9px\s*!important/);
+  assert.match(script, /`\$\{wins\} win\$\{wins === '1' \? '' : 's'\}`/);
 });
