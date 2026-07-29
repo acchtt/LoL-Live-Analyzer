@@ -142,7 +142,6 @@
     return `<article class="analysis-v2-objective">
       <span>${escapeHtml(label)}</span>
       <div><strong>${escapeHtml(String(blueValue))}</strong><i>–</i><strong>${escapeHtml(String(redValue))}</strong></div>
-      <small>Blue · Red</small>
     </article>`;
   }
 
@@ -150,22 +149,22 @@
     if (historical) {
       return `<div class="analysis-v2-odds-placeholder is-archive" data-odds-placeholder>
         <span>Bookmaker markets</span>
-        <h3>Live odds closed</h3>
-        <p>This game is complete. RiftPulse does not present current markets as historical odds.</p>
+        <h3>Markets closed</h3>
+        <p>This completed game does not show current bookmaker prices as historical odds.</p>
       </div>`;
     }
 
     return `<div class="analysis-v2-odds-placeholder" data-odds-placeholder>
-      <span>Bookmaker markets</span>
-      <h3>Waiting for matched odds</h3>
-      <p>Current markets will appear here when the private odds bridge matches this event.</p>
+      <span>Live odds</span>
+      <h3>Odds unavailable</h3>
+      <p>The private bookmaker bridge has not matched this Riot game yet.</p>
     </div>`;
   }
 
   function qualityLabel(snapshot, historical, safeForLive) {
     if (historical) return 'Verified archive';
-    if (safeForLive) return 'Verified live frame';
-    if (snapshot.status === 'degraded') return 'Live map data';
+    if (safeForLive) return 'Verified live';
+    if (snapshot.status === 'degraded') return 'Delayed data';
     if (snapshot.status === 'telemetry_stale') return 'Stale context';
     return 'Context only';
   }
@@ -175,6 +174,15 @@
     if (snapshot.status === 'telemetry_stale') return 'Last available map totals';
     if (safeForLive) return 'Current map totals';
     return 'Available map totals';
+  }
+
+  function lineupHeader(teamName, sideLabel) {
+    return `<header>
+      <div><strong>${escapeHtml(teamName)}</strong><span>${escapeHtml(sideLabel)}</span></div>
+      <div class="analysis-v2-lineup-columns" aria-hidden="true">
+        <span>KDA</span><span>CS</span><span>Gold</span><span>Items</span>
+      </div>
+    </header>`;
   }
 
   renderGame = function rearrangedAnalysisRender(snapshot) {
@@ -208,6 +216,31 @@
         ? 'Gold is even'
         : `${leadingTeam} +${formatted(Math.abs(goldDiff))}`;
 
+    const overviewSection = `<section class="analysis-v2-state" aria-label="Game overview">
+      <header class="analysis-v2-state-header">
+        <div class="analysis-v2-state-heading">
+          <span>Game overview</span>
+          <h3>${escapeHtml(stateHeading(snapshot, historical, safeForLive))}</h3>
+        </div>
+        <div class="analysis-v2-state-legend" aria-label="Stat order">
+          <span class="is-blue">Blue</span><i aria-hidden="true">·</i><span class="is-red">Red</span>
+        </div>
+      </header>
+      <div class="analysis-v2-state-content">
+        <div class="analysis-v2-lead">
+          <span>Gold advantage</span>
+          <strong>${escapeHtml(leadText)}</strong>
+          <small>${escapeHtml(String(formatted(blue.gold)))} – ${escapeHtml(String(formatted(red.gold)))} team gold</small>
+        </div>
+        <div class="analysis-v2-objectives">
+          ${objectiveCard('Towers', integer(blue.towers), integer(red.towers))}
+          ${objectiveCard('Dragons', count(blue.dragons), count(red.dragons))}
+          ${objectiveCard('Barons', integer(blue.barons), integer(red.barons))}
+          ${objectiveCard('Inhibitors', integer(blue.inhibitors), integer(red.inhibitors))}
+        </div>
+      </div>
+    </section>`;
+
     const oddsSection = `<section id="analysisOddsSlot" class="analysis-v2-odds" data-odds-mode="${historical ? 'archive' : 'live'}" aria-label="Bookmaker odds">
       ${oddsPlaceholder(historical)}
     </section>`;
@@ -233,42 +266,16 @@
         ${teamCard(red, 'Red side', true)}
       </section>
 
+      ${overviewSection}
       ${oddsSection}
-
-      <section class="analysis-v2-state" aria-label="Game overview">
-        <header class="analysis-v2-state-header">
-          <div class="analysis-v2-state-heading">
-            <span>Game overview</span>
-            <h3>${escapeHtml(stateHeading(snapshot, historical, safeForLive))}</h3>
-          </div>
-          <div class="analysis-v2-state-legend" aria-label="Stat order">
-            <span class="is-blue">Blue</span>
-            <i aria-hidden="true">·</i>
-            <span class="is-red">Red</span>
-          </div>
-        </header>
-        <div class="analysis-v2-state-content">
-          <div class="analysis-v2-lead">
-            <span>Gold advantage</span>
-            <strong>${escapeHtml(leadText)}</strong>
-            <small>${escapeHtml(String(formatted(blue.gold)))} – ${escapeHtml(String(formatted(red.gold)))} team gold</small>
-          </div>
-          <div class="analysis-v2-objectives">
-            ${objectiveCard('Towers', integer(blue.towers), integer(red.towers))}
-            ${objectiveCard('Dragons', count(blue.dragons), count(red.dragons))}
-            ${objectiveCard('Barons', integer(blue.barons), integer(red.barons))}
-            ${objectiveCard('Inhibitors', integer(blue.inhibitors), integer(red.inhibitors))}
-          </div>
-        </div>
-      </section>
 
       <section class="analysis-v2-lineups players" aria-label="Player lineups">
         <article class="analysis-v2-lineup">
-          <header><strong>${escapeHtml(blue.name || 'Blue side')}</strong><span>Blue players</span></header>
+          ${lineupHeader(blue.name || 'Blue side', 'Blue team')}
           <div class="player-column">${playerRows(blue.players || [])}</div>
         </article>
         <article class="analysis-v2-lineup">
-          <header><strong>${escapeHtml(red.name || 'Red side')}</strong><span>Red players</span></header>
+          ${lineupHeader(red.name || 'Red side', 'Red team')}
           <div class="player-column">${playerRows(red.players || [])}</div>
         </article>
       </section>
