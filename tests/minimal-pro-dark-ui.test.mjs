@@ -10,6 +10,7 @@ const compact = await readFile(new URL('../assets/compact-series-scoreboard.css'
 const readable = await readFile(new URL('../assets/readable-density.css', import.meta.url), 'utf8');
 const comfortable = await readFile(new URL('../assets/comfortable-reading-layout.css', import.meta.url), 'utf8');
 const controlDock = await readFile(new URL('../assets/series-control-dock.css', import.meta.url), 'utf8');
+const headerV2 = await readFile(new URL('../assets/series-header-layout-v2.css', import.meta.url), 'utf8');
 const analysis = await readFile(new URL('../assets/analysis-workspace-v2.js', import.meta.url), 'utf8');
 const players = await readFile(new URL('../assets/live-player-ui.js', import.meta.url), 'utf8');
 const drawer = await readFile(new URL('../assets/data-drawer.js', import.meta.url), 'utf8');
@@ -24,6 +25,7 @@ test('minimal pro dark styles load in final cache-safe order', () => {
   const readableIndex = html.indexOf('readable-density.css');
   const comfortableIndex = html.indexOf('comfortable-reading-layout.css');
   const controlDockIndex = html.indexOf('series-control-dock.css');
+  const headerV2Index = html.indexOf('series-header-layout-v2.css');
   assert.ok(
     heroIndex >= 0 &&
     minimalIndex > heroIndex &&
@@ -32,13 +34,16 @@ test('minimal pro dark styles load in final cache-safe order', () => {
     compactIndex > polishIndex &&
     readableIndex > compactIndex &&
     comfortableIndex > readableIndex &&
-    controlDockIndex > comfortableIndex
+    controlDockIndex > comfortableIndex &&
+    headerV2Index > controlDockIndex
   );
   assert.match(html, /series-control-dock\.css\?v=20260730-2/);
-  assert.match(html, /<body class="minimal-pro-dark-v2" data-ui-build="series-layout-repair-1">/);
+  assert.match(html, /series-header-layout-v2\.css\?v=20260730-1/);
+  assert.match(html, /<body class="minimal-pro-dark-v2" data-ui-build="series-header-layout-v2-1">/);
   assert.match(css, /RIFTPULSE_MINIMAL_PRO_DARK_V2/);
   assert.match(css, /--rp-bg:\s*#0b0f15/);
   assert.match(fixes, /data-drawer:not\(\.is-open\) \.feed-body/);
+  assert.match(headerV2, /series-hero\[data-header-layout-v2="true"\]/);
 });
 
 test('machine-readable feed is collapsed into a bottom drawer', () => {
