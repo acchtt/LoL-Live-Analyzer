@@ -1,0 +1,250 @@
+/* Final interaction and game-overview polish for Minimal Pro Dark v2. */
+
+body.minimal-pro-dark-v2 :where(
+  button,
+  .match-card,
+  .active-league-filter,
+  .series-hero-game,
+  .bookmaker-selection,
+  .live-series-return
+) {
+  transition:
+    background-color .14s ease,
+    border-color .14s ease,
+    color .14s ease,
+    opacity .14s ease !important;
+}
+
+body.minimal-pro-dark-v2 :where(
+  button,
+  .match-card,
+  .active-league-filter,
+  .series-hero-game,
+  .bookmaker-selection,
+  .live-series-return
+):focus-visible {
+  outline: 2px solid rgba(91, 141, 239, .9) !important;
+  outline-offset: 2px !important;
+  box-shadow: none !important;
+}
+
+body.minimal-pro-dark-v2 :where(button, .series-hero-game, .live-series-return):not(:disabled),
+body.minimal-pro-dark-v2 .match-card,
+body.minimal-pro-dark-v2 .active-league-filter,
+body.minimal-pro-dark-v2 .bookmaker-selection {
+  cursor: pointer;
+}
+
+body.minimal-pro-dark-v2 :where(button, .series-hero-game):disabled {
+  cursor: default !important;
+}
+
+@media (hover: hover) {
+  body.minimal-pro-dark-v2 .ghost-button:hover:not(:disabled),
+  body.minimal-pro-dark-v2 .compact-action:hover:not(:disabled),
+  body.minimal-pro-dark-v2 .schedule-tab:hover:not(:disabled):not(.active),
+  body.minimal-pro-dark-v2 .sport-option:hover:not(:disabled):not(.is-active),
+  body.minimal-pro-dark-v2 .active-league-filter:hover,
+  body.minimal-pro-dark-v2 .series-hero-game:hover:not(:disabled):not(.is-selected),
+  body.minimal-pro-dark-v2 .live-series-return:hover:not(:disabled),
+  body.minimal-pro-dark-v2 .data-drawer-toggle:hover:not(:disabled),
+  body.minimal-pro-dark-v2 .bookmaker-selection:hover,
+  body.minimal-pro-dark-v2 .match-card:hover:not(.active) {
+    border-color: #3b4758 !important;
+    background: #18212d !important;
+    color: var(--rp-text) !important;
+    box-shadow: none !important;
+  }
+
+  body.minimal-pro-dark-v2 .schedule-tab.active:hover,
+  body.minimal-pro-dark-v2 .sport-option.is-active:hover,
+  body.minimal-pro-dark-v2 .series-hero-game.is-selected:hover,
+  body.minimal-pro-dark-v2 .match-card.active:hover {
+    border-color: rgba(91, 141, 239, .82) !important;
+    background: rgba(91, 141, 239, .14) !important;
+    color: var(--rp-text) !important;
+    box-shadow: none !important;
+  }
+
+  body.minimal-pro-dark-v2 .series-hero-game.is-live:hover:not(:disabled) {
+    border-color: rgba(50, 201, 120, .65) !important;
+    background: rgba(50, 201, 120, .08) !important;
+  }
+
+  body.minimal-pro-dark-v2 .series-hero-game.is-waiting:hover:not(:disabled),
+  body.minimal-pro-dark-v2 .series-hero-game.is-stale:hover:not(:disabled) {
+    border-color: rgba(233, 162, 59, .64) !important;
+    background: rgba(233, 162, 59, .08) !important;
+  }
+}
+
+body.minimal-pro-dark-v2 .match-card,
+body.minimal-pro-dark-v2 .schedule-tab,
+body.minimal-pro-dark-v2 .sport-option,
+body.minimal-pro-dark-v2 .series-hero-game,
+body.minimal-pro-dark-v2 .ghost-button,
+body.minimal-pro-dark-v2 .compact-action,
+body.minimal-pro-dark-v2 .active-league-filter,
+body.minimal-pro-dark-v2 .bookmaker-selection,
+body.minimal-pro-dark-v2 .data-drawer-toggle {
+  transform: none !important;
+  text-shadow: none !important;
+}
+
+/* One clean hierarchy for the map-state summary. */
+body.minimal-pro-dark-v2 .analysis-v2-state {
+  overflow: hidden !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-state-header {
+  min-height: 50px !important;
+  padding: 10px 12px !important;
+  align-items: center !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-state-heading {
+  min-width: 0;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-state-heading > span {
+  display: block;
+  margin: 0 0 4px !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-state-heading h3 {
+  margin: 0 !important;
+  font-size: 14px !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-state-legend {
+  display: inline-flex !important;
+  min-height: 28px;
+  align-items: center;
+  gap: 7px !important;
+  padding: 0 9px;
+  border: 1px solid var(--rp-divider);
+  border-radius: 6px;
+  background: var(--rp-panel-soft);
+  font-size: 9px !important;
+  white-space: nowrap;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-state-legend .is-blue,
+body.minimal-pro-dark-v2 .analysis-v2-lead small .is-blue,
+body.minimal-pro-dark-v2 .analysis-v2-objective strong.is-blue {
+  color: var(--rp-blue-side) !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-state-legend .is-red,
+body.minimal-pro-dark-v2 .analysis-v2-lead small .is-red,
+body.minimal-pro-dark-v2 .analysis-v2-objective strong.is-red {
+  color: var(--rp-red-side) !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-state-content {
+  display: block !important;
+  padding: 10px !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-overview-grid {
+  display: grid !important;
+  grid-template-columns: minmax(250px, 1.7fr) repeat(4, minmax(105px, 1fr));
+  gap: 8px !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-lead,
+body.minimal-pro-dark-v2 .analysis-v2-objective {
+  display: grid !important;
+  min-height: 84px !important;
+  align-content: center !important;
+  gap: 7px !important;
+  padding: 11px 12px !important;
+  border: 1px solid var(--rp-divider) !important;
+  border-radius: 7px !important;
+  background: var(--rp-panel-soft) !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-lead {
+  grid-template-rows: auto auto auto;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-lead > strong {
+  overflow: hidden;
+  margin: 0 !important;
+  color: var(--rp-text) !important;
+  font-size: 17px !important;
+  line-height: 1.2 !important;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-lead > small {
+  display: flex !important;
+  align-items: center;
+  gap: 6px;
+  color: var(--rp-faint) !important;
+  font-size: 9px !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-lead > small i {
+  color: var(--rp-faint) !important;
+  font-style: normal;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-objective {
+  grid-template-rows: auto 1fr auto;
+  text-align: center;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-objective > span {
+  justify-self: start;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-objective > div {
+  display: grid !important;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 5px !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-objective > div strong {
+  font-size: 19px !important;
+  line-height: 1 !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-objective > div i {
+  color: var(--rp-faint) !important;
+  font-style: normal;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-objective > small {
+  display: flex !important;
+  justify-content: space-between;
+  color: var(--rp-faint) !important;
+  font-size: 8px !important;
+  text-transform: uppercase;
+}
+
+@media (max-width: 1280px) {
+  body.minimal-pro-dark-v2 .analysis-v2-overview-grid {
+    grid-template-columns: repeat(4, minmax(100px, 1fr));
+  }
+
+  body.minimal-pro-dark-v2 .analysis-v2-lead {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 760px) {
+  body.minimal-pro-dark-v2 .analysis-v2-state-header {
+    align-items: flex-start !important;
+  }
+
+  body.minimal-pro-dark-v2 .analysis-v2-overview-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  body.minimal-pro-dark-v2 .analysis-v2-lead {
+    grid-column: 1 / -1;
+  }
+}
