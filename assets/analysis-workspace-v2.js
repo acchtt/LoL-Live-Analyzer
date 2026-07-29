@@ -13,21 +13,30 @@
       .replaceAll("'", '&#039;');
   }
 
-  function number(value, fallback = 0) {
+  function finiteNumber(value) {
+    if (value === null || value === undefined || value === '') return null;
     const parsed = Number(value);
-    return Number.isFinite(parsed) ? parsed : fallback;
+    return Number.isFinite(parsed) ? parsed : null;
   }
 
-  function integer(value) {
-    return Math.round(number(value));
+  function number(value, fallback = 0) {
+    const parsed = finiteNumber(value);
+    return parsed === null ? fallback : parsed;
   }
 
-  function formatted(value) {
-    return number(value).toLocaleString();
+  function integer(value, fallback = '—') {
+    const parsed = finiteNumber(value);
+    return parsed === null ? fallback : Math.round(parsed);
+  }
+
+  function formatted(value, fallback = '—') {
+    const parsed = finiteNumber(value);
+    return parsed === null ? fallback : parsed.toLocaleString('en-US');
   }
 
   function count(value) {
-    return Array.isArray(value) ? value.length : integer(value);
+    if (Array.isArray(value)) return value.length;
+    return integer(value);
   }
 
   function initials(name = '') {
@@ -70,6 +79,11 @@
     clearInterval(analysisClockTimer);
     analysisClockTimer = null;
 
+    if (typeof globalThis.RiftPulsePlayerUI?.configureClock === 'function') {
+      globalThis.RiftPulsePlayerUI.configureClock(snapshot);
+      return;
+    }
+
     const clock = gameContent.querySelector('.analysis-v2-clock');
     if (!clock) return;
 
@@ -79,10 +93,12 @@
       : parseClock(snapshot.clock);
 
     if (!Number.isFinite(initialSeconds)) {
-      clock.textContent = snapshot.clock || '—';
+      clock.textContent = '—';
+      clock.title = 'Riot did not provide a reliable game clock for this frame.';
       return;
     }
 
+    const frozen = historical || snapshot.status === 'telemetry_stale' || snapshot.source?.live === false;
     const frameMs = Date.parse(snapshot.source?.frameTimestamp || snapshot.updatedAt || '') || Date.now();
     const paint = () => {
       if (!clock.isConnected) {
@@ -90,12 +106,12 @@
         analysisClockTimer = null;
         return;
       }
-      const elapsed = historical ? 0 : Math.max(0, (Date.now() - frameMs) / 1000);
+      const elapsed = frozen ? 0 : Math.max(0, (Date.now() - frameMs) / 1000);
       clock.textContent = formatClock(initialSeconds + elapsed);
     };
 
     paint();
-    if (!historical) analysisClockTimer = setInterval(paint, 1000);
+    if (!frozen) analysisClockTimer = setInterval(paint, 1000);
   }
 
   function seriesScore(snapshot) {
@@ -116,9 +132,9 @@
       <div class="analysis-v2-team-copy">
         <span>${escapeHtml(side)}</span>
         <h3>${escapeHtml(team.name || side)}</h3>
-        <small>${formatted(team.gold)} gold</small>
+        <small>${escapeHtml(String(formatted(team.gold)))} gold</small>
       </div>
-      <strong class="analysis-v2-team-kills">${integer(team.kills)}</strong>
+      <strong class="analysis-v2-team-kills">${escapeHtml(String(integer(team.kills)))}</strong>
     </article>`;
   }
 
@@ -170,10 +186,27 @@
     const historical = state.selectedMatchState === 'completed' || snapshot.match?.state === 'finished';
     const league = snapshot.match?.league || event?.league?.name || event?.league?.slug || 'LoL Esports';
     const gameNumber = snapshot.match?.gameNumber || '?';
-    const goldDiff = number(snapshot.differences?.gold, number(blue.gold) - number(red.gold));
+    const blueGold = finiteNumber(blue.gold);
+    const redGold = finiteNumber(red.gold);
+    const reportedGoldDiff = finiteNumber(snapshot.differences?.gold);
+    const goldDiff = reportedGoldDiff !== null
+      ? reportedGoldDiff
+      : blueGold !== null && redGold !== null
+        ? blueGold - redGold
+        : null;
     const safeForLive = !historical && snapshot.status === 'ok' && snapshot.quality?.safeForLiveAnalysis !== false;
-    const leadingTeam = goldDiff > 0 ? (blue.name || 'Blue side') : goldDiff < 0 ? (red.name || 'Red side') : 'Even game';
-    const leadText = goldDiff === 0 ? 'Gold is even' : `${leadingTeam} +${formatted(Math.abs(goldDiff))}`;
+    const leadingTeam = goldDiff === null
+      ? null
+      : goldDiff > 0
+        ? (blue.name || 'Blue side')
+        : goldDiff < 0
+          ? (red.name || 'Red side')
+          : 'Even game';
+    const leadText = goldDiff === null
+      ? 'Gold lead unavailable'
+      : goldDiff === 0
+        ? 'Gold is even'
+        : `${leadingTeam} +${formatted(Math.abs(goldDiff))}`;
 
     const oddsSection = `<section id="analysisOddsSlot" class="analysis-v2-odds" data-odds-mode="${historical ? 'archive' : 'live'}" aria-label="Bookmaker odds">
       ${oddsPlaceholder(historical)}
@@ -218,7 +251,7 @@
           <div class="analysis-v2-lead">
             <span>Gold advantage</span>
             <strong>${escapeHtml(leadText)}</strong>
-            <small>${formatted(blue.gold)} – ${formatted(red.gold)} team gold</small>
+            <small>${escapeHtml(String(formatted(blue.gold)))} – ${escapeHtml(String(formatted(red.gold)))} team gold</small>
           </div>
           <div class="analysis-v2-objectives">
             ${objectiveCard('Towers', integer(blue.towers), integer(red.towers))}
