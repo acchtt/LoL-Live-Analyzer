@@ -3,18 +3,20 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
 const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
-const css = await readFile(new URL('../assets/minimal-pro-dark.css', import.meta.url), 'utf8');
+const css = await readFile(new URL('../assets/minimal-pro-dark-v2.css', import.meta.url), 'utf8');
 const analysis = await readFile(new URL('../assets/analysis-workspace-v2.js', import.meta.url), 'utf8');
 const players = await readFile(new URL('../assets/live-player-ui.js', import.meta.url), 'utf8');
 const drawer = await readFile(new URL('../assets/data-drawer.js', import.meta.url), 'utf8');
 
-test('minimal pro dark stylesheet is the final visual override', () => {
+test('minimal pro dark v2 stylesheet is the final cache-safe visual override', () => {
   const heroIndex = html.indexOf('series-hero-refinement.css');
-  const minimalIndex = html.indexOf('minimal-pro-dark.css');
+  const minimalIndex = html.indexOf('minimal-pro-dark-v2.css');
   assert.ok(heroIndex >= 0 && minimalIndex > heroIndex);
-  assert.match(css, /--bg:\s*#090d14/);
-  assert.match(css, /grid-template-areas:[\s\S]*"schedule game"[\s\S]*"feed feed"/);
-  assert.match(css, /\.series-hero-context\s*\{\s*display:\s*none\s*!important;/);
+  assert.match(html, /<body class="minimal-pro-dark-v2" data-ui-build="minimal-pro-dark-v2">/);
+  assert.match(css, /RIFTPULSE_MINIMAL_PRO_DARK_V2/);
+  assert.match(css, /--rp-bg:\s*#0b0f15/);
+  assert.match(css, /grid-template-areas:\s*"schedule game"\s*"feed feed"/);
+  assert.match(css, /body\.minimal-pro-dark-v2 \.series-hero-context\s*\{\s*display:\s*none\s*!important;/);
 });
 
 test('machine-readable feed is collapsed into a bottom drawer', () => {
