@@ -34,7 +34,8 @@ test('minimal pro dark styles load in final cache-safe order', () => {
     comfortableIndex > readableIndex &&
     controlDockIndex > comfortableIndex
   );
-  assert.match(html, /<body class="minimal-pro-dark-v2" data-ui-build="series-control-dock-1">/);
+  assert.match(html, /series-control-dock\.css\?v=20260730-2/);
+  assert.match(html, /<body class="minimal-pro-dark-v2" data-ui-build="series-layout-repair-1">/);
   assert.match(css, /RIFTPULSE_MINIMAL_PRO_DARK_V2/);
   assert.match(css, /--rp-bg:\s*#0b0f15/);
   assert.match(fixes, /data-drawer:not\(\.is-open\) \.feed-body/);
@@ -83,12 +84,13 @@ test('series header keeps two rows with larger labels and controls', () => {
   assert.match(comfortable, /series-hero-score > strong[\s\S]*font-size:\s*30px\s*!important/);
 });
 
-test('archive status and return action use a dedicated header dock', () => {
-  assert.match(controlDock, /series-hero\s*\{[\s\S]*grid-template-columns:\s*minmax\(0, 1fr\) 176px/);
-  assert.match(controlDock, /series-hero-rail\s*\{[\s\S]*display:\s*contents/);
+test('archive controls share a balanced toolbar with the game tabs', () => {
+  assert.match(controlDock, /series-hero\s*\{[\s\S]*display:\s*block/);
+  assert.match(controlDock, /series-hero-rail\s*\{[\s\S]*grid-template-columns:\s*minmax\(0, 1fr\) auto/);
+  assert.match(controlDock, /series-hero-games[\s\S]*grid-column:\s*1/);
   assert.match(controlDock, /series-hero-actions,[\s\S]*history-archive-badge[\s\S]*grid-column:\s*2/);
-  assert.match(controlDock, /series-hero-games[\s\S]*grid-column:\s*1 \/ -1/);
-  assert.match(controlDock, /live-series-return[\s\S]*width:\s*100%/);
+  assert.match(controlDock, /live-series-return[\s\S]*width:\s*auto/);
+  assert.match(controlDock, /game-content > \.hero-empty[\s\S]*max-width:\s*none/);
 });
 
 test('game overview wraps into a spacious two-row layout', () => {
