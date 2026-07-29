@@ -7,12 +7,13 @@ const css = await readFile(new URL('../assets/series-scoreboard-v3.css', import.
 const symmetry = await readFile(new URL('../assets/scoreboard-symmetry.css', import.meta.url), 'utf8');
 const script = await readFile(new URL('../assets/series-scoreboard-v3.js', import.meta.url), 'utf8');
 
-test('series scoreboard loads before the final symmetry layer', () => {
+test('series scoreboard loads before the final symmetry and overview layers', () => {
   const previous = html.indexOf('player-comparison-board.css');
   const scoreboard = html.indexOf('series-scoreboard-v3.css');
   const symmetryIndex = html.indexOf('scoreboard-symmetry.css');
-  assert.ok(previous >= 0 && scoreboard > previous && symmetryIndex > scoreboard);
-  assert.match(html, /data-ui-build="scoreboard-symmetry-1"/);
+  const overviewIndex = html.indexOf('overview-panel-v2.css');
+  assert.ok(previous >= 0 && scoreboard > previous && symmetryIndex > scoreboard && overviewIndex > symmetryIndex);
+  assert.match(html, /data-ui-build="overview-panel-v2-1"/);
   assert.match(html, /series-scoreboard-v3\.js\?v=20260730-2/);
   assert.match(html, /scoreboard-symmetry\.css\?v=20260730-1/);
   assert.doesNotMatch(html, /series-header-layout-v2\.js\?v=20260730-1/);
