@@ -5,7 +5,7 @@
   const style = document.createElement('style');
   style.dataset.riftpulseSeriesHistory = 'all-games';
   style.textContent = `
-    .history-game-nav { display: flex !important; }
+    .history-game-nav { display: grid !important; }
     .history-summary-meta::after { content: none !important; display: none !important; }
   `;
   document.head.appendChild(style);
@@ -30,6 +30,18 @@
   function gameNumber(game, index) {
     const parsed = Number(game?.number);
     return Number.isInteger(parsed) && parsed > 0 ? parsed : index + 1;
+  }
+
+  function seriesLength(event = {}, games = []) {
+    const configured = Number(event?.match?.strategy?.count);
+    if ([1, 2, 3, 5].includes(configured)) return configured;
+
+    const highestNumber = games.reduce(
+      (highest, game, index) => Math.max(highest, gameNumber(game, index)),
+      0
+    );
+    if ([1, 2, 3, 5].includes(highestNumber)) return highestNumber;
+    return Math.max(1, Math.min(5, highestNumber || games.length || 1));
   }
 
   function hasCompletionEvidence(game) {
@@ -70,30 +82,40 @@
     const a = teams[0] || {};
     const b = teams[1] || {};
     const games = state.historyMatch.games || [];
+    const format = seriesLength(event, games);
     const aScore = finiteScore(a);
     const bScore = finiteScore(b);
+    const gameByNumber = new Map(games.map((game, index) => [gameNumber(game, index), game]));
     const summary = document.createElement('section');
     summary.id = 'historySeriesSummary';
     summary.className = 'history-series-summary';
+    summary.dataset.seriesLength = String(format);
     summary.innerHTML = `
       <div class="history-summary-heading">
-        <div><p class="eyebrow">Match history</p><h2>${escapeHtml(a.name || 'Team 1')} vs ${escapeHtml(b.name || 'Team 2')}</h2></div>
+        <div><p class="eyebrow">Match history · BO${format}</p><h2>${escapeHtml(a.name || 'Team 1')} <span>vs</span> ${escapeHtml(b.name || 'Team 2')}</h2></div>
         <div class="history-summary-meta"><strong>FINAL ${aScore ?? '—'}–${bScore ?? '—'}</strong><span>${games.length} played game${games.length === 1 ? '' : 's'}</span></div>
       </div>
-      <div class="history-game-nav" role="tablist" aria-label="Played games">
-        ${games.map((game, index) => {
-          const id = String(game.id || '');
-          const number = gameNumber(game, index);
-          const selected = id === String(state.selectedGameId);
-          return `<button class="history-game-button ${selected ? 'active' : ''}" data-history-game-id="${escapeHtml(id)}" type="button" role="tab" aria-selected="${selected}">
-            <span>Game ${number}</span><small>${selected ? 'Selected' : 'Open archive'}</small>
-          </button>`;
-        }).join('')}
+      <div class="history-series-track" data-series-length="${format}">
+        <div class="history-game-nav" role="tablist" aria-label="Best of ${format} game navigation">
+          ${Array.from({ length: format }, (_, index) => {
+            const number = index + 1;
+            const game = gameByNumber.get(number) || null;
+            const id = String(game?.id || '');
+            const selected = Boolean(id) && id === String(state.selectedGameId);
+            const available = Boolean(id);
+            const status = selected ? 'Selected' : available ? 'Open archive' : 'Not played';
+            return `<button class="history-game-button ${available ? 'is-complete' : 'is-locked'} ${selected ? 'active' : ''}" ${available ? `data-history-game-id="${escapeHtml(id)}"` : ''} type="button" role="tab" aria-selected="${selected}" ${available ? '' : 'disabled aria-disabled="true"'}>
+              <span>Game ${number}</span><small>${status}</small>
+            </button>`;
+          }).join('')}
+        </div>
+        <span class="history-archive-badge" aria-label="Verified historical archive"><i aria-hidden="true">✓</i> Verified archive</span>
       </div>`;
     gameContent.insertBefore(summary, gameContent.firstChild);
   }
 
   globalThis.renderHistorySeriesSummary = renderSeriesNavigation;
+  globalThis.RiftPulseSeriesHistory = { playedGames, seriesLength };
 
   loadFinishedMatch = async function allGameHistory(id) {
     gameContent.innerHTML = '<div class="empty hero-empty"><strong>Loading match history</strong><span>Finding every played game and its archived final frame…</span></div>';
