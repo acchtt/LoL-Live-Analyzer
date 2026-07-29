@@ -1,0 +1,171 @@
+/* Dedicated series status/action dock: keep game tabs clear and put archive controls in the header. */
+
+body.minimal-pro-dark-v2 .series-hero {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 176px !important;
+  grid-template-rows: auto auto !important;
+  align-items: stretch !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero-top {
+  grid-column: 1 !important;
+  grid-row: 1 !important;
+  width: 100% !important;
+  border-right: 1px solid var(--rp-divider) !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero-rail {
+  display: contents !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero-games {
+  grid-column: 1 / -1 !important;
+  grid-row: 2 !important;
+  box-sizing: border-box;
+  width: 100% !important;
+  padding: 12px 16px !important;
+  border-top: 1px solid var(--rp-divider) !important;
+  background: var(--rp-panel-soft) !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero-actions,
+body.minimal-pro-dark-v2 .history-archive-badge {
+  grid-column: 2 !important;
+  grid-row: 1 !important;
+  align-self: stretch !important;
+  justify-self: stretch !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  padding: 14px 12px !important;
+  border: 0 !important;
+  border-left: 1px solid var(--rp-divider) !important;
+  border-radius: 0 !important;
+  background: var(--rp-panel-soft) !important;
+  box-shadow: none !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero-actions {
+  display: grid !important;
+  align-content: center !important;
+  gap: 10px !important;
+}
+
+body.minimal-pro-dark-v2 .history-archive-badge {
+  display: flex !important;
+  min-height: 0 !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  color: var(--rp-amber) !important;
+  font-size: 11px !important;
+  line-height: 1.2 !important;
+  text-align: center !important;
+  text-transform: uppercase;
+  letter-spacing: .05em !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero-actions .series-hero-badge {
+  display: flex !important;
+  min-height: 24px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  width: 100% !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  font-size: 10px !important;
+  line-height: 1.2 !important;
+  text-align: center !important;
+  text-transform: uppercase;
+  letter-spacing: .05em !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero-actions .series-hero-badge svg,
+body.minimal-pro-dark-v2 .history-archive-badge svg {
+  width: 14px !important;
+  height: 14px !important;
+  flex: 0 0 14px !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero-actions .live-series-return {
+  width: 100% !important;
+  min-height: 40px !important;
+  padding: 0 12px !important;
+  border-color: rgba(91, 141, 239, .62) !important;
+  background: rgba(91, 141, 239, .14) !important;
+  color: #e8efff !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+}
+
+@media (hover: hover) {
+  body.minimal-pro-dark-v2 .series-hero-actions .live-series-return:hover:not(:disabled) {
+    border-color: rgba(91, 141, 239, .9) !important;
+    background: rgba(91, 141, 239, .22) !important;
+  }
+}
+
+@media (max-width: 1180px) {
+  body.minimal-pro-dark-v2 .series-hero {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: auto auto auto !important;
+  }
+
+  body.minimal-pro-dark-v2 .series-hero-top {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    border-right: 0 !important;
+  }
+
+  body.minimal-pro-dark-v2 .series-hero-actions,
+  body.minimal-pro-dark-v2 .history-archive-badge {
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+    border-left: 0 !important;
+    border-top: 1px solid var(--rp-divider) !important;
+  }
+
+  body.minimal-pro-dark-v2 .series-hero-actions {
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    align-items: center !important;
+    padding: 10px 14px !important;
+  }
+
+  body.minimal-pro-dark-v2 .series-hero-actions .series-hero-badge {
+    justify-content: flex-start !important;
+    text-align: left !important;
+  }
+
+  body.minimal-pro-dark-v2 .series-hero-actions .live-series-return {
+    width: auto !important;
+    min-width: 136px !important;
+  }
+
+  body.minimal-pro-dark-v2 .history-archive-badge {
+    min-height: 44px !important;
+    justify-content: flex-start !important;
+    padding: 10px 14px !important;
+    text-align: left !important;
+  }
+
+  body.minimal-pro-dark-v2 .series-hero-games {
+    grid-row: 3 !important;
+  }
+}
+
+@media (max-width: 620px) {
+  body.minimal-pro-dark-v2 .series-hero-actions {
+    grid-template-columns: 1fr !important;
+  }
+
+  body.minimal-pro-dark-v2 .series-hero-actions .series-hero-badge {
+    justify-content: center !important;
+    text-align: center !important;
+  }
+
+  body.minimal-pro-dark-v2 .series-hero-actions .live-series-return {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+}
