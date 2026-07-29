@@ -86,5 +86,12 @@ test('live series hero is compact and suppresses the duplicate analysis heading'
   assert.match(refinementCss, /\.series-hero--live \.series-hero-top[\s\S]*min-height:\s*76px/);
   assert.match(refinementCss, /\.series-hero--live \+ \.analysis-v2-header/);
   assert.match(refinementCss, /\.series-hero-score\.is-stale/);
-  assert.match(html, /assets\/series-hero-refinement\.css\?v=20260729-1/);
+  assert.match(html, /assets\/series-hero-refinement\.css\?v=20260729-2/);
+});
+
+test('history hero uses a balanced compact matchup and full-width adaptive rail', () => {
+  assert.match(refinementCss, /\.series-hero--history \.series-hero-top[\s\S]*min-height:\s*88px/);
+  assert.match(refinementCss, /\.series-hero--history \.series-hero-main[\s\S]*grid-template-columns:\s*auto minmax\(0, 1fr\)/);
+  assert.match(refinementCss, /\.series-hero--history\[data-series-length=\"3\"\] \.series-hero-games[\s\S]*repeat\(3, minmax\(104px, 1fr\)\)/);
+  assert.match(refinementCss, /\.series-hero--history::after[\s\S]*display:\s*none/);
 });
