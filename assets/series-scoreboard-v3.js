@@ -29,8 +29,8 @@
 
     team.classList.add('series-scoreboard-team', `is-team-${side}`);
     team.replaceChildren();
-    if (side === 'a') team.append(copy, logo);
-    else team.append(logo, copy);
+    if (side === 'a') team.append(logo, copy);
+    else team.append(copy, logo);
   }
 
   function enhanceSeriesScoreboard(hero) {
