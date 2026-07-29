@@ -14,6 +14,7 @@ const headerV2 = await readFile(new URL('../assets/series-header-layout-v2.css',
 const comparisonCss = await readFile(new URL('../assets/player-comparison-board.css', import.meta.url), 'utf8');
 const comparisonJs = await readFile(new URL('../assets/player-comparison-board.js', import.meta.url), 'utf8');
 const seriesScoreboardCss = await readFile(new URL('../assets/series-scoreboard-v3.css', import.meta.url), 'utf8');
+const symmetryCss = await readFile(new URL('../assets/scoreboard-symmetry.css', import.meta.url), 'utf8');
 const seriesScoreboardJs = await readFile(new URL('../assets/series-scoreboard-v3.js', import.meta.url), 'utf8');
 const analysis = await readFile(new URL('../assets/analysis-workspace-v2.js', import.meta.url), 'utf8');
 const players = await readFile(new URL('../assets/live-player-ui.js', import.meta.url), 'utf8');
@@ -32,6 +33,7 @@ test('minimal pro dark styles load in final cache-safe order', () => {
   const headerV2Index = html.indexOf('series-header-layout-v2.css');
   const comparisonIndex = html.indexOf('player-comparison-board.css');
   const seriesScoreboardIndex = html.indexOf('series-scoreboard-v3.css');
+  const symmetryIndex = html.indexOf('scoreboard-symmetry.css');
   assert.ok(
     heroIndex >= 0 &&
     minimalIndex > heroIndex &&
@@ -43,15 +45,17 @@ test('minimal pro dark styles load in final cache-safe order', () => {
     controlDockIndex > comfortableIndex &&
     headerV2Index > controlDockIndex &&
     comparisonIndex > headerV2Index &&
-    seriesScoreboardIndex > comparisonIndex
+    seriesScoreboardIndex > comparisonIndex &&
+    symmetryIndex > seriesScoreboardIndex
   );
   assert.match(html, /series-control-dock\.css\?v=20260730-2/);
   assert.match(html, /series-header-layout-v2\.css\?v=20260730-1/);
   assert.match(html, /player-comparison-board\.css\?v=20260730-1/);
   assert.match(html, /player-comparison-board\.js\?v=20260730-1/);
   assert.match(html, /series-scoreboard-v3\.css\?v=20260730-1/);
-  assert.match(html, /series-scoreboard-v3\.js\?v=20260730-1/);
-  assert.match(html, /<body class="minimal-pro-dark-v2" data-ui-build="series-scoreboard-v3-1">/);
+  assert.match(html, /scoreboard-symmetry\.css\?v=20260730-1/);
+  assert.match(html, /series-scoreboard-v3\.js\?v=20260730-2/);
+  assert.match(html, /<body class="minimal-pro-dark-v2" data-ui-build="scoreboard-symmetry-1">/);
   assert.match(css, /RIFTPULSE_MINIMAL_PRO_DARK_V2/);
   assert.match(css, /--rp-bg:\s*#0b0f15/);
   assert.match(fixes, /data-drawer:not\(\.is-open\) \.feed-body/);
@@ -96,12 +100,15 @@ test('scoreboard uses large readable desktop sizing', () => {
   assert.match(comfortable, /analysis-v2-team-kills[\s\S]*font-size:\s*34px\s*!important/);
 });
 
-test('series scoreboard centers the score and keeps game tabs full width', () => {
-  assert.match(seriesScoreboardJs, /main\.append\(leftTeam, score, rightTeam\)/);
-  assert.match(seriesScoreboardJs, /navigation\.append\(games\)/);
-  assert.match(seriesScoreboardCss, /series-scoreboard-main[\s\S]*grid-template-columns:\s*minmax\(0, 1fr\) 184px minmax\(0, 1fr\)/);
-  assert.match(seriesScoreboardCss, /series-scoreboard-navigation[\s\S]*border-top/);
-  assert.match(seriesScoreboardCss, /series-scoreboard-score > strong[\s\S]*font-size:\s*46px/);
+test('series and current-game scoreboards mirror both sides around the center', () => {
+  assert.match(seriesScoreboardJs, /if \(side === 'a'\) team\.append\(logo, copy\)/);
+  assert.match(seriesScoreboardJs, /else team\.append\(copy, logo\)/);
+  assert.match(symmetryCss, /series-scoreboard-main[\s\S]*grid-template-columns:\s*minmax\(0, 1fr\) 184px minmax\(0, 1fr\)/);
+  assert.match(symmetryCss, /series-scoreboard-team\.is-team-a[\s\S]*grid-template-columns:\s*64px minmax\(0, 1fr\)/);
+  assert.match(symmetryCss, /series-scoreboard-team\.is-team-b[\s\S]*grid-template-columns:\s*minmax\(0, 1fr\) 64px/);
+  assert.match(symmetryCss, /analysis-v2-scoreboard[\s\S]*grid-template-columns:\s*minmax\(0, 1fr\) 144px minmax\(0, 1fr\)/);
+  assert.match(symmetryCss, /analysis-v2-team\.is-blue[\s\S]*grid-template-areas:\s*"logo copy kills"/);
+  assert.match(symmetryCss, /analysis-v2-team\.is-red[\s\S]*grid-template-areas:\s*"kills copy logo"/);
 });
 
 test('game overview wraps into a spacious two-row layout', () => {
