@@ -1,0 +1,535 @@
+/* Unified series scoreboard: clear matchup, central score, compact context, full-width game navigation. */
+
+body.minimal-pro-dark-v2 .series-hero[data-series-scoreboard-v3="true"] {
+  display: block !important;
+  width: 100% !important;
+  overflow: hidden !important;
+  border: 1px solid var(--rp-border) !important;
+  border-radius: 12px !important;
+  background: var(--rp-panel) !important;
+  box-shadow: none !important;
+}
+
+body.minimal-pro-dark-v2 .series-scoreboard-meta {
+  display: grid !important;
+  grid-template-columns: minmax(180px, auto) minmax(0, 1fr) auto !important;
+  min-height: 54px !important;
+  align-items: center !important;
+  gap: 18px !important;
+  padding: 10px 18px !important;
+  border-bottom: 1px solid var(--rp-divider) !important;
+  background: var(--rp-panel-soft) !important;
+}
+
+body.minimal-pro-dark-v2 .series-scoreboard-meta-primary,
+body.minimal-pro-dark-v2 .series-scoreboard-meta-context,
+body.minimal-pro-dark-v2 .series-scoreboard-meta-actions {
+  min-width: 0 !important;
+}
+
+body.minimal-pro-dark-v2 .series-scoreboard-meta .series-hero-kicker {
+  position: static !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+body.minimal-pro-dark-v2 .series-scoreboard-meta .series-hero-kicker-icon {
+  display: grid !important;
+  width: 30px !important;
+  height: 30px !important;
+  flex: 0 0 30px !important;
+  place-items: center !important;
+  border: 1px solid var(--rp-border) !important;
+  border-radius: 8px !important;
+  background: var(--rp-panel-raised) !important;
+  color: var(--rp-muted) !important;
+}
+
+body.minimal-pro-dark-v2 .series-scoreboard-meta .series-hero-kicker-icon svg {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+body.minimal-pro-dark-v2 .series-scoreboard-meta .series-hero-kicker > span:last-child {
+  display: grid !important;
+  gap: 2px !important;
+}
+
+body.minimal-pro-dark-v2 .series-scoreboard-meta .series-hero-kicker strong {
+  color: var(--rp-text) !important;
+  font-size: 11px !important;
+  line-height: 1.2 !important;
+  letter-spacing: .06em !important;
+  text-transform: uppercase !important;
+}
+
+body.minimal-pro-dark-v2 .series-scoreboard-meta .series-hero-kicker small {
+  color: var(--rp-faint) !important;
+  font-size: 10px !important;
+  line-height: 1.2 !important;
+  letter-spacing: .04em !important;
+  text-transform: uppercase !important;
+}
+
+body.minimal-pro-dark-v2 .series-scoreboard-meta-context {
+  display: flex !important;
+  justify-content: center !important;
+}
+
+body.minimal-pro-dark-v2 .series-scoreboard-meta-context .series-hero-context {
+  display: flex !important;
+  width: auto !important;
+  min-height: 0 !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 9px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: var(--rp-muted) !important;
+  font-size: 11px !important;
+  white-space: nowrap !important;
+}
+
+body.minimal-pro-dark-v2 .series-scoreboard-meta-context .series-hero-context-icon {
+  display: none !important;
+}
+
+body.minimal-pro-dark-v2 .series-scoreboard-meta-context .series-hero-context strong {
+  color: var(--rp-text) !important;
+  font-size: 11px !important;
+}
+
+body.minimal-pro-dark-v2 .series-scoreboard-meta-context .series-hero-context i {
+  color: var(--rp-faint) !important;
+  font-style: normal !important;
+}
+
+body.minimal-pro-dark-v2 .series-scoreboard-meta-actions {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 9px !important;
+}
+
+body.minimal-pro-dark-v2 .series-scoreboard-meta-actions .series-hero-actions {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 9px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+body.minimal-pro-dark-v2 .series-scoreboard-meta-actions .series-hero-badge,
+body.minimal-pro-dark-v2 .series-scoreboard-meta-actions .history-archive-badge {
+  display: inline-flex !important;
+  width: auto !important;
+  min-width: 0 !important;
+  min-height: 34px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  margin: 0 !important;
+  padding: 0 11px !important;
+  border: 1px solid rgba(233, 162, 59, .38) !important;
+  border-radius: 7px !important;
+  background: rgba(233, 162, 59, .07) !important;
+  color: var(--rp-amber) !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+  text-transform: uppercase !important;
+  letter-spacing: .05em !important;
+}
+
+body.minimal-pro-dark-v2 .series-scoreboard-meta-actions .series-hero-badge.is-live {
+  border-color: rgba(50, 201, 120, .34) !important;
+  background: rgba(50, 201, 120, .07) !important;
+  color: var(--rp-green) !important;
+}
+
+body.minimal-pro-dark-v2 .series-scoreboard-meta-actions .series-hero-badge svg,
+body.minimal-pro-dark-v2 .series-scoreboard-meta-actions .history-archive-badge svg {
+  width: 14px !important;
+  height: 14px !important;
+  flex: 0 0 14px !important;
+}
+
+body.minimal-pro-dark-v2 .series-scoreboard-meta-actions .live-series-return {
+  width: auto !important;
+  min-width: 126px !important;
+  min-height: 36px !important;
+  padding: 0 14px !important;
+  border: 1px solid rgba(91, 141, 239, .62) !important;
+  border-radius: 7px !important;
+  background: rgba(91, 141, 239, .14) !important;
+  color: #eef3ff !important;
+  font-size: 11px !important;
+  font-weight: 750 !important;
+  white-space: nowrap !important;
+}
+
+body.minimal-pro-dark-v2 .series-scoreboard-main {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 184px minmax(0, 1fr) !important;
+  min-height: 146px !important;
+  align-items: center !important;
+  gap: 24px !important;
+  padding: 22px 28px !important;
+  background: linear-gradient(180deg, rgba(255, 255, 255, .012), transparent) !important;
+}
+
+body.minimal-pro-dark-v2 .series-scoreboard-team {
+  display: flex !important;
+  min-width: 0 !important;
+  align-items: center !important;
+  gap: 16px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+body.minimal-pro-dark-v2 .series-scoreboard-team.is-team-a {
+  justify-content: flex-end !important;
+  text-align: right !important;
+}
+
+body.minimal-pro-dark-v2 .series-scoreboard-team.is-team-b {
+  justify-content: flex-start !important;
+  text-align: left !important;
+}
+
+body.minimal-pro-dark-v2 .series-scoreboard-team .series-hero-team-logo {
+  display: grid !important;
+  width: 62px !important;
+  height: 62px !important;
+  flex: 0 0 62px !important;
+  place-items: center !important;
+  overflow: hidden !important;
+  border: 1px solid var(--rp-border) !important;
+  border-radius: 12px !important;
+  background: var(--rp-panel-raised) !important;
+}
+
+body.minimal-pro-dark-v2 .series-scoreboard-team .series-hero-team-logo img {
+  width: 48px !important;
+  height: 48px !important;
+  object-fit: contain !important;
+}
+
+body.minimal-pro-dark-v2 .series-scoreboard-team-copy {
+  display: grid !important;
+  min-width: 0 !important;
+  gap: 6px !important;
+}
+
+body.minimal-pro-dark-v2 .series-scoreboard-team-copy > strong {
+  overflow: hidden !important;
+  color: var(--rp-text) !important;
+  font-size: clamp(20px, 1.65vw, 28px) !important;
+  font-weight: 750 !important;
+  line-height: 1.12 !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+body.minimal-pro-dark-v2 .series-scoreboard-team-result {
+  color: var(--rp-muted) !important;
+  font-size: 11px !important;
+  line-height: 1.25 !important;
+}
+
+body.minimal-pro-dark-v2 .series-scoreboard-score {
+  position: static !important;
+  display: grid !important;
+  width: 184px !important;
+  min-width: 184px !important;
+  min-height: 102px !important;
+  align-content: center !important;
+  justify-items: center !important;
+  gap: 6px !important;
+  margin: 0 !important;
+  padding: 10px 16px !important;
+  border: 0 !important;
+  border-right: 1px solid var(--rp-divider) !important;
+  border-left: 1px solid var(--rp-divider) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  text-align: center !important;
+}
+
+body.minimal-pro-dark-v2 .series-scoreboard-score > span {
+  color: var(--rp-muted) !important;
+  font-size: 10px !important;
+  font-weight: 750 !important;
+  line-height: 1 !important;
+  letter-spacing: .09em !important;
+  text-transform: uppercase !important;
+}
+
+body.minimal-pro-dark-v2 .series-scoreboard-score > strong {
+  color: var(--rp-text) !important;
+  font-size: 46px !important;
+  font-weight: 800 !important;
+  line-height: .95 !important;
+  letter-spacing: -.045em !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+body.minimal-pro-dark-v2 .series-scoreboard-score > small {
+  max-width: 160px !important;
+  color: var(--rp-muted) !important;
+  font-size: 10px !important;
+  line-height: 1.35 !important;
+  text-align: center !important;
+}
+
+body.minimal-pro-dark-v2 .series-scoreboard-score.is-live > span,
+body.minimal-pro-dark-v2 .series-scoreboard-score.is-live > strong {
+  color: var(--rp-green) !important;
+}
+
+body.minimal-pro-dark-v2 .series-scoreboard-score.is-pending > span,
+body.minimal-pro-dark-v2 .series-scoreboard-score.is-stale > span {
+  color: var(--rp-amber) !important;
+}
+
+body.minimal-pro-dark-v2 .series-scoreboard-navigation {
+  padding: 14px 18px !important;
+  border-top: 1px solid var(--rp-divider) !important;
+  background: var(--rp-panel-soft) !important;
+}
+
+body.minimal-pro-dark-v2 .series-scoreboard-navigation .series-hero-games {
+  display: grid !important;
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  gap: 10px !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero[data-series-scoreboard-v3="true"][data-series-length="1"] .series-hero-games {
+  grid-template-columns: minmax(240px, 380px) !important;
+  justify-content: center !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero[data-series-scoreboard-v3="true"][data-series-length="2"] .series-hero-games {
+  grid-template-columns: repeat(2, minmax(190px, 1fr)) !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero[data-series-scoreboard-v3="true"][data-series-length="3"] .series-hero-games {
+  grid-template-columns: repeat(3, minmax(170px, 1fr)) !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero[data-series-scoreboard-v3="true"][data-series-length="5"] .series-hero-games {
+  grid-template-columns: repeat(5, minmax(130px, 1fr)) !important;
+}
+
+body.minimal-pro-dark-v2 .series-scoreboard-navigation .series-hero-game {
+  min-height: 54px !important;
+  padding: 8px 12px !important;
+  border-radius: 8px !important;
+}
+
+body.minimal-pro-dark-v2 .series-scoreboard-navigation .series-hero-game > span {
+  font-size: 13px !important;
+  line-height: 1.15 !important;
+}
+
+body.minimal-pro-dark-v2 .series-scoreboard-navigation .series-hero-game > small {
+  margin-top: 3px !important;
+  font-size: 9px !important;
+  line-height: 1 !important;
+  letter-spacing: .06em !important;
+}
+
+@media (hover: hover) {
+  body.minimal-pro-dark-v2 .series-scoreboard-meta-actions .live-series-return:hover:not(:disabled) {
+    border-color: rgba(91, 141, 239, .88) !important;
+    background: rgba(91, 141, 239, .22) !important;
+  }
+}
+
+@media (max-width: 1180px) {
+  body.minimal-pro-dark-v2 .series-scoreboard-meta {
+    grid-template-columns: minmax(170px, auto) 1fr auto !important;
+    gap: 12px !important;
+  }
+
+  body.minimal-pro-dark-v2 .series-scoreboard-main {
+    grid-template-columns: minmax(0, 1fr) 154px minmax(0, 1fr) !important;
+    gap: 16px !important;
+    padding: 20px !important;
+  }
+
+  body.minimal-pro-dark-v2 .series-scoreboard-score {
+    width: 154px !important;
+    min-width: 154px !important;
+  }
+
+  body.minimal-pro-dark-v2 .series-scoreboard-team .series-hero-team-logo {
+    width: 54px !important;
+    height: 54px !important;
+    flex-basis: 54px !important;
+  }
+}
+
+@media (max-width: 920px) {
+  body.minimal-pro-dark-v2 .series-scoreboard-meta {
+    grid-template-columns: minmax(0, 1fr) auto !important;
+  }
+
+  body.minimal-pro-dark-v2 .series-scoreboard-meta-context {
+    display: none !important;
+  }
+
+  body.minimal-pro-dark-v2 .series-scoreboard-main {
+    grid-template-columns: minmax(0, 1fr) 126px minmax(0, 1fr) !important;
+    min-height: 126px !important;
+    gap: 12px !important;
+    padding: 18px 14px !important;
+  }
+
+  body.minimal-pro-dark-v2 .series-scoreboard-score {
+    width: 126px !important;
+    min-width: 126px !important;
+    min-height: 88px !important;
+    padding: 8px !important;
+  }
+
+  body.minimal-pro-dark-v2 .series-scoreboard-score > strong {
+    font-size: 38px !important;
+  }
+
+  body.minimal-pro-dark-v2 .series-scoreboard-team {
+    gap: 10px !important;
+  }
+
+  body.minimal-pro-dark-v2 .series-scoreboard-team .series-hero-team-logo {
+    width: 46px !important;
+    height: 46px !important;
+    flex-basis: 46px !important;
+  }
+
+  body.minimal-pro-dark-v2 .series-scoreboard-team .series-hero-team-logo img {
+    width: 38px !important;
+    height: 38px !important;
+  }
+
+  body.minimal-pro-dark-v2 .series-scoreboard-team-copy > strong {
+    font-size: 17px !important;
+  }
+
+  body.minimal-pro-dark-v2 .series-scoreboard-navigation {
+    overflow-x: auto !important;
+  }
+
+  body.minimal-pro-dark-v2 .series-scoreboard-navigation .series-hero-games {
+    grid-template-columns: repeat(var(--series-slots, 3), minmax(150px, 1fr)) !important;
+    min-width: max-content !important;
+  }
+
+  body.minimal-pro-dark-v2 .series-hero[data-series-scoreboard-v3="true"][data-series-length="1"] .series-hero-games {
+    --series-slots: 1;
+  }
+
+  body.minimal-pro-dark-v2 .series-hero[data-series-scoreboard-v3="true"][data-series-length="2"] .series-hero-games {
+    --series-slots: 2;
+  }
+
+  body.minimal-pro-dark-v2 .series-hero[data-series-scoreboard-v3="true"][data-series-length="3"] .series-hero-games {
+    --series-slots: 3;
+  }
+
+  body.minimal-pro-dark-v2 .series-hero[data-series-scoreboard-v3="true"][data-series-length="5"] .series-hero-games {
+    --series-slots: 5;
+  }
+}
+
+@media (max-width: 620px) {
+  body.minimal-pro-dark-v2 .series-scoreboard-meta {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+    padding: 12px 14px !important;
+  }
+
+  body.minimal-pro-dark-v2 .series-scoreboard-meta-actions,
+  body.minimal-pro-dark-v2 .series-scoreboard-meta-actions .series-hero-actions {
+    width: 100% !important;
+    justify-content: stretch !important;
+  }
+
+  body.minimal-pro-dark-v2 .series-scoreboard-meta-actions .series-hero-badge,
+  body.minimal-pro-dark-v2 .series-scoreboard-meta-actions .history-archive-badge,
+  body.minimal-pro-dark-v2 .series-scoreboard-meta-actions .live-series-return {
+    flex: 1 1 auto !important;
+  }
+
+  body.minimal-pro-dark-v2 .series-scoreboard-main {
+    grid-template-columns: minmax(0, 1fr) 92px minmax(0, 1fr) !important;
+    gap: 8px !important;
+    padding: 16px 10px !important;
+  }
+
+  body.minimal-pro-dark-v2 .series-scoreboard-score {
+    width: 92px !important;
+    min-width: 92px !important;
+    border-right: 0 !important;
+    border-left: 0 !important;
+  }
+
+  body.minimal-pro-dark-v2 .series-scoreboard-score > strong {
+    font-size: 32px !important;
+  }
+
+  body.minimal-pro-dark-v2 .series-scoreboard-score > small {
+    display: none !important;
+  }
+
+  body.minimal-pro-dark-v2 .series-scoreboard-team {
+    display: grid !important;
+    justify-items: center !important;
+    gap: 7px !important;
+    text-align: center !important;
+  }
+
+  body.minimal-pro-dark-v2 .series-scoreboard-team.is-team-a,
+  body.minimal-pro-dark-v2 .series-scoreboard-team.is-team-b {
+    justify-content: center !important;
+    text-align: center !important;
+  }
+
+  body.minimal-pro-dark-v2 .series-scoreboard-team .series-hero-team-logo {
+    grid-row: 1 !important;
+    width: 42px !important;
+    height: 42px !important;
+    flex-basis: 42px !important;
+  }
+
+  body.minimal-pro-dark-v2 .series-scoreboard-team-copy {
+    grid-row: 2 !important;
+    justify-items: center !important;
+  }
+
+  body.minimal-pro-dark-v2 .series-scoreboard-team-copy > strong {
+    max-width: 110px !important;
+    font-size: 13px !important;
+  }
+
+  body.minimal-pro-dark-v2 .series-scoreboard-team-result {
+    display: none !important;
+  }
+}
