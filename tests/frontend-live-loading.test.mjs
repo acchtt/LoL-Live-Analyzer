@@ -28,3 +28,13 @@ test('authoritative loader requests advancing frames without replacing lifecycle
   assert.match(source, /state\.lastSnapshot\s*=\s*snapshot/);
   assert.match(source, /\['degraded', 'telemetry_stale'\]/);
 });
+
+test('main analysis panel is a bounded scroll container with compact sizing', async () => {
+  const css = await readFile(new URL('../assets/analysis-priority.css', import.meta.url), 'utf8');
+  const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+
+  assert.match(css, /\.game-panel \.game-content\s*\{[^}]*height:\s*100%\s*!important;[^}]*max-height:\s*100%\s*!important;[^}]*overflow-y:\s*auto\s*!important;/s);
+  assert.match(css, /\.analysis-v2-team\s*\{[^}]*min-height:\s*88px\s*!important;/s);
+  assert.match(css, /\.analysis-v2-lineup \.player-row,[\s\S]*min-height:\s*48px\s*!important;/);
+  assert.match(html, /assets\/analysis-priority\.css\?v=20260729-2/);
+});
