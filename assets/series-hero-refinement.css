@@ -1,0 +1,204 @@
+/* Compact the live-series version of the cinematic hero without changing the history hero. */
+.analysis-v2-shell > .series-hero--live + .analysis-v2-header,
+.analysis-shell > .series-hero--live + .analysis-header {
+  display: none !important;
+}
+
+.series-hero--live {
+  margin-bottom: 10px !important;
+  border-radius: 11px !important;
+  box-shadow: inset 0 1px rgba(255, 255, 255, .02) !important;
+}
+
+.series-hero--live .series-hero-top {
+  grid-template-columns: minmax(0, 1fr) 116px;
+  min-height: 76px;
+  gap: 12px;
+  padding: 10px 12px;
+}
+
+.series-hero--live .series-hero-main {
+  gap: 7px;
+}
+
+.series-hero--live .series-hero-kicker {
+  gap: 7px;
+}
+
+.series-hero--live .series-hero-kicker-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.series-hero--live .series-hero-kicker-icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+.series-hero--live .series-hero-kicker strong {
+  font-size: 8px;
+}
+
+.series-hero--live .series-hero-kicker small {
+  font-size: 6px;
+}
+
+.series-hero--live .series-hero-matchup {
+  gap: 9px;
+}
+
+.series-hero--live .series-hero-team {
+  gap: 8px;
+}
+
+.series-hero--live .series-hero-team-logo {
+  width: 34px;
+  height: 34px;
+  flex-basis: 34px;
+  border-radius: 9px;
+  font-size: 11px;
+}
+
+.series-hero--live .series-hero-team-logo img {
+  padding: 4px;
+}
+
+.series-hero--live .series-hero-team strong {
+  font-size: clamp(14px, 1.25vw, 18px);
+}
+
+.series-hero--live .series-hero-versus {
+  font-size: 11px;
+}
+
+.series-hero--live .series-hero-score {
+  gap: 3px;
+  padding: 8px;
+  border-radius: 10px;
+}
+
+.series-hero--live .series-hero-score > span {
+  font-size: 8px;
+}
+
+.series-hero--live .series-hero-score > strong {
+  font-size: clamp(25px, 2.4vw, 32px);
+}
+
+.series-hero--live .series-hero-score > small {
+  font-size: 7px;
+}
+
+.series-hero--live .series-hero-rail {
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  min-height: 58px !important;
+  gap: 10px !important;
+  padding: 7px 12px !important;
+}
+
+.series-hero--live .series-hero-games {
+  max-width: 680px !important;
+  gap: 8px !important;
+  padding: 1px 12px !important;
+}
+
+.series-hero--live .series-hero-game {
+  min-height: 40px !important;
+  gap: 3px !important;
+  padding: 6px 8px !important;
+  clip-path: polygon(7px 0, calc(100% - 7px) 0, 100% 7px, 100% calc(100% - 7px), calc(100% - 7px) 100%, 7px 100%, 0 calc(100% - 7px), 0 7px);
+}
+
+.series-hero--live .series-hero-game > span {
+  font-size: 9px !important;
+}
+
+.series-hero--live .series-hero-game > small {
+  font-size: 6px !important;
+}
+
+.series-hero--live .series-hero-badge,
+.series-hero--live .live-series-return {
+  min-height: 30px !important;
+  padding: 0 10px !important;
+  font-size: 7px !important;
+}
+
+.series-hero--live .series-hero-badge svg {
+  width: 14px;
+  height: 14px;
+}
+
+.series-hero--live .series-hero-context {
+  min-height: 30px;
+  gap: 7px;
+  padding: 5px 12px;
+}
+
+.series-hero--live .series-hero-context-icon {
+  width: 22px;
+  height: 22px;
+}
+
+.series-hero--live .series-hero-context-icon svg {
+  width: 13px;
+  height: 13px;
+}
+
+.series-hero--live .series-hero-context strong,
+.series-hero--live .series-hero-context span {
+  font-size: 7px;
+}
+
+.series-hero-score.is-stale > span,
+.series-hero-badge.is-stale,
+.series-hero-game.is-stale > small {
+  color: #ffb56b !important;
+}
+
+.series-hero-score.is-stale,
+.series-hero-badge.is-stale {
+  border-color: rgba(255, 181, 107, .38) !important;
+  background: rgba(255, 151, 71, .045) !important;
+}
+
+.series-hero-game.is-stale {
+  border-color: rgba(255, 181, 107, .50) !important;
+  background: linear-gradient(180deg, rgba(255, 153, 72, .08), #06111f) !important;
+}
+
+@media (max-width: 1180px) {
+  .series-hero--live .series-hero-top {
+    grid-template-columns: minmax(0, 1fr) 104px;
+    min-height: 72px;
+  }
+
+  .series-hero--live .series-hero-rail {
+    grid-template-columns: 1fr !important;
+  }
+
+  .series-hero--live .series-hero-actions {
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 760px) {
+  .series-hero--live .series-hero-top {
+    grid-template-columns: 1fr;
+  }
+
+  .series-hero--live .series-hero-score {
+    grid-template-columns: auto auto 1fr;
+    justify-items: start;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .series-hero--live .series-hero-score::after {
+    display: none;
+  }
+
+  .series-hero--live .series-hero-score > strong {
+    font-size: 24px;
+  }
+}
