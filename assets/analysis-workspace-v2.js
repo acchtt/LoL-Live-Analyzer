@@ -141,7 +141,12 @@
   function objectiveCard(label, blueValue, redValue) {
     return `<article class="analysis-v2-objective">
       <span>${escapeHtml(label)}</span>
-      <div><strong>${escapeHtml(String(blueValue))}</strong><i>–</i><strong>${escapeHtml(String(redValue))}</strong></div>
+      <div>
+        <strong class="is-blue">${escapeHtml(String(blueValue))}</strong>
+        <i aria-hidden="true">–</i>
+        <strong class="is-red">${escapeHtml(String(redValue))}</strong>
+      </div>
+      <small><span>Blue</span><span>Red</span></small>
     </article>`;
   }
 
@@ -227,12 +232,16 @@
         </div>
       </header>
       <div class="analysis-v2-state-content">
-        <div class="analysis-v2-lead">
-          <span>Gold advantage</span>
-          <strong>${escapeHtml(leadText)}</strong>
-          <small>${escapeHtml(String(formatted(blue.gold)))} – ${escapeHtml(String(formatted(red.gold)))} team gold</small>
-        </div>
-        <div class="analysis-v2-objectives">
+        <div class="analysis-v2-overview-grid">
+          <article class="analysis-v2-lead">
+            <span>Gold advantage</span>
+            <strong>${escapeHtml(leadText)}</strong>
+            <small>
+              <span class="is-blue">Blue ${escapeHtml(String(formatted(blue.gold)))}</span>
+              <i aria-hidden="true">·</i>
+              <span class="is-red">Red ${escapeHtml(String(formatted(red.gold)))}</span>
+            </small>
+          </article>
           ${objectiveCard('Towers', integer(blue.towers), integer(red.towers))}
           ${objectiveCard('Dragons', count(blue.dragons), count(red.dragons))}
           ${objectiveCard('Barons', integer(blue.barons), integer(red.barons))}
