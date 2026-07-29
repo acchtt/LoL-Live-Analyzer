@@ -13,6 +13,8 @@ const controlDock = await readFile(new URL('../assets/series-control-dock.css', 
 const headerV2 = await readFile(new URL('../assets/series-header-layout-v2.css', import.meta.url), 'utf8');
 const comparisonCss = await readFile(new URL('../assets/player-comparison-board.css', import.meta.url), 'utf8');
 const comparisonJs = await readFile(new URL('../assets/player-comparison-board.js', import.meta.url), 'utf8');
+const seriesScoreboardCss = await readFile(new URL('../assets/series-scoreboard-v3.css', import.meta.url), 'utf8');
+const seriesScoreboardJs = await readFile(new URL('../assets/series-scoreboard-v3.js', import.meta.url), 'utf8');
 const analysis = await readFile(new URL('../assets/analysis-workspace-v2.js', import.meta.url), 'utf8');
 const players = await readFile(new URL('../assets/live-player-ui.js', import.meta.url), 'utf8');
 const drawer = await readFile(new URL('../assets/data-drawer.js', import.meta.url), 'utf8');
@@ -29,6 +31,7 @@ test('minimal pro dark styles load in final cache-safe order', () => {
   const controlDockIndex = html.indexOf('series-control-dock.css');
   const headerV2Index = html.indexOf('series-header-layout-v2.css');
   const comparisonIndex = html.indexOf('player-comparison-board.css');
+  const seriesScoreboardIndex = html.indexOf('series-scoreboard-v3.css');
   assert.ok(
     heroIndex >= 0 &&
     minimalIndex > heroIndex &&
@@ -39,17 +42,22 @@ test('minimal pro dark styles load in final cache-safe order', () => {
     comfortableIndex > readableIndex &&
     controlDockIndex > comfortableIndex &&
     headerV2Index > controlDockIndex &&
-    comparisonIndex > headerV2Index
+    comparisonIndex > headerV2Index &&
+    seriesScoreboardIndex > comparisonIndex
   );
   assert.match(html, /series-control-dock\.css\?v=20260730-2/);
   assert.match(html, /series-header-layout-v2\.css\?v=20260730-1/);
   assert.match(html, /player-comparison-board\.css\?v=20260730-1/);
   assert.match(html, /player-comparison-board\.js\?v=20260730-1/);
-  assert.match(html, /<body class="minimal-pro-dark-v2" data-ui-build="player-comparison-board-1">/);
+  assert.match(html, /series-scoreboard-v3\.css\?v=20260730-1/);
+  assert.match(html, /series-scoreboard-v3\.js\?v=20260730-1/);
+  assert.match(html, /<body class="minimal-pro-dark-v2" data-ui-build="series-scoreboard-v3-1">/);
   assert.match(css, /RIFTPULSE_MINIMAL_PRO_DARK_V2/);
   assert.match(css, /--rp-bg:\s*#0b0f15/);
   assert.match(fixes, /data-drawer:not\(\.is-open\) \.feed-body/);
   assert.match(headerV2, /series-hero\[data-header-layout-v2="true"\]/);
+  assert.match(seriesScoreboardCss, /series-hero\[data-series-scoreboard-v3="true"\]/);
+  assert.match(seriesScoreboardJs, /hero\.dataset\.seriesScoreboardV3 = 'true'/);
 });
 
 test('machine-readable feed is collapsed into a bottom drawer', () => {
@@ -88,20 +96,12 @@ test('scoreboard uses large readable desktop sizing', () => {
   assert.match(comfortable, /analysis-v2-team-kills[\s\S]*font-size:\s*34px\s*!important/);
 });
 
-test('series header keeps two rows with larger labels and controls', () => {
-  assert.match(compact, /series-hero-main[\s\S]*display:\s*contents\s*!important/);
-  assert.match(comfortable, /series-hero-top[\s\S]*grid-template-columns:\s*150px minmax\(0, 1fr\) 120px/);
-  assert.match(comfortable, /series-hero-game > span[\s\S]*font-size:\s*12px\s*!important/);
-  assert.match(comfortable, /series-hero-score > strong[\s\S]*font-size:\s*30px\s*!important/);
-});
-
-test('archive controls share a balanced toolbar with the game tabs', () => {
-  assert.match(controlDock, /series-hero\s*\{[\s\S]*display:\s*block/);
-  assert.match(controlDock, /series-hero-rail\s*\{[\s\S]*grid-template-columns:\s*minmax\(0, 1fr\) auto/);
-  assert.match(controlDock, /series-hero-games[\s\S]*grid-column:\s*1/);
-  assert.match(controlDock, /series-hero-actions,[\s\S]*history-archive-badge[\s\S]*grid-column:\s*2/);
-  assert.match(controlDock, /live-series-return[\s\S]*width:\s*auto/);
-  assert.match(controlDock, /game-content > \.hero-empty[\s\S]*max-width:\s*none/);
+test('series scoreboard centers the score and keeps game tabs full width', () => {
+  assert.match(seriesScoreboardJs, /main\.append\(leftTeam, score, rightTeam\)/);
+  assert.match(seriesScoreboardJs, /navigation\.append\(games\)/);
+  assert.match(seriesScoreboardCss, /series-scoreboard-main[\s\S]*grid-template-columns:\s*minmax\(0, 1fr\) 184px minmax\(0, 1fr\)/);
+  assert.match(seriesScoreboardCss, /series-scoreboard-navigation[\s\S]*border-top/);
+  assert.match(seriesScoreboardCss, /series-scoreboard-score > strong[\s\S]*font-size:\s*46px/);
 });
 
 test('game overview wraps into a spacious two-row layout', () => {
