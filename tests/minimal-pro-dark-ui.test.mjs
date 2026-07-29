@@ -11,6 +11,8 @@ const readable = await readFile(new URL('../assets/readable-density.css', import
 const comfortable = await readFile(new URL('../assets/comfortable-reading-layout.css', import.meta.url), 'utf8');
 const controlDock = await readFile(new URL('../assets/series-control-dock.css', import.meta.url), 'utf8');
 const headerV2 = await readFile(new URL('../assets/series-header-layout-v2.css', import.meta.url), 'utf8');
+const comparisonCss = await readFile(new URL('../assets/player-comparison-board.css', import.meta.url), 'utf8');
+const comparisonJs = await readFile(new URL('../assets/player-comparison-board.js', import.meta.url), 'utf8');
 const analysis = await readFile(new URL('../assets/analysis-workspace-v2.js', import.meta.url), 'utf8');
 const players = await readFile(new URL('../assets/live-player-ui.js', import.meta.url), 'utf8');
 const drawer = await readFile(new URL('../assets/data-drawer.js', import.meta.url), 'utf8');
@@ -26,6 +28,7 @@ test('minimal pro dark styles load in final cache-safe order', () => {
   const comfortableIndex = html.indexOf('comfortable-reading-layout.css');
   const controlDockIndex = html.indexOf('series-control-dock.css');
   const headerV2Index = html.indexOf('series-header-layout-v2.css');
+  const comparisonIndex = html.indexOf('player-comparison-board.css');
   assert.ok(
     heroIndex >= 0 &&
     minimalIndex > heroIndex &&
@@ -35,11 +38,14 @@ test('minimal pro dark styles load in final cache-safe order', () => {
     readableIndex > compactIndex &&
     comfortableIndex > readableIndex &&
     controlDockIndex > comfortableIndex &&
-    headerV2Index > controlDockIndex
+    headerV2Index > controlDockIndex &&
+    comparisonIndex > headerV2Index
   );
   assert.match(html, /series-control-dock\.css\?v=20260730-2/);
   assert.match(html, /series-header-layout-v2\.css\?v=20260730-1/);
-  assert.match(html, /<body class="minimal-pro-dark-v2" data-ui-build="series-header-layout-v2-1">/);
+  assert.match(html, /player-comparison-board\.css\?v=20260730-1/);
+  assert.match(html, /player-comparison-board\.js\?v=20260730-1/);
+  assert.match(html, /<body class="minimal-pro-dark-v2" data-ui-build="player-comparison-board-1">/);
   assert.match(css, /RIFTPULSE_MINIMAL_PRO_DARK_V2/);
   assert.match(css, /--rp-bg:\s*#0b0f15/);
   assert.match(fixes, /data-drawer:not\(\.is-open\) \.feed-body/);
@@ -105,11 +111,15 @@ test('game overview wraps into a spacious two-row layout', () => {
   assert.match(comfortable, /analysis-v2-objective\s*\{[\s\S]*min-height:\s*112px/);
 });
 
-test('player boards stack vertically with larger rows and portraits', () => {
-  assert.match(comfortable, /analysis-v2-lineups[\s\S]*grid-template-columns:\s*1fr\s*!important/);
-  assert.match(comfortable, /enhanced-player-row,[\s\S]*min-height:\s*72px\s*!important/);
-  assert.match(comfortable, /player-copy strong[\s\S]*font-size:\s*15px\s*!important/);
-  assert.match(comfortable, /champion-portrait[\s\S]*width:\s*46px\s*!important/);
+test('player boards become one mirrored role-by-role comparison table', () => {
+  assert.match(comparisonJs, /ROLE_ORDER = \['top', 'jungle', 'mid', 'bottom', 'support'\]/);
+  assert.match(comparisonJs, /data-player-comparison/);
+  assert.match(comparisonJs, /player-comparison-row/);
+  assert.match(comparisonJs, /lineups\.replaceWith\(board\)/);
+  assert.match(comparisonCss, /grid-template-areas:\s*"blue-items blue-stats blue-identity role red-identity red-stats red-items"/);
+  assert.match(comparisonCss, /comparison-identity\.is-blue[\s\S]*flex-direction:\s*row-reverse/);
+  assert.match(comparisonCss, /comparison-kda[\s\S]*font-size:\s*18px/);
+  assert.match(comparisonCss, /champion-level/);
 });
 
 test('analysis order is scoreboard, overview, odds, then player tables', () => {
