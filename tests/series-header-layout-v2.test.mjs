@@ -3,31 +3,35 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
 const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
-const css = await readFile(new URL('../assets/series-header-layout-v2.css', import.meta.url), 'utf8');
-const script = await readFile(new URL('../assets/series-header-layout-v2.js', import.meta.url), 'utf8');
+const css = await readFile(new URL('../assets/series-scoreboard-v3.css', import.meta.url), 'utf8');
+const script = await readFile(new URL('../assets/series-scoreboard-v3.js', import.meta.url), 'utf8');
 
-test('series header v2 loads after the previous control dock styles', () => {
-  const previous = html.indexOf('series-control-dock.css');
-  const current = html.indexOf('series-header-layout-v2.css');
+test('series scoreboard v3 loads after the previous visual layers', () => {
+  const previous = html.indexOf('player-comparison-board.css');
+  const current = html.indexOf('series-scoreboard-v3.css');
   assert.ok(previous >= 0 && current > previous);
-  assert.match(html, /data-ui-build="player-comparison-board-1"/);
-  assert.match(html, /series-header-layout-v2\.js\?v=20260730-1/);
+  assert.match(html, /data-ui-build="series-scoreboard-v3-1"/);
+  assert.match(html, /series-scoreboard-v3\.js\?v=20260730-1/);
+  assert.doesNotMatch(html, /series-header-layout-v2\.js\?v=20260730-1/);
 });
 
-test('score is structurally moved between the two teams', () => {
-  assert.match(script, /matchup\.insertBefore\(score, rightTeam\)/);
-  assert.match(script, /versus\?\.remove\(\)/);
-  assert.match(css, /series-hero-matchup[\s\S]*grid-template-columns:\s*minmax\(0, 1fr\) 132px minmax\(0, 1fr\)/);
+test('scoreboard structurally centers the series score between teams', () => {
+  assert.match(script, /main\.append\(leftTeam, score, rightTeam\)/);
+  assert.match(script, /matchup\.querySelector\('\.series-hero-versus'\)\?\.remove\(\)/);
+  assert.match(css, /series-scoreboard-main[\s\S]*grid-template-columns:\s*minmax\(0, 1fr\) 184px minmax\(0, 1fr\)/);
+  assert.match(css, /series-scoreboard-score > strong[\s\S]*font-size:\s*46px/);
 });
 
-test('archive control leaves the game rail and becomes a header action', () => {
-  assert.match(script, /top\.appendChild\(controls\)/);
+test('status, context, and live return action live in a separate metadata row', () => {
+  assert.match(script, /meta\.append\(metaPrimary, metaContext, metaActions\)/);
   assert.match(script, /returnButton\.textContent = 'Back to live'/);
-  assert.match(css, /is-archive-mode[\s\S]*series-hero-badge[\s\S]*display:\s*none/);
-  assert.match(css, /series-hero-rail[\s\S]*display:\s*block/);
+  assert.match(css, /series-scoreboard-meta[\s\S]*grid-template-columns:\s*minmax\(180px, auto\) minmax\(0, 1fr\) auto/);
+  assert.match(css, /series-scoreboard-meta-actions[\s\S]*justify-content:\s*flex-end/);
 });
 
-test('archived telemetry empty state spans the analysis panel', () => {
-  assert.match(css, /game-content > \.hero-empty[\s\S]*width:\s*calc\(100% - 32px\)/);
-  assert.match(css, /grid-column:\s*1 \/ -1/);
+test('game navigation owns a full-width third row', () => {
+  assert.match(script, /navigation\.append\(games\)/);
+  assert.match(script, /hero\.replaceChildren\(meta, main, navigation\)/);
+  assert.match(css, /series-scoreboard-navigation[\s\S]*border-top:\s*1px solid/);
+  assert.match(css, /data-series-length="5"[\s\S]*repeat\(5, minmax\(130px, 1fr\)\)/);
 });
