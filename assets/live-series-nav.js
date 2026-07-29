@@ -19,6 +19,42 @@
       .replaceAll("'", '&#039;');
   }
 
+  function safeImageUrl(value = '') {
+    const raw = String(value || '').trim();
+    if (!raw) return '';
+    if (/^https?:\/\//i.test(raw)) return raw.replace(/^http:\/\//i, 'https://');
+    return '';
+  }
+
+  function initials(name = '') {
+    return String(name)
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map(part => part[0])
+      .join('')
+      .toUpperCase() || '?';
+  }
+
+  function teamLogo(team = {}) {
+    const image = safeImageUrl(team?.image);
+    return image
+      ? `<img src="${escapeHtml(image)}" alt="" loading="lazy">`
+      : `<span>${escapeHtml(initials(team?.name))}</span>`;
+  }
+
+  function liveIcon() {
+    return '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="2"></circle><path d="M7.8 7.8a6 6 0 0 0 0 8.4m8.4-8.4a6 6 0 0 1 0 8.4M4.9 4.9a10 10 0 0 0 0 14.2m14.2-14.2a10 10 0 0 1 0 14.2"></path></svg>';
+  }
+
+  function statusIcon() {
+    return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 19 6v5c0 4.4-2.7 8.2-7 10-4.3-1.8-7-5.6-7-10V6l7-3Z"></path><path d="M9 12h6"></path></svg>';
+  }
+
+  function contextIcon() {
+    return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M12 5v14"></path><circle cx="12" cy="12" r="8"></circle></svg>';
+  }
+
   function finiteScore(team = {}) {
     const value = team?.result?.gameWins;
     const parsed = Number(value);
@@ -146,6 +182,16 @@
     return matches.find(hasCompletionEvidence) || matches[0];
   }
 
+  function currentSlotNumber(games, context, activeId, format) {
+    const priorityIds = [activeId, context.currentGameId, context.liveGameId].map(String).filter(Boolean);
+    for (const id of priorityIds) {
+      const index = games.findIndex(game => String(game?.id || '') === id);
+      if (index >= 0) return Math.min(format, gameNumber(games[index], index));
+    }
+    const played = context.games.filter(hasCompletionEvidence).length;
+    return Math.max(1, Math.min(format, played + 1));
+  }
+
   function renderSeriesNavigation() {
     document.getElementById(NAV_ID)?.remove();
 
@@ -164,47 +210,94 @@
 
     const nav = document.createElement('section');
     nav.id = NAV_ID;
-    nav.className = `live-series-nav ${shell ? '' : 'is-waiting'}`.trim();
+    nav.className = `live-series-nav series-hero series-hero--live ${shell ? '' : 'is-waiting'}`.trim();
     nav.dataset.seriesLength = String(format);
     nav.setAttribute('aria-label', `Best of ${format} series games`);
 
     const activeId = String(state.selectedGameId || '');
-    const playedCount = context.games.filter(hasCompletionEvidence).length;
+    const teams = context.event?.match?.teams || [];
+    const a = teams[0] || {};
+    const b = teams[1] || {};
+    const aScore = finiteScore(a);
+    const bScore = finiteScore(b);
+    const scoreCount = [aScore, bScore].every(value => value !== null) ? aScore + bScore : 0;
+    const evidenceCount = context.games.filter(hasCompletionEvidence).length;
+    const playedCount = Math.min(format, Math.max(scoreCount, evidenceCount));
+    const currentNumber = currentSlotNumber(availableGames, context, activeId, format);
+    const league = context.event?.league?.name || context.event?.league?.slug || 'League of Legends';
+    const isPending = state.selectedMatchState === 'postGame';
+    const modeLabel = state.seriesArchiveMode ? 'Series archive' : isPending ? 'Result pending' : 'Live series';
+    const scoreLabel = state.seriesArchiveMode ? 'Archive' : isPending ? 'Pending' : 'Live';
+    const scoreDetail = isPending
+      ? `Game ${currentNumber} result pending`
+      : `${playedCount} completed · Game ${currentNumber}`;
+    const badgeLabel = state.seriesArchiveMode ? 'Archive view' : isPending ? 'Result pending' : 'Live telemetry';
+    const badgeClass = state.seriesArchiveMode ? 'is-archive' : isPending ? 'is-pending' : 'is-live';
+
     nav.innerHTML = `
-      <div class="live-series-nav-copy">
-        <span>BO${format} series</span>
-        <strong>${playedCount} played · ${format} slot${format === 1 ? '' : 's'}</strong>
+      <div class="series-hero-top">
+        <div class="series-hero-main">
+          <div class="series-hero-kicker">
+            <span class="series-hero-kicker-icon">${liveIcon()}</span>
+            <span><strong>${modeLabel}</strong><small>Best of ${format}</small></span>
+          </div>
+          <div class="series-hero-matchup">
+            <article class="series-hero-team is-left">
+              <span class="series-hero-team-logo">${teamLogo(a)}</span>
+              <strong>${escapeHtml(a.name || 'Team 1')}</strong>
+            </article>
+            <span class="series-hero-versus">vs</span>
+            <article class="series-hero-team is-right">
+              <span class="series-hero-team-logo">${teamLogo(b)}</span>
+              <strong>${escapeHtml(b.name || 'Team 2')}</strong>
+            </article>
+          </div>
+        </div>
+        <div class="series-hero-score ${state.seriesArchiveMode ? 'is-archive' : isPending ? 'is-pending' : 'is-live'}">
+          <span>${scoreLabel}</span>
+          <strong>${aScore ?? '—'}–${bScore ?? '—'}</strong>
+          <small>${scoreDetail}</small>
+        </div>
       </div>
-      <div class="live-series-nav-buttons" role="tablist" aria-label="Series game navigation">
-        ${Array.from({ length: format }, (_, index) => {
-          const number = index + 1;
-          const game = gameForSlot(availableGames, number, context, activeId);
-          const id = String(game?.id || '');
-          const selected = Boolean(id) && id === activeId;
-          const isLive = Boolean(id) && id === String(context.liveGameId || '');
-          const completed = Boolean(game) && hasCompletionEvidence(game);
-          const isWaiting = Boolean(id) && !isLive && !completed && id === String(context.currentGameId || '');
-          const isLocked = !id || (!completed && !isLive && !isWaiting);
-          const label = isLive
-            ? 'Live'
-            : selected && state.seriesArchiveMode
-              ? 'Selected'
-              : completed
-                ? 'Final'
-                : isWaiting
-                  ? 'Waiting'
-                  : 'Locked';
-          const disabled = isWaiting || isLocked;
-          return `<button class="live-series-game ${selected ? 'is-selected' : ''} ${completed ? 'is-complete' : ''} ${isLive ? 'is-live' : ''} ${isWaiting ? 'is-waiting' : ''} ${isLocked ? 'is-locked' : ''}" ${id ? `data-live-series-game-id="${escapeHtml(id)}"` : ''} type="button" role="tab" aria-selected="${selected}" ${disabled ? 'disabled aria-disabled="true"' : ''}>
-            <span>Game ${number}</span>
-            <small>${label}</small>
-          </button>`;
-        }).join('')}
+      <div class="series-hero-rail">
+        <div class="live-series-nav-buttons series-hero-games" role="tablist" aria-label="Series game navigation">
+          ${Array.from({ length: format }, (_, index) => {
+            const number = index + 1;
+            const game = gameForSlot(availableGames, number, context, activeId);
+            const id = String(game?.id || '');
+            const selected = Boolean(id) && id === activeId;
+            const isLive = Boolean(id) && id === String(context.liveGameId || '');
+            const completed = Boolean(game) && hasCompletionEvidence(game);
+            const isWaiting = Boolean(id) && !isLive && !completed && id === String(context.currentGameId || '');
+            const isLocked = !id || (!completed && !isLive && !isWaiting);
+            const label = isLive
+              ? 'Live'
+              : selected && state.seriesArchiveMode
+                ? 'Selected'
+                : completed
+                  ? 'Final'
+                  : isWaiting
+                    ? 'Waiting'
+                    : 'Locked';
+            const disabled = isWaiting || isLocked;
+            return `<button class="live-series-game series-hero-game ${selected ? 'is-selected' : ''} ${completed ? 'is-complete' : ''} ${isLive ? 'is-live' : ''} ${isWaiting ? 'is-waiting' : ''} ${isLocked ? 'is-locked' : ''}" ${id ? `data-live-series-game-id="${escapeHtml(id)}"` : ''} type="button" role="tab" aria-selected="${selected}" ${disabled ? 'disabled aria-disabled="true"' : ''}>
+              <span>Game ${number}</span>
+              <small>${label}</small>
+            </button>`;
+          }).join('')}
+        </div>
+        <div class="series-hero-actions">
+          <span class="series-hero-badge ${badgeClass}">${statusIcon()}<span>${badgeLabel}</span></span>
+          ${state.seriesArchiveMode ? '<button class="live-series-return" data-return-live-game type="button">Return to live</button>' : ''}
+        </div>
       </div>
-      ${state.seriesArchiveMode ? '<button class="live-series-return" data-return-live-game type="button">Return to series</button>' : ''}`;
+      <div class="series-hero-context">
+        <span class="series-hero-context-icon">${contextIcon()}</span>
+        <strong>${escapeHtml(league)}</strong><i>•</i><span>${modeLabel}</span><i>•</i><span>Game ${currentNumber}</span>
+      </div>`;
 
     const header = shell?.querySelector('.analysis-v2-header, .analysis-header');
-    if (header) header.insertAdjacentElement('afterend', nav);
+    if (header) header.insertAdjacentElement('beforebegin', nav);
     else if (shell) shell.prepend(nav);
     else gameContent.prepend(nav);
   }
