@@ -38,3 +38,23 @@ test('main analysis panel is a bounded scroll container with compact sizing', as
   assert.match(css, /\.analysis-v2-lineup \.player-row,[\s\S]*min-height:\s*48px\s*!important;/);
   assert.match(html, /assets\/analysis-priority\.css\?v=20260729-2/);
 });
+
+test('missing player and map values are not converted into fake zeroes', async () => {
+  const playerSource = await readFile(new URL('../assets/live-player-ui.js', import.meta.url), 'utf8');
+  const analysisSource = await readFile(new URL('../assets/analysis-workspace-v2.js', import.meta.url), 'utf8');
+
+  assert.match(playerSource, /function displayInteger\(value\)/);
+  assert.doesNotMatch(playerSource, /player\?\.(?:kills|deaths|assists|creepScore)\s*\|\|\s*0/);
+  assert.match(analysisSource, /function finiteNumber\(value\)/);
+  assert.match(analysisSource, /Gold lead unavailable/);
+});
+
+test('analysis clock uses the reliability-aware clock helper and freezes stale frames', async () => {
+  const playerSource = await readFile(new URL('../assets/live-player-ui.js', import.meta.url), 'utf8');
+  const analysisSource = await readFile(new URL('../assets/analysis-workspace-v2.js', import.meta.url), 'utf8');
+
+  assert.match(playerSource, /snapshot\?\.status === 'telemetry_stale'/);
+  assert.match(playerSource, /document\.querySelector\('\.analysis-v2-clock, \.clock'\)/);
+  assert.match(playerSource, /globalThis\.RiftPulsePlayerUI/);
+  assert.match(analysisSource, /RiftPulsePlayerUI\?\.configureClock/);
+});
