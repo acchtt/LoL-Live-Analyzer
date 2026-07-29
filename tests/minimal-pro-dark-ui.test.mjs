@@ -58,10 +58,10 @@ test('minimal pro dark styles load in final cache-safe order', () => {
   assert.match(html, /player-comparison-board\.js\?v=20260730-1/);
   assert.match(html, /series-scoreboard-v3\.css\?v=20260730-1/);
   assert.match(html, /scoreboard-symmetry\.css\?v=20260730-1/);
-  assert.match(html, /overview-panel-v2\.css\?v=20260730-1/);
-  assert.match(html, /overview-panel-v2\.js\?v=20260730-1/);
+  assert.match(html, /overview-panel-v2\.css\?v=20260730-2/);
+  assert.match(html, /overview-panel-v2\.js\?v=20260730-2/);
   assert.match(html, /series-scoreboard-v3\.js\?v=20260730-2/);
-  assert.match(html, /<body class="minimal-pro-dark-v2" data-ui-build="overview-panel-v2-1">/);
+  assert.match(html, /<body class="minimal-pro-dark-v2" data-ui-build="overview-panel-v2-runtime-1">/);
   assert.match(css, /RIFTPULSE_MINIMAL_PRO_DARK_V2/);
   assert.match(css, /--rp-bg:\s*#0b0f15/);
   assert.match(fixes, /data-drawer:not\(\.is-open\) \.feed-body/);
@@ -123,6 +123,8 @@ test('game overview becomes a gold summary and objective comparison dashboard', 
   assert.match(overviewJs, /objectiveCard\('Towers'/);
   assert.match(overviewJs, /objectiveCard\('Dragons'/);
   assert.match(overviewJs, /content\.replaceChildren\(dashboard\)/);
+  assert.match(overviewJs, /typeof state === 'object'[\s\S]*state\.lastSnapshot/);
+  assert.doesNotMatch(overviewJs, /globalThis\.state/);
   assert.match(overviewCss, /overview-gold-summary[\s\S]*grid-template-columns:\s*minmax\(0, 1fr\) 214px minmax\(0, 1fr\)/);
   assert.match(overviewCss, /overview-objective-grid-v2[\s\S]*grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\)/);
   assert.match(overviewCss, /overview-objective-track/);
