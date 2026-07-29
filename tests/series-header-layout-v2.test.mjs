@@ -10,7 +10,7 @@ test('series header v2 loads after the previous control dock styles', () => {
   const previous = html.indexOf('series-control-dock.css');
   const current = html.indexOf('series-header-layout-v2.css');
   assert.ok(previous >= 0 && current > previous);
-  assert.match(html, /data-ui-build="series-header-layout-v2-1"/);
+  assert.match(html, /data-ui-build="player-comparison-board-1"/);
   assert.match(html, /series-header-layout-v2\.js\?v=20260730-1/);
 });
 
