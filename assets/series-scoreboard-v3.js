@@ -23,8 +23,8 @@
     const detail = document.createElement('small');
     detail.className = 'series-scoreboard-team-result';
     detail.textContent = wins === '—'
-      ? 'Series score unavailable'
-      : `${wins} series win${wins === '1' ? '' : 's'}`;
+      ? 'Score unavailable'
+      : `${wins} win${wins === '1' ? '' : 's'}`;
     copy.append(detail);
 
     team.classList.add('series-scoreboard-team', `is-team-${side}`);
