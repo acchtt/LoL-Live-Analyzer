@@ -1,8 +1,8 @@
 // Keeps the selected live game updating without requiring another click.
 (() => {
-  const BUILD = '20260729-1';
-  const LIVE_REFRESH_MS = 4_000;
-  const RESOLVE_REFRESH_MS = 6_000;
+  const BUILD = '20260729-2';
+  const LIVE_REFRESH_MS = 3_000;
+  const RESOLVE_REFRESH_MS = 5_000;
 
   let refreshTimer = null;
   let inFlight = false;
@@ -46,7 +46,7 @@
     }
 
     if (inFlight) {
-      scheduleRefresh(750);
+      scheduleRefresh(500);
       return;
     }
 
@@ -63,7 +63,7 @@
     } finally {
       inFlight = false;
       const changed = before !== selectionKey();
-      scheduleRefresh(changed || !state.selectedGameId ? 400 : (state.selectedGameId ? LIVE_REFRESH_MS : RESOLVE_REFRESH_MS));
+      scheduleRefresh(changed || !state.selectedGameId ? 300 : (state.selectedGameId ? LIVE_REFRESH_MS : RESOLVE_REFRESH_MS));
     }
   }
 
@@ -72,21 +72,21 @@
     clearInterval(state.pollTimer);
     state.pollTimer = null;
     stopRefresh();
-    scheduleRefresh(75);
+    scheduleRefresh(50);
   };
 
   const previousSelectEvent = selectEvent;
   selectEvent = async function refreshAwareSelectEvent(id) {
     stopRefresh();
     const result = await previousSelectEvent(id);
-    if (!isFinished()) scheduleRefresh(75);
+    if (!isFinished()) scheduleRefresh(50);
     return result;
   };
 
   const previousResolveLiveEvent = resolveLiveEvent;
   resolveLiveEvent = async function refreshAwareResolveLiveEvent(id, isRetry = false) {
     const result = await previousResolveLiveEvent(id, isRetry);
-    if (!isFinished()) scheduleRefresh(state.selectedGameId ? 75 : RESOLVE_REFRESH_MS);
+    if (!isFinished()) scheduleRefresh(state.selectedGameId ? 50 : RESOLVE_REFRESH_MS);
     return result;
   };
 
@@ -106,5 +106,5 @@
   const footer = document.querySelector('footer');
   if (footer) footer.insertAdjacentHTML('beforeend', `<span class="build-mark"> Live refresh · ${BUILD}</span>`);
 
-  if (state.selectedEventId && !isFinished()) scheduleRefresh(250);
+  if (state.selectedEventId && !isFinished()) scheduleRefresh(200);
 })();
