@@ -30,14 +30,14 @@ test('result-only loading clears telemetry and renders one panel', () => {
 });
 
 test('clean rebuild removes the old result-only repair stack', () => {
-  assert.match(html, /series-panel-clean\.css\?v=20260730-1/);
+  assert.match(html, /series-panel-clean\.css\?v=20260730-2/);
   assert.match(html, /series-panel-clean\.js\?v=20260730-1/);
   assert.doesNotMatch(html, /history-result-only-repair|history-shell-edge-final|history-shell-state|series-game-history/);
 });
 
-test('result-only surface is rectangular and uses one border', () => {
-  assert.match(css, /series-clean-panel[\s\S]*border:\s*1px solid var\(--rp-divider\)\s*!important/);
+test('result-only surface has no outer frame or corner dependency', () => {
+  assert.match(css, /series-clean-panel[\s\S]*border:\s*0\s*!important/);
   assert.match(css, /series-clean-panel[\s\S]*border-radius:\s*0\s*!important/);
-  assert.match(css, /series-clean-empty[\s\S]*min-height:\s*62px\s*!important/);
+  assert.match(css, /series-clean-empty[\s\S]*min-height:\s*58px\s*!important/);
   assert.match(css, /series-clean-panel::before,[\s\S]*display:\s*none\s*!important/);
 });
