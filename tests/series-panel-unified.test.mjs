@@ -7,7 +7,7 @@ const css = await readFile(new URL('../assets/series-panel-clean.css', import.me
 const script = await readFile(new URL('../assets/series-panel-clean.js', import.meta.url), 'utf8');
 
 test('clean series panel is the only runtime series UI', () => {
-  assert.match(html, /series-panel-clean\.css\?v=20260730-1/);
+  assert.match(html, /series-panel-clean\.css\?v=20260730-2/);
   assert.match(html, /series-panel-clean\.js\?v=20260730-1/);
   assert.doesNotMatch(html, /series-panel-unified|history-shell-state|series-scoreboard-v3|series-game-history|live-series-nav/);
 });
