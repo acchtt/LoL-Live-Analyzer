@@ -46,7 +46,8 @@ test('details lookup covers exact, rounded, next and previous frame keys', () =>
   ]);
 });
 
-test('ten-minute delayed frames remain context-only rather than disappearing', () => {
-  assert.equal(classifyTimestamp(NOW - 600_000, NOW).freshness, 'degraded');
-  assert.equal(classifyTimestamp(NOW - 601_000, NOW).freshness, 'stale');
+test('production freshness boundary rejects frames older than ninety seconds', () => {
+  assert.equal(classifyTimestamp(NOW - 90_000, NOW).freshness, 'degraded');
+  assert.equal(classifyTimestamp(NOW - 91_000, NOW).freshness, 'stale');
+  assert.equal(classifyTimestamp(NOW - 600_000, NOW).freshness, 'stale');
 });
