@@ -25,6 +25,7 @@ jobs:
           cat > compare-telemetry.mjs <<'NODE'
           const production = process.env.PRODUCTION_URL;
           const preview = process.env.PREVIEW_URL;
+          const expectedRevision = 'production-90s-1';
 
           const json = async (url) => {
             const controller = new AbortController();
@@ -43,13 +44,16 @@ jobs:
           let previewHealth = null;
           for (let attempt = 1; attempt <= 30; attempt += 1) {
             previewHealth = await json(`${preview}/health?_=${Date.now()}`).catch(() => null);
-            const cutoff = Number(previewHealth?.reliability?.degradedFrameSeconds);
-            if (cutoff === 90) break;
-            console.log(`Preview policy not propagated yet (attempt ${attempt}, cutoff ${cutoff || 'unknown'}).`);
+            const policy = previewHealth?.liveTelemetryReliability || previewHealth?.reliability || {};
+            const cutoff = Number(policy?.degradedFrameSeconds);
+            const revision = String(policy?.policyRevision || '');
+            if (cutoff === 90 && revision === expectedRevision) break;
+            console.log(`Preview policy not propagated yet (attempt ${attempt}, cutoff ${cutoff || 'unknown'}, revision ${revision || 'unknown'}).`);
             await sleep(5_000);
           }
-          if (Number(previewHealth?.reliability?.degradedFrameSeconds) !== 90) {
-            throw new Error(`Preview did not expose the 90-second cutoff: ${JSON.stringify(previewHealth)}`);
+          const activePolicy = previewHealth?.liveTelemetryReliability || previewHealth?.reliability || {};
+          if (Number(activePolicy?.degradedFrameSeconds) !== 90 || activePolicy?.policyRevision !== expectedRevision) {
+            throw new Error(`Preview did not expose ${expectedRevision}: ${JSON.stringify(previewHealth)}`);
           }
           console.log(JSON.stringify({ previewHealth }, null, 2));
 
