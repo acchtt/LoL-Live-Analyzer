@@ -42,6 +42,7 @@ test('minimal pro dark styles load in final cache-safe order', () => {
   const trimIndex = html.indexOf('scoreboard-detail-trim.css');
   const surfaceIndex = html.indexOf('surface-edge-repair.css');
   const resultOnlyIndex = html.indexOf('history-result-only-repair.css');
+  const finalShellIndex = html.indexOf('history-shell-edge-final.css');
   assert.ok(
     heroIndex >= 0 &&
     minimalIndex > heroIndex &&
@@ -58,7 +59,8 @@ test('minimal pro dark styles load in final cache-safe order', () => {
     overviewIndex > symmetryIndex &&
     trimIndex > overviewIndex &&
     surfaceIndex > trimIndex &&
-    resultOnlyIndex > surfaceIndex
+    resultOnlyIndex > surfaceIndex &&
+    finalShellIndex > resultOnlyIndex
   );
   assert.match(html, /series-control-dock\.css\?v=20260730-2/);
   assert.match(html, /series-header-layout-v2\.css\?v=20260730-1/);
@@ -70,10 +72,12 @@ test('minimal pro dark styles load in final cache-safe order', () => {
   assert.match(html, /scoreboard-detail-trim\.css\?v=20260730-2/);
   assert.match(html, /surface-edge-repair\.css\?v=20260730-1/);
   assert.match(html, /history-result-only-repair\.css\?v=20260730-2/);
+  assert.match(html, /history-shell-edge-final\.css\?v=20260730-2/);
   assert.match(html, /overview-panel-v2\.js\?v=20260730-2/);
   assert.match(html, /series-scoreboard-v3\.js\?v=20260730-4/);
-  assert.match(html, /series-game-history\.js\?v=20260730-5/);
-  assert.match(html, /<body class="minimal-pro-dark-v2" data-ui-build="history-result-only-repair-1">/);
+  assert.match(html, /series-game-history\.js\?v=20260730-6/);
+  assert.match(html, /history-shell-state\.js\?v=20260730-2/);
+  assert.match(html, /<body class="minimal-pro-dark-v2" data-ui-build="history-shell-structural-1">/);
   assert.match(css, /RIFTPULSE_MINIMAL_PRO_DARK_V2/);
   assert.match(css, /--rp-bg:\s*#0b0f15/);
   assert.match(fixes, /data-drawer:not\(\.is-open\) \.feed-body/);
