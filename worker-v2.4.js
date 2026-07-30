@@ -2,8 +2,14 @@ import workerV23 from './worker-v2.3.js';
 import reliableCore from './worker-reliable-core.js';
 import { createRiotClient } from './lib/riot-client.js';
 import { buildHistoricalSnapshot } from './lib/historical-snapshot.js';
+import {
+  DEGRADED_FRAME_SECONDS,
+  FRESH_FRAME_SECONDS,
+  FUTURE_TOLERANCE_SECONDS
+} from './lib/reliability-policy.js';
 
 const WORKER_VERSION = '2.4';
+const TELEMETRY_POLICY_REVISION = 'production-90s-1';
 const GAME_ID_PATTERN = /^\d{8,}$/;
 const TOKEN_PATTERN = /^[A-Za-z0-9_-]{1,80}$/;
 
@@ -31,6 +37,7 @@ function versionedHeaders(original, extra = {}) {
   headers.set('Cloudflare-CDN-Cache-Control', 'no-store');
   headers.set('X-Worker-Version', WORKER_VERSION);
   headers.set('X-RiftPulse-Reliability', 'strict-live');
+  headers.set('X-RiftPulse-Policy-Revision', TELEMETRY_POLICY_REVISION);
   for (const [key, value] of Object.entries(extra)) headers.set(key, value);
   return headers;
 }
@@ -64,7 +71,7 @@ async function decorateLiveResponse(response, incomingUrl, parsedPath) {
       gameId: gameId || null,
       freshToken: parsedPath?.token || null,
       format: parsedPath ? 'rotating-path' : 'query',
-      reliabilityPolicy: 'strict-live-v2.4'
+      reliabilityPolicy: `strict-live-v2.4:${TELEMETRY_POLICY_REVISION}`
     }
   };
 
@@ -124,10 +131,11 @@ async function healthResponse(request, env, ctx) {
     version: WORKER_VERSION,
     liveTelemetryReliability: {
       policy: 'strict-live-v2.4',
-      freshFrameSeconds: 30,
-      degradedFrameSeconds: 90,
-      futureTimestampToleranceSeconds: 15,
-      maximumWindowRequestsPerSnapshot: 3,
+      policyRevision: TELEMETRY_POLICY_REVISION,
+      freshFrameSeconds: FRESH_FRAME_SECONDS,
+      degradedFrameSeconds: DEGRADED_FRAME_SECONDS,
+      futureTimestampToleranceSeconds: FUTURE_TOLERANCE_SECONDS,
+      maximumWindowRequestsPerSnapshot: 17,
       missingValuesPreservedAsNull: true,
       inferredTelemetryWinnersDisabled: true,
       historicalPregameFramesRejected: true

@@ -153,3 +153,76 @@ test('resolver discovers a newly created live game ID from getLive when event de
   assert.deepEqual(Array.from(result.diagnostics.liveAddedGameIds), ['g3']);
   assert.ok(requestedGameLists.some(ids => ids.includes('g3')));
 });
+
+test('resolver selects a live-only deciding-game ID when Riot also leaves a numbered placeholder', async () => {
+  const event = activeSeriesEvent();
+  const liveEvent = structuredClone(event);
+  liveEvent.match.games.push({ id: 'g3-live', state: 'inProgress' });
+  const requestedGameLists = [];
+  const riot = riotFor(event, {
+    getLive: async () => ({ data: { schedule: { events: [liveEvent] } } }),
+    getGames: async ids => {
+      requestedGameLists.push([...ids]);
+      return {
+        data: {
+          games: liveEvent.match.games.filter(game => ids.includes(game.id))
+        }
+      };
+    },
+    fetchBestLiveWindow: async gameId => {
+      if (gameId === 'g3') return pregamePayload();
+      if (gameId === 'g3-live') return gameplayPayload();
+      return null;
+    }
+  });
+
+  const result = await resolveActiveGame('match-1', riot);
+
+  assert.equal(result.selectedGame?.id, 'g3-live');
+  assert.equal(result.selectedGame?.number, 3);
+  assert.equal(result.selectedPhase, 'gameplay');
+  assert.equal(result.pregameGame, null);
+  assert.deepEqual(result.diagnostics.liveAddedGameIds, ['g3-live']);
+  assert.ok(result.diagnostics.candidateOrder.some(game => game.id === 'g3-live' && game.number === 3));
+  assert.ok(requestedGameLists.some(ids => ids.includes('g3-live')));
+});
+
+test('resolver does not reopen a fresh earlier game while waiting for the expected game', async () => {
+  const event = activeSeriesEvent();
+  const riot = riotFor(event, {
+    fetchBestLiveWindow: async () => null,
+    fetchWindow: async gameId => gameId === 'g2' ? gameplayPayload() : null
+  });
+
+  const result = await resolveActiveGame('match-1', riot);
+
+  assert.equal(result.selectedGame, null);
+  assert.equal(result.telemetryAvailable, false);
+  assert.equal(result.diagnostics.expectedGameNumber, 3);
+});
+
+test('resolver ignores stale completed flags when getLive still reports a tied active series', async () => {
+  const event = activeSeriesEvent();
+  event.state = 'completed';
+  event.match.state = 'completed';
+
+  const liveEvent = structuredClone(event);
+  liveEvent.state = 'inProgress';
+  delete liveEvent.match.state;
+  liveEvent.match.games[2].state = 'inProgress';
+
+  const riot = riotFor(event, {
+    getLive: async () => ({ data: { schedule: { events: [liveEvent] } } }),
+    fetchBestLiveWindow: async gameId => gameId === 'g3' ? gameplayPayload() : null
+  });
+
+  const result = await resolveActiveGame('match-1', riot);
+
+  assert.equal(result.seriesComplete, false);
+  assert.equal(result.event.state, 'inProgress');
+  assert.equal(result.event.match.state, 'inProgress');
+  assert.equal(result.selectedGame?.id, 'g3');
+  assert.equal(result.selectedPhase, 'gameplay');
+  assert.deepEqual(result.diagnostics.ignoredStaleCompletion?.wins, [1, 1]);
+  assert.equal(result.diagnostics.ignoredStaleCompletion?.target, 2);
+});

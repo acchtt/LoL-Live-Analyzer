@@ -1,0 +1,122 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap');
+
+/* Cleaner typography: Space Grotesk for key data and headings, Manrope for UI copy. */
+:root {
+  --rp-font-display: "Space Grotesk", "Manrope", system-ui, sans-serif;
+  --rp-font-ui: "Manrope", system-ui, sans-serif;
+}
+
+body,
+button,
+input,
+select,
+textarea {
+  font-family: var(--rp-font-ui) !important;
+  font-feature-settings: "kern" 1, "liga" 1;
+  text-rendering: optimizeLegibility;
+}
+
+/* Use the display face selectively instead of across every small label. */
+.brand-wordmark,
+.analysis-v2-title h2,
+.analysis-v2-team-copy h3,
+.analysis-v2-team-kills,
+.analysis-v2-clock,
+.analysis-v2-lead strong,
+.analysis-v2-objective strong,
+.panel-heading h2,
+.bookmaker-odds-header h3,
+.bookmaker-selection-price,
+.schedule-tab-count,
+.team-line strong {
+  font-family: var(--rp-font-display) !important;
+}
+
+.brand-wordmark {
+  font-weight: 700;
+  letter-spacing: -.055em;
+}
+
+.brand-mode,
+.eyebrow,
+.analysis-v2-title p,
+.analysis-v2-state header span,
+.analysis-v2-score-center > span,
+.analysis-v2-team-copy > span,
+.analysis-v2-objective > span,
+.analysis-v2-lead > span,
+.analysis-v2-lineup > header,
+.bookmaker-market h4,
+.match-state,
+.sport-option small {
+  font-family: var(--rp-font-ui) !important;
+  font-weight: 800;
+  letter-spacing: .075em !important;
+}
+
+.panel-heading h2,
+.analysis-v2-title h2,
+.analysis-v2-team-copy h3,
+.bookmaker-odds-header h3 {
+  font-weight: 700 !important;
+  letter-spacing: -.025em !important;
+}
+
+.analysis-v2-title h2 {
+  line-height: 1.08;
+}
+
+.analysis-v2-team-copy h3 {
+  line-height: 1.12;
+}
+
+.analysis-v2-team-kills,
+.analysis-v2-clock,
+.analysis-v2-lead strong,
+.analysis-v2-objective strong,
+.bookmaker-selection-price,
+.schedule-tab-count,
+.team-line strong,
+.player-kda,
+.player-cs {
+  font-variant-numeric: tabular-nums;
+}
+
+.schedule-tab,
+.active-league-filter select,
+.match-card,
+.player-copy,
+.bookmaker-selection-name,
+.bookmaker-match-meta,
+.authority-context-banner,
+.status-wrap {
+  letter-spacing: 0 !important;
+}
+
+.match-card .team-name,
+.player-copy strong,
+.bookmaker-selection-name {
+  font-weight: 700;
+}
+
+.match-meta,
+.match-card-footer,
+.player-copy small,
+.bookmaker-odds-note,
+.machine-panel .help {
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+/* Keep machine-readable data genuinely monospaced. */
+.json-preview,
+code,
+pre {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace !important;
+}
+
+@media (max-width: 820px) {
+  .analysis-v2-title h2 {
+    line-height: 1.12;
+  }
+}

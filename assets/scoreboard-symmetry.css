@@ -1,0 +1,280 @@
+/* Symmetry pass for the series scoreboard and current-game scoreboard. */
+
+body.minimal-pro-dark-v2 .series-hero[data-series-scoreboard-v3="true"] .series-scoreboard-main {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 184px minmax(0, 1fr) !important;
+  align-items: center !important;
+  gap: 24px !important;
+  padding: 22px 28px !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero[data-series-scoreboard-v3="true"] .series-scoreboard-team {
+  display: grid !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  align-items: center !important;
+  gap: 16px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero[data-series-scoreboard-v3="true"] .series-scoreboard-team.is-team-a {
+  grid-template-columns: 64px minmax(0, 1fr) !important;
+  justify-content: stretch !important;
+  text-align: left !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero[data-series-scoreboard-v3="true"] .series-scoreboard-team.is-team-b {
+  grid-template-columns: minmax(0, 1fr) 64px !important;
+  justify-content: stretch !important;
+  text-align: right !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero[data-series-scoreboard-v3="true"] .series-scoreboard-team.is-team-a .series-hero-team-logo {
+  grid-column: 1 !important;
+  justify-self: start !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero[data-series-scoreboard-v3="true"] .series-scoreboard-team.is-team-a .series-scoreboard-team-copy {
+  grid-column: 2 !important;
+  justify-items: start !important;
+  text-align: left !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero[data-series-scoreboard-v3="true"] .series-scoreboard-team.is-team-b .series-scoreboard-team-copy {
+  grid-column: 1 !important;
+  justify-items: end !important;
+  text-align: right !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero[data-series-scoreboard-v3="true"] .series-scoreboard-team.is-team-b .series-hero-team-logo {
+  grid-column: 2 !important;
+  justify-self: end !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero[data-series-scoreboard-v3="true"] .series-scoreboard-team-copy > strong {
+  width: 100% !important;
+  font-size: clamp(19px, 1.55vw, 27px) !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero[data-series-scoreboard-v3="true"] .series-scoreboard-score {
+  width: 184px !important;
+  min-width: 184px !important;
+  justify-self: center !important;
+}
+
+/* Current-game scoreboard: logo and identity stay on the outside, kills stay beside the clock. */
+body.minimal-pro-dark-v2 .analysis-v2-scoreboard {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 144px minmax(0, 1fr) !important;
+  align-items: stretch !important;
+  gap: 12px !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-team {
+  display: grid !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 112px !important;
+  align-items: center !important;
+  gap: 16px !important;
+  padding: 18px 20px !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-team.is-blue {
+  grid-template-columns: 56px minmax(0, 1fr) 84px !important;
+  grid-template-areas: "logo copy kills" !important;
+  text-align: left !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-team.is-red {
+  grid-template-columns: 84px minmax(0, 1fr) 56px !important;
+  grid-template-areas: "kills copy logo" !important;
+  text-align: right !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-team .analysis-v2-team-logo {
+  grid-area: logo !important;
+  width: 52px !important;
+  height: 52px !important;
+  justify-self: center !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-team .analysis-v2-team-copy {
+  grid-area: copy !important;
+  display: grid !important;
+  min-width: 0 !important;
+  align-content: center !important;
+  gap: 4px !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-team.is-blue .analysis-v2-team-copy {
+  justify-items: start !important;
+  text-align: left !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-team.is-red .analysis-v2-team-copy {
+  justify-items: end !important;
+  text-align: right !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-team .analysis-v2-team-copy h3 {
+  display: -webkit-box !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+  font-size: clamp(16px, 1.25vw, 20px) !important;
+  line-height: 1.18 !important;
+  text-overflow: ellipsis !important;
+  white-space: normal !important;
+  -webkit-box-orient: vertical !important;
+  -webkit-line-clamp: 2 !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-team .analysis-v2-team-copy small {
+  font-size: 12px !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-team .analysis-v2-team-kills {
+  grid-area: kills !important;
+  display: grid !important;
+  min-width: 0 !important;
+  min-height: 68px !important;
+  align-content: center !important;
+  justify-items: center !important;
+  gap: 8px !important;
+  font-size: 34px !important;
+  line-height: 1 !important;
+  text-align: center !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-team .analysis-v2-team-kills::after {
+  content: "Kills" !important;
+  color: var(--rp-muted) !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  letter-spacing: .08em !important;
+  text-transform: uppercase !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-team.is-blue .analysis-v2-team-kills {
+  border-left: 1px solid var(--rp-divider) !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-team.is-red .analysis-v2-team-kills {
+  border-right: 1px solid var(--rp-divider) !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-score-center {
+  display: grid !important;
+  min-height: 112px !important;
+  align-content: center !important;
+  justify-items: center !important;
+  gap: 8px !important;
+  padding: 14px 10px !important;
+  text-align: center !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-score-center .analysis-v2-clock {
+  font-size: 30px !important;
+  line-height: 1 !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-score-center small {
+  max-width: 120px !important;
+  font-size: 10px !important;
+  line-height: 1.35 !important;
+}
+
+@media (max-width: 1100px) {
+  body.minimal-pro-dark-v2 .series-hero[data-series-scoreboard-v3="true"] .series-scoreboard-main {
+    grid-template-columns: minmax(0, 1fr) 152px minmax(0, 1fr) !important;
+    gap: 16px !important;
+    padding: 20px !important;
+  }
+
+  body.minimal-pro-dark-v2 .series-hero[data-series-scoreboard-v3="true"] .series-scoreboard-score {
+    width: 152px !important;
+    min-width: 152px !important;
+  }
+
+  body.minimal-pro-dark-v2 .analysis-v2-scoreboard {
+    grid-template-columns: minmax(0, 1fr) 124px minmax(0, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  body.minimal-pro-dark-v2 .analysis-v2-team {
+    grid-template-columns: 48px minmax(0, 1fr) 70px !important;
+    gap: 10px !important;
+    padding: 16px 14px !important;
+  }
+
+  body.minimal-pro-dark-v2 .analysis-v2-team.is-red {
+    grid-template-columns: 70px minmax(0, 1fr) 48px !important;
+  }
+}
+
+@media (max-width: 760px) {
+  body.minimal-pro-dark-v2 .series-hero[data-series-scoreboard-v3="true"] .series-scoreboard-main {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+  }
+
+  body.minimal-pro-dark-v2 .series-hero[data-series-scoreboard-v3="true"] .series-scoreboard-team.is-team-a,
+  body.minimal-pro-dark-v2 .series-hero[data-series-scoreboard-v3="true"] .series-scoreboard-team.is-team-b {
+    grid-template-columns: 56px minmax(0, 1fr) !important;
+    text-align: left !important;
+  }
+
+  body.minimal-pro-dark-v2 .series-hero[data-series-scoreboard-v3="true"] .series-scoreboard-team.is-team-b .series-hero-team-logo {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    justify-self: start !important;
+  }
+
+  body.minimal-pro-dark-v2 .series-hero[data-series-scoreboard-v3="true"] .series-scoreboard-team.is-team-b .series-scoreboard-team-copy {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    justify-items: start !important;
+    text-align: left !important;
+  }
+
+  body.minimal-pro-dark-v2 .series-hero[data-series-scoreboard-v3="true"] .series-scoreboard-score {
+    grid-row: 1 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    border-right: 0 !important;
+    border-left: 0 !important;
+    border-top: 1px solid var(--rp-divider) !important;
+    border-bottom: 1px solid var(--rp-divider) !important;
+  }
+
+  body.minimal-pro-dark-v2 .analysis-v2-scoreboard {
+    grid-template-columns: 1fr !important;
+  }
+
+  body.minimal-pro-dark-v2 .analysis-v2-team.is-blue,
+  body.minimal-pro-dark-v2 .analysis-v2-team.is-red {
+    grid-template-columns: 52px minmax(0, 1fr) 76px !important;
+    grid-template-areas: "logo copy kills" !important;
+    text-align: left !important;
+  }
+
+  body.minimal-pro-dark-v2 .analysis-v2-team.is-red .analysis-v2-team-copy {
+    justify-items: start !important;
+    text-align: left !important;
+  }
+
+  body.minimal-pro-dark-v2 .analysis-v2-team.is-red .analysis-v2-team-kills {
+    border-right: 0 !important;
+    border-left: 1px solid var(--rp-divider) !important;
+  }
+
+  body.minimal-pro-dark-v2 .analysis-v2-score-center {
+    min-height: 86px !important;
+    order: -1 !important;
+  }
+}

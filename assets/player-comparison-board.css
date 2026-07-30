@@ -1,0 +1,360 @@
+/* Role-by-role mirrored player board inspired by the LoL overall-statistics layout. */
+
+body.minimal-pro-dark-v2 .player-comparison-board {
+  display: block !important;
+  overflow: hidden !important;
+  border: 1px solid var(--rp-border) !important;
+  border-radius: 10px !important;
+  background: var(--rp-panel) !important;
+}
+
+body.minimal-pro-dark-v2 .player-comparison-header {
+  display: flex !important;
+  min-height: 78px !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 24px !important;
+  padding: 16px 20px !important;
+  border-bottom: 1px solid var(--rp-divider) !important;
+  background: var(--rp-panel-soft) !important;
+}
+
+body.minimal-pro-dark-v2 .player-comparison-header > div:first-child {
+  display: grid !important;
+  gap: 4px !important;
+}
+
+body.minimal-pro-dark-v2 .player-comparison-header > div:first-child > span {
+  color: var(--rp-muted) !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: .08em !important;
+  text-transform: uppercase !important;
+}
+
+body.minimal-pro-dark-v2 .player-comparison-header h3 {
+  margin: 0 !important;
+  color: var(--rp-text) !important;
+  font-size: 21px !important;
+  line-height: 1.2 !important;
+}
+
+body.minimal-pro-dark-v2 .player-comparison-legend {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 22px !important;
+  min-width: 0 !important;
+  color: var(--rp-muted) !important;
+  font-size: 13px !important;
+}
+
+body.minimal-pro-dark-v2 .player-comparison-legend > span {
+  display: inline-flex !important;
+  min-width: 0 !important;
+  align-items: center !important;
+  gap: 8px !important;
+  white-space: nowrap !important;
+}
+
+body.minimal-pro-dark-v2 .player-comparison-legend i {
+  width: 9px !important;
+  height: 9px !important;
+  flex: 0 0 9px !important;
+  border-radius: 50% !important;
+  background: currentColor !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, currentColor 15%, transparent) !important;
+}
+
+body.minimal-pro-dark-v2 .player-comparison-table {
+  display: grid !important;
+  gap: 0 !important;
+  width: 100% !important;
+}
+
+body.minimal-pro-dark-v2 .player-comparison-row {
+  display: grid !important;
+  grid-template-columns: 196px 108px minmax(190px, 1fr) 72px minmax(190px, 1fr) 108px 196px !important;
+  grid-template-areas: "blue-items blue-stats blue-identity role red-identity red-stats red-items" !important;
+  min-height: 96px !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 12px 18px !important;
+  border-bottom: 1px solid var(--rp-divider) !important;
+  background: transparent !important;
+}
+
+body.minimal-pro-dark-v2 .player-comparison-row:last-child {
+  border-bottom: 0 !important;
+}
+
+body.minimal-pro-dark-v2 .player-comparison-row .blue-items { grid-area: blue-items; }
+body.minimal-pro-dark-v2 .player-comparison-row .blue-stats { grid-area: blue-stats; }
+body.minimal-pro-dark-v2 .player-comparison-row .blue-identity { grid-area: blue-identity; }
+body.minimal-pro-dark-v2 .player-comparison-row .player-comparison-role { grid-area: role; }
+body.minimal-pro-dark-v2 .player-comparison-row .red-identity { grid-area: red-identity; }
+body.minimal-pro-dark-v2 .player-comparison-row .red-stats { grid-area: red-stats; }
+body.minimal-pro-dark-v2 .player-comparison-row .red-items { grid-area: red-items; }
+
+body.minimal-pro-dark-v2 .comparison-items.player-items {
+  display: grid !important;
+  grid-template-columns: repeat(6, 30px) !important;
+  gap: 3px !important;
+  width: max-content !important;
+  max-width: none !important;
+}
+
+body.minimal-pro-dark-v2 .comparison-items.is-blue {
+  justify-self: start !important;
+}
+
+body.minimal-pro-dark-v2 .comparison-items.is-red {
+  justify-self: end !important;
+}
+
+body.minimal-pro-dark-v2 .comparison-items .player-item,
+body.minimal-pro-dark-v2 .comparison-items .player-item-empty {
+  width: 30px !important;
+  height: 30px !important;
+  border-radius: 5px !important;
+  border: 1px solid var(--rp-border) !important;
+  background: var(--rp-panel-raised) !important;
+}
+
+body.minimal-pro-dark-v2 .comparison-items .player-item img {
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: inherit !important;
+  object-fit: cover !important;
+}
+
+body.minimal-pro-dark-v2 .comparison-identity.player-identity {
+  display: flex !important;
+  min-width: 0 !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+
+body.minimal-pro-dark-v2 .comparison-identity.is-blue {
+  flex-direction: row-reverse !important;
+  justify-content: flex-start !important;
+  text-align: right !important;
+}
+
+body.minimal-pro-dark-v2 .comparison-identity.is-red {
+  justify-content: flex-start !important;
+  text-align: left !important;
+}
+
+body.minimal-pro-dark-v2 .comparison-identity .champion-portrait {
+  position: relative !important;
+  width: 58px !important;
+  height: 58px !important;
+  flex: 0 0 58px !important;
+  border-radius: 7px !important;
+  border: 1px solid var(--rp-border-strong) !important;
+  background: var(--rp-panel-raised) !important;
+}
+
+body.minimal-pro-dark-v2 .comparison-identity .champion-level {
+  position: absolute !important;
+  right: -1px !important;
+  bottom: -1px !important;
+  z-index: 3 !important;
+  display: grid !important;
+  min-width: 20px !important;
+  height: 20px !important;
+  place-items: center !important;
+  padding: 0 4px !important;
+  border: 1px solid rgba(255, 255, 255, .28) !important;
+  border-radius: 5px 0 6px 0 !important;
+  background: #2463d4 !important;
+  color: #fff !important;
+  font-size: 10px !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+}
+
+body.minimal-pro-dark-v2 .comparison-identity.is-red .champion-level {
+  background: #d94758 !important;
+}
+
+body.minimal-pro-dark-v2 .comparison-identity .player-copy {
+  min-width: 0 !important;
+  gap: 4px !important;
+}
+
+body.minimal-pro-dark-v2 .comparison-identity .player-copy strong {
+  color: var(--rp-text) !important;
+  font-size: 15px !important;
+  line-height: 1.2 !important;
+}
+
+body.minimal-pro-dark-v2 .comparison-identity .player-copy small {
+  color: var(--rp-muted) !important;
+  font-size: 11px !important;
+  line-height: 1.3 !important;
+}
+
+body.minimal-pro-dark-v2 .player-comparison-stats {
+  display: grid !important;
+  min-width: 0 !important;
+  align-content: center !important;
+  gap: 4px !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+body.minimal-pro-dark-v2 .player-comparison-stats.is-blue {
+  justify-items: end !important;
+  text-align: right !important;
+}
+
+body.minimal-pro-dark-v2 .player-comparison-stats.is-red {
+  justify-items: start !important;
+  text-align: left !important;
+}
+
+body.minimal-pro-dark-v2 .comparison-kda {
+  color: var(--rp-blue) !important;
+  font-size: 18px !important;
+  line-height: 1.15 !important;
+  letter-spacing: .02em !important;
+}
+
+body.minimal-pro-dark-v2 .player-comparison-stats.is-red .comparison-kda {
+  color: var(--rp-red) !important;
+}
+
+body.minimal-pro-dark-v2 .player-comparison-stats > span {
+  display: inline-flex !important;
+  align-items: baseline !important;
+  gap: 6px !important;
+  color: var(--rp-text-soft) !important;
+  font-size: 12px !important;
+  line-height: 1.2 !important;
+}
+
+body.minimal-pro-dark-v2 .player-comparison-stats > span b {
+  color: var(--rp-faint) !important;
+  font-size: 9px !important;
+  font-weight: 700 !important;
+  letter-spacing: .05em !important;
+  text-transform: uppercase !important;
+}
+
+body.minimal-pro-dark-v2 .player-comparison-role {
+  display: grid !important;
+  justify-items: center !important;
+  gap: 5px !important;
+  color: var(--rp-faint) !important;
+  text-align: center !important;
+}
+
+body.minimal-pro-dark-v2 .player-comparison-role > span {
+  display: grid !important;
+  width: 38px !important;
+  height: 30px !important;
+  place-items: center !important;
+  border: 1px solid var(--rp-border) !important;
+  border-radius: 7px !important;
+  background: var(--rp-panel-raised) !important;
+  color: var(--rp-muted) !important;
+  font-size: 9px !important;
+  font-weight: 800 !important;
+  letter-spacing: .08em !important;
+}
+
+body.minimal-pro-dark-v2 .player-comparison-role strong {
+  color: var(--rp-muted) !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  letter-spacing: .05em !important;
+  text-transform: uppercase !important;
+}
+
+@media (hover: hover) {
+  body.minimal-pro-dark-v2 .player-comparison-row:hover {
+    background: rgba(255, 255, 255, .018) !important;
+  }
+}
+
+@media (max-width: 1500px) {
+  body.minimal-pro-dark-v2 .player-comparison-row {
+    grid-template-columns: minmax(0, 1fr) 74px minmax(0, 1fr) !important;
+    grid-template-areas:
+      "blue-identity role red-identity"
+      "blue-stats role red-stats"
+      "blue-items role red-items" !important;
+    min-height: 170px !important;
+    gap: 8px 16px !important;
+    padding: 14px 18px !important;
+  }
+
+  body.minimal-pro-dark-v2 .comparison-items.player-items {
+    grid-template-columns: repeat(6, 30px) !important;
+  }
+
+  body.minimal-pro-dark-v2 .comparison-items.is-blue {
+    justify-self: end !important;
+  }
+
+  body.minimal-pro-dark-v2 .comparison-items.is-red {
+    justify-self: start !important;
+  }
+}
+
+@media (max-width: 760px) {
+  body.minimal-pro-dark-v2 .player-comparison-header {
+    align-items: flex-start !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+
+  body.minimal-pro-dark-v2 .player-comparison-legend {
+    width: 100% !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+  }
+
+  body.minimal-pro-dark-v2 .player-comparison-row {
+    grid-template-columns: 1fr !important;
+    grid-template-areas:
+      "role"
+      "blue-identity"
+      "blue-stats"
+      "blue-items"
+      "red-identity"
+      "red-stats"
+      "red-items" !important;
+    min-height: 0 !important;
+    gap: 10px !important;
+    padding: 18px !important;
+  }
+
+  body.minimal-pro-dark-v2 .comparison-identity.is-blue,
+  body.minimal-pro-dark-v2 .comparison-identity.is-red {
+    flex-direction: row !important;
+    justify-content: flex-start !important;
+    text-align: left !important;
+  }
+
+  body.minimal-pro-dark-v2 .player-comparison-stats.is-blue,
+  body.minimal-pro-dark-v2 .player-comparison-stats.is-red {
+    grid-template-columns: auto auto auto !important;
+    justify-content: start !important;
+    justify-items: start !important;
+    align-items: baseline !important;
+    text-align: left !important;
+  }
+
+  body.minimal-pro-dark-v2 .comparison-items.is-blue,
+  body.minimal-pro-dark-v2 .comparison-items.is-red {
+    justify-self: start !important;
+  }
+
+  body.minimal-pro-dark-v2 .red-identity {
+    margin-top: 8px !important;
+    padding-top: 16px !important;
+    border-top: 1px solid var(--rp-divider) !important;
+  }
+}

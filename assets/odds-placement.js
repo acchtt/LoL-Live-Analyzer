@@ -18,6 +18,10 @@
     return Boolean(panel && panel.childElementCount > 0 && panel.textContent.trim());
   }
 
+  function liveOddsEnabled(slot) {
+    return Boolean(slot && slot.dataset.oddsMode !== 'archive' && state?.selectedMatchState !== 'completed');
+  }
+
   function placeOddsPanel() {
     placementQueued = false;
 
@@ -30,6 +34,13 @@
     }
 
     const placeholder = slot.querySelector('[data-odds-placeholder]');
+    if (!liveOddsEnabled(slot)) {
+      slot.classList.remove('has-odds');
+      placeholder?.removeAttribute('hidden');
+      if (panel) panel.hidden = true;
+      return;
+    }
+
     if (!hasVisibleContent(panel)) {
       slot.classList.remove('has-odds');
       placeholder?.removeAttribute('hidden');
@@ -81,5 +92,5 @@
   capturePanel();
   queuePlacement();
   // Covers delayed bridge responses and panels rebuilt by the polling layer.
-  setInterval(() => queuePlacement(), 500);
+  setInterval(() => queuePlacement(), 350);
 })();

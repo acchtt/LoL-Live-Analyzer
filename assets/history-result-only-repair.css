@@ -1,0 +1,182 @@
+/* Result-only history records: one clipped card with internal dividers. */
+body.minimal-pro-dark-v2 .game-panel:has(.series-hero[data-history-archive="missing"]) {
+  overflow: visible !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+body.minimal-pro-dark-v2 .game-content:has(> .series-hero[data-history-archive="missing"]) {
+  padding: 0 !important;
+  background: var(--rp-bg) !important;
+}
+
+body.minimal-pro-dark-v2 .game-content > .series-hero[data-history-archive="missing"] {
+  overflow: hidden !important;
+  border: 1px solid var(--rp-border) !important;
+  border-radius: 12px !important;
+  background: var(--rp-panel) !important;
+  background-clip: padding-box !important;
+  box-shadow: none !important;
+  isolation: isolate !important;
+}
+
+body.minimal-pro-dark-v2 .game-content > .series-hero[data-history-archive="missing"]::before,
+body.minimal-pro-dark-v2 .game-content > .series-hero[data-history-archive="missing"]::after,
+body.minimal-pro-dark-v2 .series-hero[data-history-archive="missing"] .series-scoreboard-navigation::before,
+body.minimal-pro-dark-v2 .series-hero[data-history-archive="missing"] .series-scoreboard-navigation::after {
+  display: none !important;
+  content: none !important;
+}
+
+/* The outer hero owns the surface, radius, and side borders. */
+body.minimal-pro-dark-v2 .series-hero[data-history-archive="missing"] .series-scoreboard-meta,
+body.minimal-pro-dark-v2 .series-hero[data-history-archive="missing"] .series-scoreboard-main,
+body.minimal-pro-dark-v2 .series-hero[data-history-archive="missing"] .series-scoreboard-navigation,
+body.minimal-pro-dark-v2 .series-hero[data-history-archive="missing"] .series-hero-top,
+body.minimal-pro-dark-v2 .series-hero[data-history-archive="missing"] .series-hero-rail,
+body.minimal-pro-dark-v2 .series-hero[data-history-archive="missing"] .history-series-track {
+  max-width: 100% !important;
+  border-right: 0 !important;
+  border-left: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero[data-history-archive="missing"] .series-scoreboard-meta {
+  border-top: 0 !important;
+  border-bottom: 1px solid var(--rp-divider) !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero[data-history-archive="missing"] .series-scoreboard-main {
+  min-height: 142px !important;
+  border-top: 0 !important;
+  border-bottom: 1px solid var(--rp-divider) !important;
+  background: var(--rp-panel) !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero[data-history-archive="missing"] .series-scoreboard-team-result {
+  display: none !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero[data-history-archive="missing"] .series-scoreboard-score {
+  min-height: 100px !important;
+  overflow: hidden !important;
+  border: 1px solid var(--rp-divider) !important;
+  border-radius: 12px !important;
+  background: var(--rp-panel-soft) !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero[data-history-archive="missing"] .series-scoreboard-score > span,
+body.minimal-pro-dark-v2 .series-hero[data-history-archive="missing"] .series-scoreboard-score .series-scoreboard-score-side,
+body.minimal-pro-dark-v2 .series-hero[data-history-archive="missing"] .series-scoreboard-score-separator {
+  color: var(--rp-muted) !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero[data-history-archive="missing"] .series-scoreboard-score > small {
+  color: var(--rp-faint) !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero[data-history-archive="missing"] .series-scoreboard-score > .series-scoreboard-score-value {
+  column-gap: 18px !important;
+}
+
+/* Archive availability is the final row, not another card inside the hero. */
+body.minimal-pro-dark-v2 .series-hero[data-history-archive="missing"] .series-scoreboard-navigation,
+body.minimal-pro-dark-v2 .series-hero[data-history-archive="missing"] .history-series-track {
+  display: block !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  border-top: 0 !important;
+  border-bottom: 0 !important;
+  background: var(--rp-panel) !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero[data-history-archive="missing"] .series-hero-games.is-unavailable,
+body.minimal-pro-dark-v2 .series-hero[data-history-archive="missing"] .history-game-nav.is-unavailable {
+  display: block !important;
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero[data-history-archive="missing"] .history-archive-unavailable {
+  display: flex !important;
+  width: 100% !important;
+  min-height: 88px !important;
+  align-items: center !important;
+  gap: 14px !important;
+  margin: 0 !important;
+  padding: 18px 20px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+body.minimal-pro-dark-v2 .history-archive-unavailable-icon {
+  display: grid !important;
+  width: 40px !important;
+  height: 40px !important;
+  flex: 0 0 40px !important;
+  place-items: center !important;
+  border: 1px solid rgba(233, 162, 59, .30) !important;
+  border-radius: 10px !important;
+  background: rgba(233, 162, 59, .07) !important;
+  color: var(--rp-amber) !important;
+}
+
+body.minimal-pro-dark-v2 .history-archive-unavailable-icon svg {
+  width: 18px !important;
+  height: 18px !important;
+  fill: none !important;
+  stroke: currentColor !important;
+  stroke-width: 1.7 !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+}
+
+body.minimal-pro-dark-v2 .history-archive-unavailable-copy {
+  display: grid !important;
+  min-width: 0 !important;
+  gap: 5px !important;
+}
+
+body.minimal-pro-dark-v2 .history-archive-unavailable-copy strong {
+  color: var(--rp-text) !important;
+  font-size: 14px !important;
+  line-height: 1.2 !important;
+}
+
+body.minimal-pro-dark-v2 .history-archive-unavailable-copy small {
+  color: var(--rp-muted) !important;
+  font-size: 12px !important;
+  line-height: 1.45 !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero[data-history-archive="missing"] .history-archive-badge.is-unavailable,
+body.minimal-pro-dark-v2 .series-hero[data-history-archive="missing"] .series-hero-badge.is-unavailable {
+  border-color: rgba(233, 162, 59, .30) !important;
+  background: rgba(233, 162, 59, .06) !important;
+  color: var(--rp-amber) !important;
+}
+
+@media (max-width: 760px) {
+  body.minimal-pro-dark-v2 .series-hero[data-history-archive="missing"] .series-scoreboard-main {
+    min-height: 0 !important;
+  }
+
+  body.minimal-pro-dark-v2 .series-hero[data-history-archive="missing"] .history-archive-unavailable {
+    min-height: 0 !important;
+    align-items: flex-start !important;
+    padding: 16px !important;
+  }
+}

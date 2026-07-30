@@ -3,7 +3,7 @@ import {
   FRESH_FRAME_SECONDS,
   FUTURE_TOLERANCE_SECONDS
 } from './lib/reliability-policy.js';
-import { createRiotClient } from './lib/riot-client.js';
+import { createRiotClient } from './lib/fresh-riot-client.js';
 import { buildLiveSnapshot } from './lib/live-snapshot.js';
 import { resolveActiveGame } from './lib/live-resolver.js';
 import {
@@ -17,7 +17,7 @@ function cors() {
     'Access-Control-Allow-Methods': 'GET, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Accept',
     'Access-Control-Max-Age': '86400',
-    'Access-Control-Expose-Headers': 'Content-Type, Cache-Control, X-Data-Quality, X-Worker-Version',
+    'Access-Control-Expose-Headers': 'Content-Type, Cache-Control, X-Data-Quality, X-Retrieval-Ms, X-Worker-Version, Server-Timing',
     'Cross-Origin-Resource-Policy': 'cross-origin'
   };
 }
@@ -42,6 +42,15 @@ function required(value, name) {
 
 function eventMatchId(event) {
   return String(event?.match?.id || event?.id || '');
+}
+
+function retrievalHeaders(payload) {
+  const elapsed = Number(payload?.retrieval?.totalMs);
+  if (!Number.isFinite(elapsed)) return {};
+  return {
+    'X-Retrieval-Ms': String(Math.max(0, Math.round(elapsed))),
+    'Server-Timing': `retrieval;dur=${Math.max(0, elapsed)}`
+  };
 }
 
 async function reliableSchedule(riot, leagueId) {
@@ -95,7 +104,12 @@ export default {
             freshFrameSeconds: FRESH_FRAME_SECONDS,
             degradedFrameSeconds: DEGRADED_FRAME_SECONDS,
             futureToleranceSeconds: FUTURE_TOLERANCE_SECONDS,
-            maximumWindowRequestsPerSnapshot: 3,
+            maximumWindowRequestsPerSnapshot: 17,
+            detailsProbeKeys: 4,
+            hedgedWindowLookup: true,
+            delayedPrimaryFreshnessSweep: true,
+            freshnessSweepCooldownSeconds: 15,
+            upstreamTimeoutsEnabled: true,
             officialScoresFromTelemetryInference: false,
             clinchedSeriesRetiredFromLiveSchedule: true,
             unresolvedPlaceholderMatchesHidden: true
@@ -120,7 +134,8 @@ export default {
         const gameId = required(url.searchParams.get('gameId'), 'gameId');
         const snapshot = await buildLiveSnapshot(gameId, env, url.searchParams.get('after'), riot);
         return json(snapshot, 200, {
-          'X-Data-Quality': snapshot?.quality?.safeForLiveAnalysis ? 'safe' : snapshot?.quality?.freshness || 'unavailable'
+          'X-Data-Quality': snapshot?.quality?.safeForLiveAnalysis ? 'safe' : snapshot?.quality?.freshness || 'unavailable',
+          ...retrievalHeaders(snapshot)
         });
       }
       if (url.pathname === '/api/resolve-game') {

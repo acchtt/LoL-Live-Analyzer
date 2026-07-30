@@ -1,0 +1,201 @@
+/* Focused fixes for the Minimal Pro Dark v2 preview. */
+body.minimal-pro-dark-v2 .brand-identity {
+  display: inline-flex !important;
+  width: auto !important;
+  height: auto !important;
+  aspect-ratio: auto !important;
+  flex: 0 0 auto !important;
+  align-items: center !important;
+  gap: 8px !important;
+  background: none !important;
+  background-image: none !important;
+}
+
+body.minimal-pro-dark-v2 .brand-mark {
+  display: block !important;
+  width: 25px !important;
+  height: 25px !important;
+  filter: grayscale(1) brightness(1.45) opacity(.82) !important;
+}
+
+body.minimal-pro-dark-v2 .brand-wordmark {
+  display: inline-flex !important;
+  align-items: baseline !important;
+  font-style: normal !important;
+}
+
+body.minimal-pro-dark-v2 .brand-wordmark,
+body.minimal-pro-dark-v2 .brand-rift,
+body.minimal-pro-dark-v2 .brand-pulse {
+  background: none !important;
+  background-image: none !important;
+  color: var(--rp-text) !important;
+  -webkit-background-clip: border-box !important;
+  background-clip: border-box !important;
+  -webkit-text-fill-color: currentColor !important;
+  filter: none !important;
+  text-shadow: none !important;
+}
+
+body.minimal-pro-dark-v2 .brand-pulse {
+  color: #a9b8cb !important;
+}
+
+/* Do not leave a status message floating in the middle of an empty viewport. */
+body.minimal-pro-dark-v2 .game-content > .hero-empty,
+body.minimal-pro-dark-v2 .game-content > .analysis-empty {
+  width: auto !important;
+  min-height: 0 !important;
+  height: auto !important;
+  max-width: 680px;
+  margin: 16px !important;
+  padding: 18px 20px !important;
+  place-content: start !important;
+  align-content: start !important;
+  justify-items: start !important;
+  border: 1px solid var(--rp-border) !important;
+  border-radius: 8px !important;
+  background: var(--rp-panel) !important;
+  color: var(--rp-muted) !important;
+  text-align: left !important;
+  box-shadow: none !important;
+}
+
+body.minimal-pro-dark-v2 .game-content > .hero-empty strong,
+body.minimal-pro-dark-v2 .game-content > .analysis-empty h2 {
+  margin: 0 !important;
+  color: var(--rp-text) !important;
+  font: 700 15px/1.2 var(--rp-font) !important;
+}
+
+body.minimal-pro-dark-v2 .game-content > .hero-empty span,
+body.minimal-pro-dark-v2 .game-content > .analysis-empty p {
+  max-width: 620px;
+  margin: 7px 0 0 !important;
+  color: var(--rp-muted) !important;
+  font: 500 11px/1.45 var(--rp-font) !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-empty-mark,
+body.minimal-pro-dark-v2 .analysis-empty-features {
+  display: none !important;
+}
+
+/* The API feed must remain a compact drawer when closed. */
+body.minimal-pro-dark-v2 .machine-panel.data-drawer {
+  align-self: start !important;
+  min-height: 46px !important;
+  overflow: hidden !important;
+}
+
+body.minimal-pro-dark-v2 .machine-panel.data-drawer:not(.is-open) {
+  height: 46px !important;
+  min-height: 46px !important;
+  max-height: 46px !important;
+}
+
+body.minimal-pro-dark-v2 .machine-panel.data-drawer.is-open {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: min(520px, 62vh) !important;
+}
+
+body.minimal-pro-dark-v2 .data-drawer .app-panel-heading,
+body.minimal-pro-dark-v2 .data-drawer .panel-heading {
+  display: flex !important;
+  min-height: 46px !important;
+  height: 46px !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  padding: 6px 10px !important;
+}
+
+body.minimal-pro-dark-v2 .data-drawer-toggle {
+  display: flex !important;
+  width: auto !important;
+  min-width: 0 !important;
+  min-height: 32px !important;
+  height: 32px !important;
+  flex: 1 1 auto !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px !important;
+  margin: 0 !important;
+  padding: 0 6px !important;
+  border: 0 !important;
+  border-radius: 5px !important;
+  background: transparent !important;
+  color: var(--rp-text) !important;
+  box-shadow: none !important;
+  text-align: left !important;
+}
+
+body.minimal-pro-dark-v2 .data-drawer-toggle:hover {
+  background: var(--rp-panel-raised) !important;
+}
+
+body.minimal-pro-dark-v2 .data-drawer-toggle > svg {
+  display: block !important;
+  width: 14px !important;
+  height: 14px !important;
+  min-width: 14px !important;
+  flex: 0 0 14px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  color: var(--rp-faint) !important;
+  background: transparent !important;
+  transform: none;
+  transition: transform .16s ease;
+}
+
+body.minimal-pro-dark-v2 .data-drawer.is-open .data-drawer-toggle > svg {
+  transform: rotate(90deg);
+}
+
+body.minimal-pro-dark-v2 .data-drawer-label {
+  display: grid !important;
+  min-width: 0;
+  gap: 2px;
+}
+
+body.minimal-pro-dark-v2 .data-drawer-label small {
+  color: var(--rp-faint) !important;
+  font: 650 8px/1 var(--rp-font) !important;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+body.minimal-pro-dark-v2 .data-drawer-label strong {
+  color: var(--rp-text) !important;
+  font: 650 11px/1.1 var(--rp-font) !important;
+}
+
+body.minimal-pro-dark-v2 .data-drawer-actions {
+  display: flex !important;
+  flex: 0 0 auto;
+  align-items: center;
+}
+
+body.minimal-pro-dark-v2 .data-drawer .feed-body[hidden],
+body.minimal-pro-dark-v2 .data-drawer:not(.is-open) .feed-body {
+  display: none !important;
+}
+
+body.minimal-pro-dark-v2 .data-drawer.is-open .feed-body {
+  display: grid !important;
+  min-height: 0 !important;
+  overflow: auto !important;
+}
+
+/* Broadcast-live does not imply that Riot telemetry is available. */
+body.minimal-pro-dark-v2 .series-hero.is-telemetry-unavailable .series-hero-score > span,
+body.minimal-pro-dark-v2 .series-hero.is-telemetry-unavailable .series-hero-badge,
+body.minimal-pro-dark-v2 .series-hero.is-telemetry-unavailable .series-hero-game.is-waiting > small {
+  color: var(--rp-amber) !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero.is-telemetry-unavailable .series-hero-badge,
+body.minimal-pro-dark-v2 .series-hero.is-telemetry-unavailable .series-hero-game.is-waiting {
+  border-color: rgba(233, 162, 59, .42) !important;
+}

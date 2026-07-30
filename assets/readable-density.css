@@ -1,0 +1,464 @@
+/* Readable density pass: keep the compact layout, restore comfortable desktop text size. */
+
+body.minimal-pro-dark-v2 {
+  font-size: 14px !important;
+}
+
+body.minimal-pro-dark-v2 .app-workspace {
+  grid-template-columns: minmax(390px, 420px) minmax(0, 1fr) !important;
+  gap: 14px !important;
+  padding: 14px !important;
+}
+
+body.minimal-pro-dark-v2 .app-header,
+body.minimal-pro-dark-v2 .topbar,
+body.minimal-pro-dark-v2 .app-header-inner {
+  height: 62px !important;
+  min-height: 62px !important;
+}
+
+body.minimal-pro-dark-v2 .brand-mark {
+  width: 28px !important;
+  height: 28px !important;
+}
+
+body.minimal-pro-dark-v2 .brand-wordmark {
+  font-size: 19px !important;
+}
+
+body.minimal-pro-dark-v2 .brand-mode {
+  font-size: 10px !important;
+}
+
+body.minimal-pro-dark-v2 .status-wrap {
+  min-height: 32px !important;
+  font-size: 12px !important;
+}
+
+body.minimal-pro-dark-v2 .schedule-panel {
+  top: 76px !important;
+  height: calc(100vh - 90px) !important;
+}
+
+body.minimal-pro-dark-v2 .game-panel,
+body.minimal-pro-dark-v2 .game-content {
+  min-height: calc(100vh - 90px) !important;
+}
+
+body.minimal-pro-dark-v2 .game-content {
+  height: calc(100vh - 90px) !important;
+}
+
+body.minimal-pro-dark-v2 .app-panel-heading,
+body.minimal-pro-dark-v2 .panel-heading {
+  min-height: 58px !important;
+  padding: 13px 15px !important;
+}
+
+body.minimal-pro-dark-v2 .eyebrow {
+  font-size: 10px !important;
+}
+
+body.minimal-pro-dark-v2 .panel-heading h2,
+body.minimal-pro-dark-v2 .app-panel-heading h2 {
+  font-size: 16px !important;
+}
+
+body.minimal-pro-dark-v2 .ghost-button,
+body.minimal-pro-dark-v2 .compact-action {
+  min-height: 34px !important;
+  padding: 0 12px !important;
+  font-size: 12px !important;
+}
+
+body.minimal-pro-dark-v2 .sport-switcher,
+body.minimal-pro-dark-v2 .schedule-controls {
+  padding: 12px 14px !important;
+}
+
+body.minimal-pro-dark-v2 .sport-option {
+  min-height: 46px !important;
+  font-size: 12px !important;
+}
+
+body.minimal-pro-dark-v2 .sport-option small {
+  font-size: 9px !important;
+}
+
+body.minimal-pro-dark-v2 .schedule-tab,
+body.minimal-pro-dark-v2 .active-league-filter {
+  min-height: 42px !important;
+  font-size: 12px !important;
+}
+
+body.minimal-pro-dark-v2 .schedule-tab-count {
+  min-width: 24px !important;
+  min-height: 22px !important;
+  font-size: 10px !important;
+}
+
+body.minimal-pro-dark-v2 .match-card {
+  padding: 14px 15px !important;
+}
+
+body.minimal-pro-dark-v2 .match-meta {
+  font-size: 11px !important;
+}
+
+body.minimal-pro-dark-v2 .team-line {
+  min-height: 31px !important;
+}
+
+body.minimal-pro-dark-v2 .team-name {
+  font-size: 13px !important;
+}
+
+body.minimal-pro-dark-v2 .team-name img {
+  width: 25px !important;
+  height: 25px !important;
+}
+
+body.minimal-pro-dark-v2 .team-line strong {
+  font-size: 14px !important;
+}
+
+/* Series header: still compact, but readable at normal desktop distance. */
+body.minimal-pro-dark-v2 .series-hero-top {
+  grid-template-columns: 130px minmax(0, 1fr) 104px !important;
+  min-height: 82px !important;
+  gap: 14px !important;
+  padding: 11px 14px !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero-kicker strong {
+  font-size: 9px !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero-kicker small {
+  font-size: 8px !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero-matchup {
+  grid-template-columns: minmax(0, 1fr) 24px minmax(0, 1fr) !important;
+  min-height: 56px !important;
+  gap: 10px !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero-versus {
+  font-size: 9px !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero-team-logo {
+  width: 36px !important;
+  height: 36px !important;
+  flex-basis: 36px !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero-team strong {
+  font-size: clamp(14px, 1.2vw, 18px) !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero-score {
+  width: 104px !important;
+  min-width: 104px !important;
+  padding: 8px 7px !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero-score > span {
+  font-size: 8px !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero-score > strong {
+  font-size: 25px !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero-score > small {
+  max-width: 90px !important;
+  font-size: 8px !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero-rail {
+  min-height: 54px !important;
+  padding: 8px 14px !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero-game {
+  min-height: 40px !important;
+  padding: 6px 9px !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero-game > span {
+  font-size: 10px !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero-game > small {
+  font-size: 8px !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero-badge,
+body.minimal-pro-dark-v2 .live-series-return {
+  min-height: 30px !important;
+  padding: 0 10px !important;
+  font-size: 9px !important;
+}
+
+/* Scoreboard: moderate height and legible labels without returning to the old oversized cards. */
+body.minimal-pro-dark-v2 .analysis-v2-scoreboard {
+  grid-template-columns: minmax(0, 1fr) 112px minmax(0, 1fr) !important;
+  gap: 8px !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-team,
+body.minimal-pro-dark-v2 .analysis-v2-score-center {
+  min-height: 78px !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-team {
+  gap: 11px !important;
+  padding: 10px 12px !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-team.is-blue {
+  grid-template-columns: 38px minmax(0, 1fr) 58px !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-team.is-red {
+  grid-template-columns: 58px minmax(0, 1fr) 38px !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-team-logo {
+  width: 38px !important;
+  height: 38px !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-team-copy span {
+  font-size: 9px !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-team-copy h3 {
+  margin: 3px 0 4px !important;
+  font-size: 15px !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-team-copy small {
+  font-size: 10px !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-team-kills {
+  min-width: 58px !important;
+  min-height: 52px !important;
+  padding-bottom: 13px !important;
+  font-size: 26px !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-team-kills::after {
+  font-size: 7px !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-score-center {
+  padding: 8px 6px !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-score-center > span {
+  font-size: 8px !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-clock {
+  font-size: 23px !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-score-center small {
+  font-size: 9px !important;
+}
+
+/* Analysis blocks. */
+body.minimal-pro-dark-v2 .analysis-v2-shell,
+body.minimal-pro-dark-v2 .analysis-shell {
+  gap: 12px !important;
+  padding: 12px !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-state-header {
+  min-height: 54px !important;
+  padding: 11px 13px !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-state-heading > span {
+  font-size: 9px !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-state-heading h3 {
+  font-size: 15px !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-state-legend {
+  min-height: 30px !important;
+  font-size: 10px !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-state-content {
+  padding: 12px !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-overview-grid {
+  gap: 10px !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-lead,
+body.minimal-pro-dark-v2 .analysis-v2-objective {
+  min-height: 92px !important;
+  padding: 13px 14px !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-lead > span,
+body.minimal-pro-dark-v2 .analysis-v2-objective > span {
+  font-size: 9px !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-lead > strong {
+  font-size: 19px !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-lead > small {
+  font-size: 10px !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-objective > div strong {
+  font-size: 21px !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-objective > small {
+  font-size: 9px !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-odds-placeholder {
+  min-height: 82px !important;
+  padding: 15px 16px !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-odds-placeholder > span {
+  font-size: 9px !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-odds-placeholder h3 {
+  font-size: 15px !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-odds-placeholder p {
+  font-size: 11px !important;
+}
+
+/* Player tables: larger rows, proper header spacing, and readable numeric columns. */
+body.minimal-pro-dark-v2 .analysis-v2-lineups {
+  gap: 12px !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-lineup > header {
+  min-height: 52px !important;
+  padding: 10px 12px !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-lineup > header > div:first-child {
+  display: flex !important;
+  min-width: 0;
+  align-items: baseline !important;
+  gap: 7px !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-lineup > header strong {
+  font-size: 14px !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-lineup > header > div:first-child > span {
+  font-size: 9px !important;
+  letter-spacing: .06em !important;
+  text-transform: uppercase;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-lineup-columns {
+  gap: 12px !important;
+  font-size: 9px !important;
+}
+
+body.minimal-pro-dark-v2 .enhanced-player-row,
+body.minimal-pro-dark-v2 .analysis-v2-lineup .player-row {
+  min-height: 56px !important;
+  padding: 8px 12px !important;
+}
+
+body.minimal-pro-dark-v2 .champion-portrait {
+  width: 38px !important;
+  height: 38px !important;
+  flex-basis: 38px !important;
+}
+
+body.minimal-pro-dark-v2 .player-copy strong {
+  font-size: 12px !important;
+}
+
+body.minimal-pro-dark-v2 .player-copy small {
+  font-size: 10px !important;
+}
+
+body.minimal-pro-dark-v2 .player-kda,
+body.minimal-pro-dark-v2 .player-cs,
+body.minimal-pro-dark-v2 .player-gold {
+  font-size: 11px !important;
+}
+
+body.minimal-pro-dark-v2 .player-item,
+body.minimal-pro-dark-v2 .player-item-empty {
+  width: 26px !important;
+  height: 26px !important;
+}
+
+body.minimal-pro-dark-v2 .data-drawer .app-panel-heading {
+  min-height: 50px !important;
+}
+
+body.minimal-pro-dark-v2 .data-drawer-label small {
+  font-size: 9px !important;
+}
+
+body.minimal-pro-dark-v2 .data-drawer-label strong {
+  font-size: 12px !important;
+}
+
+body.minimal-pro-dark-v2 .app-footer {
+  min-height: 38px !important;
+  font-size: 9px !important;
+}
+
+@media (max-width: 1260px) {
+  body.minimal-pro-dark-v2 .app-workspace {
+    grid-template-columns: 350px minmax(0, 1fr) !important;
+  }
+
+  body.minimal-pro-dark-v2 .series-hero-top {
+    grid-template-columns: 105px minmax(0, 1fr) 92px !important;
+  }
+
+  body.minimal-pro-dark-v2 .series-hero-score {
+    width: 92px !important;
+    min-width: 92px !important;
+  }
+}
+
+@media (max-width: 820px) {
+  body.minimal-pro-dark-v2 .app-workspace {
+    grid-template-columns: 1fr !important;
+  }
+
+  body.minimal-pro-dark-v2 .schedule-panel,
+  body.minimal-pro-dark-v2 .game-content {
+    height: auto !important;
+  }
+
+  body.minimal-pro-dark-v2 .series-hero-top {
+    grid-template-columns: minmax(0, 1fr) 92px !important;
+  }
+
+  body.minimal-pro-dark-v2 .analysis-v2-score-center {
+    min-height: 64px !important;
+  }
+}

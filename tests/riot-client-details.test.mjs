@@ -2,24 +2,27 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createRiotClient, detailProbeTimes } from '../lib/riot-client.js';
 
-test('detail probes include exact and rounded Riot timestamps without duplicates', () => {
+test('detail probes cover exact, rounded and adjacent Riot timestamps without duplicates', () => {
   assert.deepEqual(detailProbeTimes('2026-07-28T12:47:49.909Z'), [
     '2026-07-28T12:47:49.909Z',
     '2026-07-28T12:47:40.000Z',
+    '2026-07-28T12:47:50.000Z',
     '2026-07-28T12:47:30.000Z'
   ]);
 });
 
-test('details lookup retries a rounded timestamp when the exact frame is absent', async () => {
+test('details lookup probes likely timestamp keys together and accepts the rounded frame', async () => {
   const originalFetch = globalThis.fetch;
   const requestedTimes = [];
 
   globalThis.fetch = async input => {
     const url = new URL(String(input));
     assert.match(url.pathname, /\/details\/game-3$/);
-    requestedTimes.push(url.searchParams.get('startingTime'));
+    const startingTime = url.searchParams.get('startingTime');
+    requestedTimes.push(startingTime);
 
-    if (requestedTimes.length === 1) return new Response(null, { status: 204 });
+    if (startingTime === '2026-07-28T12:47:49.909Z') return new Response(null, { status: 204 });
+    if (startingTime !== '2026-07-28T12:47:40.000Z') return new Response(null, { status: 204 });
     return new Response(JSON.stringify({
       frames: [{
         rfc460Timestamp: '2026-07-28T12:47:40.000Z',
@@ -38,7 +41,9 @@ test('details lookup retries a rounded timestamp when the exact frame is absent'
     assert.ok(payload?.frames?.length);
     assert.deepEqual(requestedTimes, [
       '2026-07-28T12:47:49.909Z',
-      '2026-07-28T12:47:40.000Z'
+      '2026-07-28T12:47:40.000Z',
+      '2026-07-28T12:47:50.000Z',
+      '2026-07-28T12:47:30.000Z'
     ]);
   } finally {
     globalThis.fetch = originalFetch;

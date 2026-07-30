@@ -1,9 +1,8 @@
-// Champion portraits and a continuously ticking in-game clock.
+// Champion portraits, compact player tables, and a reliability-aware in-game clock.
 (() => {
   const DDRAGON_BASE = 'https://ddragon.leagueoflegends.com';
   const championCatalog = new Map();
   const vodAnchorPromises = new Map();
-  const observedAnchors = new Map();
 
   let dataDragonVersion = null;
   let clockTimer = null;
@@ -20,6 +19,24 @@
 
   function normalizeChampionKey(value = '') {
     return String(value).toLowerCase().replace(/[^a-z0-9]/g, '');
+  }
+
+  function finiteNumber(value) {
+    if (value === null || value === undefined || value === '') return null;
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+
+  function displayInteger(value) {
+    const parsed = finiteNumber(value);
+    return parsed === null ? '—' : String(Math.round(parsed));
+  }
+
+  function displayGold(value) {
+    const parsed = finiteNumber(value);
+    if (parsed === null) return '—';
+    if (Math.abs(parsed) >= 1000) return `${(parsed / 1000).toFixed(parsed >= 10000 ? 1 : 2).replace(/\.0+$/, '')}k`;
+    return Math.round(parsed).toLocaleString('en-US');
   }
 
   async function loadChampionCatalog() {
@@ -93,21 +110,49 @@
     </span>`;
   }
 
+  function itemId(value) {
+    if (value === null || value === undefined) return null;
+    if (typeof value === 'object') {
+      return finiteNumber(value.itemId ?? value.id ?? value.itemID);
+    }
+    return finiteNumber(value);
+  }
+
+  function playerItems(items) {
+    const ids = (Array.isArray(items) ? items : [])
+      .map(itemId)
+      .filter(value => value !== null && value > 0)
+      .slice(0, 6);
+    const cells = Array.from({ length: 6 }, (_, index) => {
+      const id = ids[index];
+      if (!id || !dataDragonVersion) return '<span class="player-item-empty" aria-hidden="true"></span>';
+      const url = `${DDRAGON_BASE}/cdn/${encodeURIComponent(dataDragonVersion)}/img/item/${encodeURIComponent(String(Math.round(id)))}.png`;
+      return `<span class="player-item"><img src="${escapeHtml(url)}" alt="" loading="lazy"></span>`;
+    });
+    return `<span class="player-items" aria-label="Player items">${cells.join('')}</span>`;
+  }
+
   playerRows = function enhancedPlayerRows(players = []) {
     if (!players.length) return '<div class="empty">Player details unavailable.</div>';
 
     return players.map(player => `<div class="player-row enhanced-player-row">
       ${playerIdentity(player)}
-      <span class="player-kda">${Number(player?.kills || 0)}/${Number(player?.deaths || 0)}/${Number(player?.assists || 0)}</span>
-      <span class="player-cs">${Number(player?.creepScore || 0)} CS</span>
+      <span class="player-kda">${displayInteger(player?.kills)}/${displayInteger(player?.deaths)}/${displayInteger(player?.assists)}</span>
+      <span class="player-cs">${displayInteger(player?.creepScore)}</span>
+      <span class="player-gold">${displayGold(player?.totalGold)}</span>
+      ${playerItems(player?.items)}
     </div>`).join('');
   };
 
   document.addEventListener('error', event => {
     const image = event.target;
-    if (!(image instanceof HTMLImageElement) || !image.closest('.champion-portrait')) return;
-    image.hidden = true;
-    image.closest('.champion-portrait')?.classList.add('image-failed');
+    if (!(image instanceof HTMLImageElement)) return;
+    if (image.closest('.champion-portrait')) {
+      image.hidden = true;
+      image.closest('.champion-portrait')?.classList.add('image-failed');
+      return;
+    }
+    if (image.closest('.player-item')) image.closest('.player-item')?.classList.add('image-failed');
   }, true);
 
   function parseClock(value) {
@@ -140,33 +185,48 @@
     return String(snapshot?.source?.gameId || state.selectedGameId || '');
   }
 
+  function clockElement() {
+    return document.querySelector('.analysis-v2-clock, .clock');
+  }
+
   function stopClock() {
     clearInterval(clockTimer);
     clockTimer = null;
     clockToken += 1;
   }
 
-  function startClock(secondsAtReference, referenceMs, estimated = false, historical = false) {
-    const element = document.querySelector('.clock');
+  function showClockUnavailable(reason = 'Riot did not provide a reliable game clock for this frame.') {
+    stopClock();
+    const element = clockElement();
+    if (!element) return;
+    element.textContent = '—';
+    element.classList.remove('estimated-clock');
+    element.classList.add('clock-unavailable');
+    element.title = reason;
+  }
+
+  function startClock(secondsAtReference, referenceMs, estimated = false, frozen = false) {
+    const element = clockElement();
     if (!element || secondsAtReference === null || !Number.isFinite(secondsAtReference)) return;
 
     stopClock();
     const token = clockToken;
+    element.classList.remove('clock-unavailable');
     element.classList.toggle('estimated-clock', estimated);
     element.title = estimated
-      ? 'Estimated from the first telemetry frame observed by this dashboard.'
-      : historical
-        ? 'Final recorded in-game time.'
+      ? 'Estimated from a verified telemetry anchor.'
+      : frozen
+        ? 'Last recorded in-game time. This clock is frozen because the frame is historical or stale.'
         : 'Live in-game time, synchronized to the latest Riot telemetry frame.';
 
     const paint = () => {
       if (token !== clockToken || !element.isConnected) return;
-      const advance = historical ? 0 : Math.max(0, (Date.now() - referenceMs) / 1000);
+      const advance = frozen ? 0 : Math.max(0, (Date.now() - referenceMs) / 1000);
       element.textContent = `${estimated ? '~' : ''}${formatClock(secondsAtReference + advance)}`;
     };
 
     paint();
-    if (!historical) clockTimer = setInterval(paint, 1000);
+    if (!frozen) clockTimer = setInterval(paint, 1000);
   }
 
   async function vodGameAnchor(snapshot) {
@@ -203,10 +263,12 @@
   }
 
   async function configureClock(snapshot) {
-    const gameId = gameIdFrom(snapshot);
     const selectionKey = `${state.selectedEventId || ''}:${state.selectedGameId || ''}`;
     const frameMs = validTimestamp(snapshot?.source?.frameTimestamp) ?? validTimestamp(snapshot?.updatedAt) ?? Date.now();
-    const historical = state.selectedMatchState === 'completed' || snapshot?.match?.state === 'finished';
+    const frozen = state.selectedMatchState === 'completed'
+      || snapshot?.match?.state === 'finished'
+      || snapshot?.status === 'telemetry_stale'
+      || snapshot?.source?.live === false;
     const rawClockSeconds = snapshot?.clockSeconds;
     const nativeSeconds = rawClockSeconds !== null &&
       rawClockSeconds !== undefined &&
@@ -216,7 +278,7 @@
       : parseClock(snapshot?.clock);
 
     if (nativeSeconds !== null) {
-      startClock(nativeSeconds, frameMs, false, historical);
+      startClock(nativeSeconds, frameMs, false, frozen);
       return;
     }
 
@@ -225,14 +287,15 @@
 
     if (anchor !== null) {
       const elapsed = Math.max(0, (frameMs - anchor) / 1000);
-      startClock(elapsed, frameMs, false, historical);
+      startClock(elapsed, frameMs, false, frozen);
       return;
     }
 
-    if (!gameId) return;
-    if (!observedAnchors.has(gameId)) observedAnchors.set(gameId, frameMs);
-    const elapsed = Math.max(0, (frameMs - observedAnchors.get(gameId)) / 1000);
-    startClock(elapsed, frameMs, true, historical);
+    showClockUnavailable(
+      frozen
+        ? 'The last context frame has no reliable Riot game-time anchor.'
+        : 'Riot has not provided a reliable game-time anchor for this live frame.'
+    );
   }
 
   const baseRenderGame = renderGame;
@@ -260,6 +323,11 @@
       baseShowTelemetryUnavailable(event, extra);
     };
   }
+
+  globalThis.RiftPulsePlayerUI = {
+    configureClock,
+    stopClock
+  };
 
   loadChampionCatalog();
 })();

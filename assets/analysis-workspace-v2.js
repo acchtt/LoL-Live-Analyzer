@@ -13,21 +13,30 @@
       .replaceAll("'", '&#039;');
   }
 
-  function number(value, fallback = 0) {
+  function finiteNumber(value) {
+    if (value === null || value === undefined || value === '') return null;
     const parsed = Number(value);
-    return Number.isFinite(parsed) ? parsed : fallback;
+    return Number.isFinite(parsed) ? parsed : null;
   }
 
-  function integer(value) {
-    return Math.round(number(value));
+  function number(value, fallback = 0) {
+    const parsed = finiteNumber(value);
+    return parsed === null ? fallback : parsed;
   }
 
-  function formatted(value) {
-    return number(value).toLocaleString();
+  function integer(value, fallback = '—') {
+    const parsed = finiteNumber(value);
+    return parsed === null ? fallback : Math.round(parsed);
+  }
+
+  function formatted(value, fallback = '—') {
+    const parsed = finiteNumber(value);
+    return parsed === null ? fallback : parsed.toLocaleString('en-US');
   }
 
   function count(value) {
-    return Array.isArray(value) ? value.length : integer(value);
+    if (Array.isArray(value)) return value.length;
+    return integer(value);
   }
 
   function initials(name = '') {
@@ -70,6 +79,11 @@
     clearInterval(analysisClockTimer);
     analysisClockTimer = null;
 
+    if (typeof globalThis.RiftPulsePlayerUI?.configureClock === 'function') {
+      globalThis.RiftPulsePlayerUI.configureClock(snapshot);
+      return;
+    }
+
     const clock = gameContent.querySelector('.analysis-v2-clock');
     if (!clock) return;
 
@@ -79,10 +93,12 @@
       : parseClock(snapshot.clock);
 
     if (!Number.isFinite(initialSeconds)) {
-      clock.textContent = snapshot.clock || '—';
+      clock.textContent = '—';
+      clock.title = 'Riot did not provide a reliable game clock for this frame.';
       return;
     }
 
+    const frozen = historical || snapshot.status === 'telemetry_stale' || snapshot.source?.live === false;
     const frameMs = Date.parse(snapshot.source?.frameTimestamp || snapshot.updatedAt || '') || Date.now();
     const paint = () => {
       if (!clock.isConnected) {
@@ -90,12 +106,12 @@
         analysisClockTimer = null;
         return;
       }
-      const elapsed = historical ? 0 : Math.max(0, (Date.now() - frameMs) / 1000);
+      const elapsed = frozen ? 0 : Math.max(0, (Date.now() - frameMs) / 1000);
       clock.textContent = formatClock(initialSeconds + elapsed);
     };
 
     paint();
-    if (!historical) analysisClockTimer = setInterval(paint, 1000);
+    if (!frozen) analysisClockTimer = setInterval(paint, 1000);
   }
 
   function seriesScore(snapshot) {
@@ -116,41 +132,54 @@
       <div class="analysis-v2-team-copy">
         <span>${escapeHtml(side)}</span>
         <h3>${escapeHtml(team.name || side)}</h3>
-        <small>${formatted(team.gold)} gold</small>
+        <small>${escapeHtml(String(formatted(team.gold)))} gold</small>
       </div>
-      <strong class="analysis-v2-team-kills">${integer(team.kills)}</strong>
+      <strong class="analysis-v2-team-kills">${escapeHtml(String(integer(team.kills)))}</strong>
     </article>`;
   }
 
   function objectiveCard(label, blueValue, redValue) {
     return `<article class="analysis-v2-objective">
       <span>${escapeHtml(label)}</span>
-      <div><strong>${escapeHtml(String(blueValue))}</strong><i>–</i><strong>${escapeHtml(String(redValue))}</strong></div>
-      <small>Blue · Red</small>
+      <div>
+        <strong class="is-blue">${escapeHtml(String(blueValue))}</strong>
+        <i aria-hidden="true">–</i>
+        <strong class="is-red">${escapeHtml(String(redValue))}</strong>
+      </div>
+      <small><span>Blue</span><span>Red</span></small>
     </article>`;
   }
 
-  function oddsPlaceholder() {
+  function oddsPlaceholder(historical) {
+    if (historical) {
+      return `<div class="analysis-v2-odds-placeholder is-archive" data-odds-placeholder>
+        <span>Bookmaker markets</span>
+        <h3>Markets closed</h3>
+        <p>This completed game does not show current bookmaker prices as historical odds.</p>
+      </div>`;
+    }
+
     return `<div class="analysis-v2-odds-placeholder" data-odds-placeholder>
-      <span>Bookmaker markets</span>
-      <h3>Waiting for matched odds</h3>
-      <p>When the private odds bridge matches this event, current markets will appear here automatically.</p>
+      <span>Live odds</span>
+      <h3>Odds unavailable</h3>
+      <p>The private bookmaker bridge has not matched this Riot game yet.</p>
     </div>`;
   }
 
-  function qualityLabel(snapshot, historical, safeForLive) {
-    if (historical) return 'Verified archive';
-    if (safeForLive) return 'Verified live frame';
-    if (snapshot.status === 'degraded') return 'Live map data';
-    if (snapshot.status === 'telemetry_stale') return 'Stale context';
-    return 'Context only';
+  function stateHeading(snapshot, historical, safeForLive) {
+    if (historical) return 'Final map totals';
+    if (snapshot.status === 'telemetry_stale') return 'Last available map totals';
+    if (safeForLive) return 'Current map totals';
+    return 'Available map totals';
   }
 
-  function stateHeading(snapshot, historical, safeForLive) {
-    if (historical) return 'Verified final totals';
-    if (safeForLive) return 'Verified game totals';
-    if (snapshot.status === 'telemetry_stale') return 'Last known game totals';
-    return 'Available live totals';
+  function lineupHeader(teamName, sideLabel) {
+    return `<header>
+      <div><strong>${escapeHtml(teamName)}</strong><span>${escapeHtml(sideLabel)}</span></div>
+      <div class="analysis-v2-lineup-columns" aria-hidden="true">
+        <span>KDA</span><span>CS</span><span>Gold</span><span>Items</span>
+      </div>
+    </header>`;
   }
 
   renderGame = function rearrangedAnalysisRender(snapshot) {
@@ -158,31 +187,64 @@
 
     const blue = snapshot.blue || {};
     const red = snapshot.red || {};
-    const event = selectedScheduleEvent();
     const historical = state.selectedMatchState === 'completed' || snapshot.match?.state === 'finished';
-    const league = snapshot.match?.league || event?.league?.name || event?.league?.slug || 'LoL Esports';
     const gameNumber = snapshot.match?.gameNumber || '?';
-    const goldDiff = number(snapshot.differences?.gold, number(blue.gold) - number(red.gold));
+    const blueGold = finiteNumber(blue.gold);
+    const redGold = finiteNumber(red.gold);
+    const reportedGoldDiff = finiteNumber(snapshot.differences?.gold);
+    const goldDiff = reportedGoldDiff !== null
+      ? reportedGoldDiff
+      : blueGold !== null && redGold !== null
+        ? blueGold - redGold
+        : null;
     const safeForLive = !historical && snapshot.status === 'ok' && snapshot.quality?.safeForLiveAnalysis !== false;
-    const leadingTeam = goldDiff > 0 ? (blue.name || 'Blue side') : goldDiff < 0 ? (red.name || 'Red side') : 'Even game';
-    const leadText = goldDiff === 0 ? 'Gold is even' : `${leadingTeam} +${formatted(Math.abs(goldDiff))}`;
+    const leadingTeam = goldDiff === null
+      ? null
+      : goldDiff > 0
+        ? (blue.name || 'Blue side')
+        : goldDiff < 0
+          ? (red.name || 'Red side')
+          : 'Even game';
+    const leadText = goldDiff === null
+      ? 'Gold lead unavailable'
+      : goldDiff === 0
+        ? 'Gold is even'
+        : `${leadingTeam} +${formatted(Math.abs(goldDiff))}`;
 
-    const oddsSection = historical ? '' : `
-      <section id="analysisOddsSlot" class="analysis-v2-odds" aria-label="Bookmaker odds">
-        ${oddsPlaceholder()}
-      </section>`;
-
-    gameContent.innerHTML = `<div class="analysis-v2-shell">
-      <header class="analysis-v2-header">
-        <div class="analysis-v2-title">
-          <p>${escapeHtml(league)} · ${historical ? 'Match history' : 'Live analysis'} · Game ${escapeHtml(gameNumber)}</p>
-          <h2>${escapeHtml(blue.name || 'Blue side')} <span>vs</span> ${escapeHtml(red.name || 'Red side')}</h2>
+    const overviewSection = `<section class="analysis-v2-state" aria-label="Game overview">
+      <header class="analysis-v2-state-header">
+        <div class="analysis-v2-state-heading">
+          <span>Game overview</span>
+          <h3>${escapeHtml(stateHeading(snapshot, historical, safeForLive))}</h3>
         </div>
-        <div class="analysis-v2-header-meta">
-          <span class="analysis-v2-quality ${safeForLive ? '' : 'is-context'}">${escapeHtml(qualityLabel(snapshot, historical, safeForLive))}</span>
+        <div class="analysis-v2-state-legend" aria-label="Stat order">
+          <span class="is-blue">Blue</span><i aria-hidden="true">·</i><span class="is-red">Red</span>
         </div>
       </header>
+      <div class="analysis-v2-state-content">
+        <div class="analysis-v2-overview-grid">
+          <article class="analysis-v2-lead">
+            <span>Gold advantage</span>
+            <strong>${escapeHtml(leadText)}</strong>
+            <small>
+              <span class="is-blue">Blue ${escapeHtml(String(formatted(blue.gold)))}</span>
+              <i aria-hidden="true">·</i>
+              <span class="is-red">Red ${escapeHtml(String(formatted(red.gold)))}</span>
+            </small>
+          </article>
+          ${objectiveCard('Towers', integer(blue.towers), integer(red.towers))}
+          ${objectiveCard('Dragons', count(blue.dragons), count(red.dragons))}
+          ${objectiveCard('Barons', integer(blue.barons), integer(red.barons))}
+          ${objectiveCard('Inhibitors', integer(blue.inhibitors), integer(red.inhibitors))}
+        </div>
+      </div>
+    </section>`;
 
+    const oddsSection = `<section id="analysisOddsSlot" class="analysis-v2-odds" data-odds-mode="${historical ? 'archive' : 'live'}" aria-label="Bookmaker odds">
+      ${oddsPlaceholder(historical)}
+    </section>`;
+
+    gameContent.innerHTML = `<div class="analysis-v2-shell">
       <section class="analysis-v2-scoreboard" aria-label="Game scoreboard">
         ${teamCard(blue, 'Blue side')}
         <div class="analysis-v2-score-center" aria-label="Game time and series score">
@@ -193,33 +255,16 @@
         ${teamCard(red, 'Red side', true)}
       </section>
 
-      <div class="analysis-v2-body ${historical ? 'is-archive' : 'is-live'}">
-        <section class="analysis-v2-state" aria-label="Map state">
-          <header><div><span>Map state</span><h3>${escapeHtml(stateHeading(snapshot, historical, safeForLive))}</h3></div><small>Blue · Red</small></header>
-          <div class="analysis-v2-state-content">
-            <div class="analysis-v2-lead">
-              <span>Gold advantage</span>
-              <strong>${escapeHtml(leadText)}</strong>
-              <small>${formatted(blue.gold)} – ${formatted(red.gold)} team gold</small>
-            </div>
-            <div class="analysis-v2-objectives">
-              ${objectiveCard('Towers', integer(blue.towers), integer(red.towers))}
-              ${objectiveCard('Dragons', count(blue.dragons), count(red.dragons))}
-              ${objectiveCard('Barons', integer(blue.barons), integer(red.barons))}
-              ${objectiveCard('Inhibitors', integer(blue.inhibitors), integer(red.inhibitors))}
-            </div>
-          </div>
-        </section>
-        ${oddsSection}
-      </div>
+      ${overviewSection}
+      ${oddsSection}
 
       <section class="analysis-v2-lineups players" aria-label="Player lineups">
         <article class="analysis-v2-lineup">
-          <header><strong>${escapeHtml(blue.name || 'Blue side')}</strong><span>Blue players</span></header>
+          ${lineupHeader(blue.name || 'Blue side', 'Blue team')}
           <div class="player-column">${playerRows(blue.players || [])}</div>
         </article>
         <article class="analysis-v2-lineup">
-          <header><strong>${escapeHtml(red.name || 'Red side')}</strong><span>Red players</span></header>
+          ${lineupHeader(red.name || 'Red side', 'Red team')}
           <div class="player-column">${playerRows(red.players || [])}</div>
         </article>
       </section>

@@ -1,0 +1,127 @@
+/* Extends blue and red side color across the overview without increasing saturation. */
+body.minimal-pro-dark-v2 .analysis-v2-state[data-overview-panel-v2="true"] .analysis-v2-state-header {
+  justify-content: flex-start !important;
+}
+
+body.minimal-pro-dark-v2 .analysis-v2-state[data-overview-panel-v2="true"] .analysis-v2-state-legend {
+  display: none !important;
+}
+
+body.minimal-pro-dark-v2 .overview-gold-team.is-blue {
+  border-color: rgba(91, 141, 239, .32) !important;
+  background:
+    linear-gradient(90deg,
+      rgba(91, 141, 239, .19) 0%,
+      rgba(91, 141, 239, .12) 34%,
+      rgba(91, 141, 239, .065) 66%,
+      rgba(91, 141, 239, .018) 100%),
+    var(--rp-panel-soft) !important;
+  box-shadow:
+    inset 4px 0 0 rgba(91, 141, 239, .86),
+    inset 32px 0 52px rgba(91, 141, 239, .055) !important;
+}
+
+body.minimal-pro-dark-v2 .overview-gold-team.is-red {
+  border-color: rgba(255, 111, 119, .3) !important;
+  background:
+    linear-gradient(270deg,
+      rgba(255, 111, 119, .18) 0%,
+      rgba(255, 111, 119, .105) 34%,
+      rgba(255, 111, 119, .058) 66%,
+      rgba(255, 111, 119, .016) 100%),
+    var(--rp-panel-soft) !important;
+  box-shadow:
+    inset -4px 0 0 rgba(255, 111, 119, .84),
+    inset -32px 0 52px rgba(255, 111, 119, .05) !important;
+}
+
+body.minimal-pro-dark-v2 .overview-gold-team.is-blue::after,
+body.minimal-pro-dark-v2 .overview-gold-team.is-red::after {
+  display: none !important;
+}
+
+body.minimal-pro-dark-v2 .overview-gold-lead.is-blue {
+  border-color: rgba(91, 141, 239, .28) !important;
+  background:
+    radial-gradient(circle at 50% 115%, rgba(91, 141, 239, .16), transparent 72%),
+    linear-gradient(180deg, rgba(91, 141, 239, .07), rgba(17, 24, 35, .2)),
+    var(--rp-panel-soft) !important;
+}
+
+body.minimal-pro-dark-v2 .overview-gold-lead.is-red {
+  border-color: rgba(255, 111, 119, .27) !important;
+  background:
+    radial-gradient(circle at 50% 115%, rgba(255, 111, 119, .15), transparent 72%),
+    linear-gradient(180deg, rgba(255, 111, 119, .065), rgba(17, 24, 35, .2)),
+    var(--rp-panel-soft) !important;
+}
+
+body.minimal-pro-dark-v2 .overview-objective-v2 {
+  border-color: rgba(132, 154, 188, .23) !important;
+  background:
+    linear-gradient(90deg,
+      rgba(91, 141, 239, .15) 0%,
+      rgba(91, 141, 239, .085) 30%,
+      rgba(91, 141, 239, .035) 56%,
+      transparent 78%),
+    linear-gradient(270deg,
+      rgba(255, 111, 119, .14) 0%,
+      rgba(255, 111, 119, .078) 30%,
+      rgba(255, 111, 119, .032) 56%,
+      transparent 78%),
+    var(--rp-panel-soft) !important;
+  box-shadow:
+    inset 3px 0 0 rgba(91, 141, 239, .78),
+    inset -3px 0 0 rgba(255, 111, 119, .75) !important;
+}
+
+body.minimal-pro-dark-v2 .overview-objective-number.is-blue {
+  text-shadow: 0 0 18px rgba(91, 141, 239, .2) !important;
+}
+
+body.minimal-pro-dark-v2 .overview-objective-number.is-red {
+  text-shadow: 0 0 18px rgba(255, 111, 119, .18) !important;
+}
+
+body.minimal-pro-dark-v2 .overview-objective-track {
+  height: 9px !important;
+  background:
+    linear-gradient(90deg,
+      rgba(91, 141, 239, .2) 0%,
+      var(--rp-divider) 44%,
+      var(--rp-divider) 56%,
+      rgba(255, 111, 119, .19) 100%) !important;
+}
+
+@media (hover: hover) {
+  body.minimal-pro-dark-v2 .overview-objective-v2:hover {
+    border-color: rgba(132, 154, 188, .34) !important;
+    background:
+      linear-gradient(90deg,
+        rgba(91, 141, 239, .18) 0%,
+        rgba(91, 141, 239, .1) 32%,
+        rgba(91, 141, 239, .04) 60%,
+        transparent 82%),
+      linear-gradient(270deg,
+        rgba(255, 111, 119, .17) 0%,
+        rgba(255, 111, 119, .092) 32%,
+        rgba(255, 111, 119, .038) 60%,
+        transparent 82%),
+      var(--rp-panel-raised) !important;
+  }
+}
+
+@media (max-width: 680px) {
+  body.minimal-pro-dark-v2 .overview-gold-team.is-red {
+    background:
+      linear-gradient(90deg,
+        rgba(255, 111, 119, .18) 0%,
+        rgba(255, 111, 119, .105) 34%,
+        rgba(255, 111, 119, .058) 66%,
+        rgba(255, 111, 119, .016) 100%),
+      var(--rp-panel-soft) !important;
+    box-shadow:
+      inset 4px 0 0 rgba(255, 111, 119, .84),
+      inset 32px 0 52px rgba(255, 111, 119, .05) !important;
+  }
+}

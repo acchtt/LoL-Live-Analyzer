@@ -1,5 +1,5 @@
-// Adds a distinct series phase when a previous game has ended but the next
-// game's live telemetry has not started yet.
+// Adds distinct active-series phases and moves completed live series into the
+// final historical game instead of leaving the dashboard between games.
 (() => {
   const baseShowWaiting = showWaiting;
 
@@ -31,6 +31,203 @@
     };
   }
 
+  function finalPlayedGame(event = {}, resolution = {}) {
+    const games = (Array.isArray(resolution.games) ? resolution.games : event?.match?.games || [])
+      .filter(game => game?.id)
+      .sort((left, right) => Number(left?.number || 0) - Number(right?.number || 0));
+    if (!games.length) return null;
+
+    const wins = (event?.match?.teams || []).map(team => Number(team?.result?.gameWins));
+    const playedCount = wins.length >= 2 && wins.every(Number.isFinite)
+      ? wins.reduce((sum, value) => sum + value, 0)
+      : 0;
+    const scoreTarget = playedCount > 0
+      ? games.find(game => Number(game?.number || 0) === playedCount)
+      : null;
+
+    return scoreTarget
+      || [...games].reverse().find(game => game?.state === 'completed')
+      || [...games].reverse().find(game => Array.isArray(game?.vods) && game.vods.length > 0)
+      || games[games.length - 1];
+  }
+
+  function applyCompletedEvent(event, matchId) {
+    const selected = selectedScheduleEvent();
+    if (!selected) return;
+    selected.state = 'completed';
+    selected.match = {
+      ...(selected.match || {}),
+      ...(event?.match || {}),
+      id: String(event?.match?.id || matchId)
+    };
+    if (event?.league) selected.league = { ...(selected.league || {}), ...event.league };
+  }
+
+  function showSeriesComplete(event, resolution = {}) {
+    const matchId = String(state.selectedEventId || event?.match?.id || event?.id || '');
+    const game = finalPlayedGame(event, resolution);
+
+    state.liveMatchIds.delete(matchId);
+    state.selectedMatchState = 'completed';
+    applyCompletedEvent(event, matchId);
+    clearTimeout(state.eventRetryTimer);
+    state.eventRetryTimer = null;
+    clearInterval(state.pollTimer);
+    state.pollTimer = null;
+    renderSchedule();
+
+    if (!game?.id) {
+      gameContent.innerHTML = '<div class="empty hero-empty"><strong>Series complete</strong><span>The final score is confirmed, but Riot has not exposed a final game ID for the archive yet.</span></div>';
+      jsonPreview.textContent = JSON.stringify(resolution, null, 2);
+      setConnection('Finished · final game archive pending', '');
+      return;
+    }
+
+    state.selectedGameId = String(game.id);
+    setJsonEndpoint(state.selectedGameId, true);
+    gameContent.innerHTML = '<div class="empty hero-empty"><strong>Series complete</strong><span>Loading the deciding game’s final telemetry frame…</span></div>';
+    setConnection('Finished · loading final game', '');
+
+    // resolveLiveEvent schedules its normal retry immediately after showWaiting
+    // returns. Cancel that retry on the next microtask now that the match is final.
+    queueMicrotask(() => {
+      clearTimeout(state.eventRetryTimer);
+      state.eventRetryTimer = null;
+    });
+
+    Promise.resolve()
+      .then(() => loadGame())
+      .catch(error => {
+        setConnection(error instanceof Error ? error.message : 'Final game archive unavailable', 'error');
+        gameContent.innerHTML = `<div class="empty hero-empty"><strong>Series complete</strong><span>${error instanceof Error ? error.message : 'The final game archive is not available yet.'}</span></div>`;
+      });
+  }
+
+  function staleGameplayEvidence(resolution = {}, progress = {}) {
+    const expected = Number(progress.nextGameNumber || 0);
+    const entries = Object.entries(resolution.diagnostics || {})
+      .filter(([, detail]) => detail && typeof detail === 'object')
+      .filter(([, detail]) => detail.phase === 'gameplay' && detail.freshness === 'stale')
+      .filter(([, detail]) => !expected || Number(detail.gameNumber || 0) === expected)
+      .map(([gameId, detail]) => ({ gameId, ...detail }))
+      .sort((left, right) => Date.parse(right.timestamp || '') - Date.parse(left.timestamp || ''));
+    return entries[0] || null;
+  }
+
+  function displayableSnapshotFor(evidence = {}, candidate = state.lastSnapshot) {
+    const snapshot = candidate;
+    if (!snapshot || ['pregame', 'telemetry_unavailable'].includes(snapshot.status)) return null;
+    if (evidence.gameId && String(snapshot?.source?.gameId || '') !== String(evidence.gameId)) return null;
+    const values = [
+      snapshot?.blue?.gold, snapshot?.red?.gold,
+      snapshot?.blue?.kills, snapshot?.red?.kills,
+      snapshot?.blue?.towers, snapshot?.red?.towers,
+      snapshot?.clockSeconds
+    ];
+    return values.filter(value => value !== null && value !== undefined && Number.isFinite(Number(value))).length >= 4
+      ? snapshot
+      : null;
+  }
+
+  function addPostGameBanner(gameNumber, evidence = {}) {
+    const banner = document.createElement('section');
+    banner.className = 'authority-context-banner is-stale';
+    banner.setAttribute('role', 'status');
+    const age = Number(evidence.frameAgeSeconds);
+    const ageText = Number.isFinite(age) ? ` Last frame: ${Math.round(age)}s ago.` : '';
+    banner.innerHTML = `<strong>Game ${gameNumber} feed stopped</strong><span>The gameplay frame is no longer advancing.${ageText} Awaiting Riot’s official result or next-game confirmation; the last map and player state is context only.</span>`;
+
+    const shell = gameContent.querySelector('.analysis-v2-shell, .analysis-shell');
+    const header = shell?.querySelector('.analysis-v2-header, .analysis-header');
+    const seriesNav = shell?.querySelector('.live-series-nav');
+    if (seriesNav) seriesNav.insertAdjacentElement('afterend', banner);
+    else if (header) header.insertAdjacentElement('afterend', banner);
+    else if (shell) shell.prepend(banner);
+    else gameContent.prepend(banner);
+  }
+
+  function postGameStatus(resolution, progress, evidence, gameNumber, snapshot = null) {
+    return {
+      status: 'post_game_result_pending',
+      matchId: state.selectedEventId,
+      gameId: evidence?.gameId || null,
+      gameNumber: gameNumber === '?' ? null : gameNumber,
+      completedGames: progress.playedCount,
+      broadcastReportedLive: Boolean(resolution.broadcastReportedLive),
+      checkedAt: resolution.checkedAt || new Date().toISOString(),
+      lastGameplayFrame: evidence?.timestamp || snapshot?.source?.frameTimestamp || null,
+      frameAgeSeconds: evidence?.frameAgeSeconds ?? snapshot?.quality?.frameAgeSeconds ?? null,
+      lastSnapshot: snapshot || undefined,
+      message: 'The latest gameplay frame stopped advancing. Awaiting Riot result or next-game confirmation.'
+    };
+  }
+
+  function renderPostGameSnapshot(snapshot, resolution, progress, evidence, gameNumber) {
+    state.lastSnapshot = snapshot;
+    renderGame(snapshot);
+    addPostGameBanner(gameNumber, evidence);
+    jsonPreview.textContent = JSON.stringify(
+      postGameStatus(resolution, progress, evidence, gameNumber, snapshot),
+      null,
+      2
+    );
+    setConnection(`Game ${gameNumber} feed stopped · player board restored`, '');
+  }
+
+  async function hydratePostGameBoard(resolution, progress, evidence, gameNumber) {
+    const matchId = String(state.selectedEventId || '');
+    const gameId = String(evidence?.gameId || '');
+    if (!gameId) return;
+
+    try {
+      const snapshot = await api(`/api/chatgpt?gameId=${encodeURIComponent(gameId)}`);
+      if (
+        String(state.selectedEventId || '') !== matchId
+        || String(state.selectedGameId || '') !== gameId
+        || state.selectedMatchState !== 'postGame'
+      ) return;
+
+      const displayable = displayableSnapshotFor(evidence, snapshot);
+      if (!displayable) return;
+      renderPostGameSnapshot(displayable, resolution, progress, evidence, gameNumber);
+    } catch (error) {
+      console.warn('Unable to restore the post-game player board:', error);
+    }
+  }
+
+  function showPostGamePending(event, resolution, progress, evidence) {
+    const [a, b] = eventTeams(event || selectedScheduleEvent());
+    const title = `${a.name || 'Team 1'} vs ${b.name || 'Team 2'}`;
+    const gameNumber = Number(evidence?.gameNumber || progress.nextGameNumber || 0) || '?';
+    const snapshot = displayableSnapshotFor(evidence);
+
+    state.selectedMatchState = 'postGame';
+    clearInterval(state.pollTimer);
+    state.pollTimer = null;
+
+    if (evidence?.gameId) {
+      state.selectedGameId = String(evidence.gameId);
+      setJsonEndpoint(state.selectedGameId, false);
+    }
+
+    if (snapshot) {
+      renderPostGameSnapshot(snapshot, resolution, progress, evidence, gameNumber);
+    } else {
+      gameContent.innerHTML = `
+        <div class="empty hero-empty">
+          <strong>Game ${gameNumber} feed stopped</strong>
+          <span>${title} has no advancing gameplay frame. Loading the last available map, champion, and player board while Riot confirms the result.</span>
+        </div>`;
+      jsonPreview.textContent = JSON.stringify(
+        postGameStatus(resolution, progress, evidence, gameNumber),
+        null,
+        2
+      );
+      setConnection(`Game ${gameNumber} feed stopped · loading player board`, '');
+      hydratePostGameBoard(resolution, progress, evidence, gameNumber);
+    }
+  }
+
   function showDraftOrBreak(event, resolution, progress) {
     const [a, b] = eventTeams(event || selectedScheduleEvent());
     const title = `${a.name || 'Team 1'} vs ${b.name || 'Team 2'}`;
@@ -51,6 +248,8 @@
       nextGameNumber: progress.nextGameNumber || null,
       completedGames: progress.playedCount,
       checkedAt: resolution.checkedAt || new Date().toISOString(),
+      pregameGame: resolution.pregameGame || null,
+      diagnostics: resolution.diagnostics || null,
       message: 'The series is active, but the next game has not started publishing in-game telemetry.'
     }, null, 2);
 
@@ -58,7 +257,17 @@
   }
 
   showWaiting = function patchedShowWaiting(event, resolution = {}) {
+    if (resolution.seriesComplete || resolution.selectedPhase === 'series_complete') {
+      showSeriesComplete(event, resolution);
+      return;
+    }
+
     const progress = inferSeriesProgress(event, resolution);
+    const stoppedGameplay = staleGameplayEvidence(resolution, progress);
+    if (!resolution.selectedGame && !resolution.pregameGame && stoppedGameplay) {
+      showPostGamePending(event, resolution, progress, stoppedGameplay);
+      return;
+    }
 
     if (!resolution.selectedGame && progress.hasNextGame) {
       showDraftOrBreak(event, resolution, progress);
@@ -66,5 +275,11 @@
     }
 
     baseShowWaiting(event, resolution);
+  };
+
+  globalThis.RiftPulseSeriesPhase = {
+    inferSeriesProgress,
+    staleGameplayEvidence,
+    displayableSnapshotFor
   };
 })();

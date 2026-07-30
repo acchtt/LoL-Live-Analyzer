@@ -1,0 +1,463 @@
+/* Final analysis hierarchy: scoreboard, odds, game overview, player boards. */
+
+.analysis-v2-odds {
+  min-height: 0 !important;
+  padding: 18px !important;
+  border-color: rgba(0, 229, 255, .20) !important;
+  background: linear-gradient(180deg, rgba(8, 22, 36, .96), rgba(5, 15, 27, .96)) !important;
+}
+
+.analysis-v2-odds.has-odds {
+  box-shadow: inset 0 1px rgba(255, 255, 255, .025);
+}
+
+.analysis-v2-odds-placeholder {
+  min-height: 150px !important;
+  padding: 24px !important;
+  border: 1px dashed rgba(72, 126, 188, .24);
+  border-radius: 12px;
+  background: rgba(3, 11, 21, .42);
+}
+
+.analysis-v2-odds-placeholder > span {
+  margin-bottom: 0 !important;
+}
+
+.analysis-v2-odds-placeholder h3 {
+  font-size: 17px !important;
+}
+
+.analysis-v2-odds-placeholder p {
+  max-width: 520px !important;
+  font-size: 11px !important;
+}
+
+.analysis-v2-odds-placeholder.is-archive {
+  min-height: 118px !important;
+  border-style: solid;
+  border-color: rgba(148, 163, 184, .14);
+  background: rgba(7, 17, 31, .7);
+}
+
+.analysis-v2-odds > .bookmaker-odds {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.analysis-v2-odds .bookmaker-odds-header {
+  min-height: 42px;
+  align-items: flex-end;
+  margin-bottom: 14px !important;
+}
+
+.analysis-v2-odds .bookmaker-odds-header .eyebrow {
+  margin-bottom: 5px;
+}
+
+.analysis-v2-odds .bookmaker-market-grid {
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+.analysis-v2-state {
+  border-color: rgba(72, 126, 188, .16) !important;
+  background: linear-gradient(180deg, rgba(7, 17, 31, .94), rgba(5, 14, 25, .96)) !important;
+}
+
+.analysis-v2-state-header {
+  display: flex !important;
+  min-height: 68px !important;
+  align-items: flex-end !important;
+  justify-content: space-between !important;
+  gap: 18px !important;
+  padding: 14px 18px !important;
+}
+
+.analysis-v2-state-heading {
+  min-width: 0;
+}
+
+.analysis-v2-state-heading > span {
+  display: block;
+  margin: 0 0 5px !important;
+  color: var(--accent) !important;
+  font-size: 9px !important;
+  font-weight: 800;
+  letter-spacing: .09em !important;
+  text-transform: uppercase;
+}
+
+.analysis-v2-state-heading > h3 {
+  margin: 0;
+  font-size: 19px !important;
+  line-height: 1.1;
+}
+
+.analysis-v2-state-legend {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 10px;
+  border: 1px solid rgba(72, 126, 188, .16);
+  border-radius: 999px;
+  background: rgba(4, 12, 23, .56);
+}
+
+.analysis-v2-state-header .analysis-v2-state-legend > span {
+  display: inline !important;
+  margin: 0 !important;
+  font-size: 9px !important;
+  font-weight: 800;
+  letter-spacing: .03em !important;
+  text-transform: uppercase;
+}
+
+.analysis-v2-state-legend .is-blue { color: #5fb5ff !important; }
+.analysis-v2-state-legend .is-red { color: #ff79a6 !important; }
+.analysis-v2-state-legend i { color: #526783; font-style: normal; }
+
+.analysis-v2-state-content,
+.analysis-v2-body.is-archive .analysis-v2-state-content {
+  padding-top: 14px !important;
+}
+
+.analysis-v2-lineups.players {
+  margin-top: 0 !important;
+}
+
+/* Compact viewport density and a real scroll container for the analysis panel. */
+.game-panel {
+  min-height: 0 !important;
+}
+
+.game-panel .game-content {
+  height: 100% !important;
+  max-height: 100% !important;
+  min-height: 0 !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overscroll-behavior-y: contain;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+}
+
+.game-panel .game-content::-webkit-scrollbar {
+  width: 9px;
+}
+
+.game-panel .game-content::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: rgba(108, 139, 179, .42);
+  background-clip: padding-box;
+}
+
+.analysis-v2-shell {
+  gap: 12px !important;
+  padding: 14px 16px 20px !important;
+}
+
+.analysis-v2-header {
+  gap: 12px !important;
+}
+
+.analysis-v2-title h2 {
+  font-size: clamp(18px, 1.65vw, 24px) !important;
+}
+
+.analysis-v2-quality {
+  min-height: 28px !important;
+  padding: 6px 9px !important;
+  font-size: 8px !important;
+}
+
+.live-series-nav {
+  padding: 9px 11px !important;
+}
+
+.authority-context-banner {
+  min-height: 36px !important;
+  padding: 8px 10px !important;
+}
+
+.authority-context-banner strong,
+.authority-context-banner span {
+  font-size: 9px !important;
+}
+
+.analysis-v2-scoreboard {
+  grid-template-columns: minmax(0, 1fr) 116px minmax(0, 1fr) !important;
+  gap: 10px !important;
+}
+
+.analysis-v2-team {
+  min-height: 88px !important;
+  gap: 10px !important;
+  padding: 10px 12px !important;
+}
+
+.analysis-v2-team.is-blue {
+  grid-template-columns: 46px minmax(0, 1fr) 58px !important;
+}
+
+.analysis-v2-team.is-red {
+  grid-template-columns: 58px minmax(0, 1fr) 46px !important;
+}
+
+.analysis-v2-team-logo {
+  width: 46px !important;
+  height: 46px !important;
+}
+
+.analysis-v2-team-copy h3 {
+  margin-bottom: 4px !important;
+  font-size: clamp(15px, 1.25vw, 20px) !important;
+}
+
+.analysis-v2-team-copy small {
+  font-size: 10px !important;
+}
+
+.analysis-v2-team-kills {
+  min-width: 58px !important;
+  min-height: 58px !important;
+  font-size: clamp(28px, 2.5vw, 38px) !important;
+}
+
+.analysis-v2-score-center {
+  min-height: 88px !important;
+  gap: 5px !important;
+  padding: 10px 7px !important;
+}
+
+.analysis-v2-score-center .analysis-v2-clock {
+  font-size: clamp(22px, 1.9vw, 29px) !important;
+}
+
+.analysis-v2-score-center small {
+  font-size: 8px !important;
+}
+
+.analysis-v2-odds {
+  padding: 12px !important;
+}
+
+.analysis-v2-odds-placeholder,
+.analysis-v2-odds-placeholder.is-archive {
+  min-height: 88px !important;
+  padding: 14px 16px !important;
+}
+
+.analysis-v2-odds-placeholder h3 {
+  font-size: 15px !important;
+}
+
+.analysis-v2-odds .bookmaker-odds-header {
+  min-height: 34px !important;
+  margin-bottom: 9px !important;
+}
+
+.analysis-v2-odds .bookmaker-market-grid {
+  gap: 9px !important;
+}
+
+.analysis-v2-odds .bookmaker-market {
+  min-height: 96px !important;
+  padding: 10px !important;
+}
+
+.analysis-v2-odds .bookmaker-market h4 {
+  font-size: 12px !important;
+}
+
+.analysis-v2-odds .bookmaker-selection {
+  padding: 7px 8px !important;
+}
+
+.analysis-v2-odds .bookmaker-selection-name {
+  font-size: 10px !important;
+}
+
+.analysis-v2-odds .bookmaker-selection-price {
+  font-size: 13px !important;
+}
+
+.analysis-v2-state-header {
+  min-height: 52px !important;
+  gap: 12px !important;
+  padding: 10px 13px !important;
+}
+
+.analysis-v2-state-heading > span {
+  margin-bottom: 3px !important;
+  font-size: 8px !important;
+}
+
+.analysis-v2-state-heading > h3,
+.analysis-v2-state > header h3,
+.analysis-v2-odds .bookmaker-odds-header h3 {
+  font-size: 16px !important;
+}
+
+.analysis-v2-state-legend {
+  gap: 5px;
+  padding: 5px 8px;
+}
+
+.analysis-v2-state-content,
+.analysis-v2-body.is-archive .analysis-v2-state-content {
+  grid-template-columns: minmax(220px, .85fr) minmax(0, 2fr) !important;
+  gap: 10px !important;
+  padding: 10px !important;
+}
+
+.analysis-v2-lead,
+.analysis-v2-body.is-archive .analysis-v2-lead,
+.analysis-v2-objective,
+.analysis-v2-body.is-archive .analysis-v2-objective {
+  min-height: 84px !important;
+  padding: 11px 12px !important;
+}
+
+.analysis-v2-lead strong {
+  font-size: clamp(16px, 1.4vw, 20px) !important;
+}
+
+.analysis-v2-objectives,
+.analysis-v2-body.is-archive .analysis-v2-objectives {
+  gap: 8px !important;
+}
+
+.analysis-v2-objective div {
+  font-size: 16px !important;
+}
+
+.analysis-v2-lineups.players {
+  gap: 10px !important;
+}
+
+.analysis-v2-lineup > header {
+  min-height: 40px !important;
+  padding: 9px 12px !important;
+}
+
+.analysis-v2-lineup > header strong {
+  font-size: 12px !important;
+}
+
+.analysis-v2-lineup .player-row,
+.analysis-v2-lineup .enhanced-player-row {
+  min-height: 48px !important;
+  gap: 8px !important;
+  padding: 7px 10px !important;
+}
+
+.analysis-v2-lineup .player-name,
+.analysis-v2-lineup .player-copy strong {
+  font-size: 11px !important;
+}
+
+.analysis-v2-lineup .player-copy small,
+.analysis-v2-lineup .player-kda,
+.analysis-v2-lineup .player-cs {
+  font-size: 10px !important;
+}
+
+.analysis-v2-lineup .champion-portrait {
+  width: 32px !important;
+  height: 32px !important;
+  flex-basis: 32px !important;
+  border-radius: 8px !important;
+}
+
+/* Keep the wider browser, but remove the oversized control and card spacing. */
+.match-browser .app-panel-heading {
+  min-height: 64px !important;
+  padding: 12px 14px !important;
+}
+
+.match-browser .app-panel-heading h2 {
+  font-size: 17px !important;
+}
+
+.match-browser .sport-switcher,
+.match-browser .schedule-controls {
+  gap: 8px !important;
+  padding: 10px 12px !important;
+}
+
+.match-browser .sport-option,
+.match-browser .schedule-tab,
+.match-browser .active-league-filter {
+  min-height: 40px !important;
+}
+
+.match-browser .active-league-filter select {
+  height: 38px !important;
+}
+
+.match-browser .match-card:not(.history-match-card) {
+  padding: 12px 14px !important;
+}
+
+.match-browser .match-card:not(.history-match-card) .teams {
+  gap: 7px !important;
+  margin: 8px 0 !important;
+}
+
+.match-browser .match-card:not(.history-match-card) .team-line,
+.match-browser .match-card:not(.history-match-card) .team-line:nth-child(2) {
+  gap: 9px !important;
+  font-size: 12px !important;
+}
+
+.match-browser .match-card:not(.history-match-card) .team-name img {
+  width: 24px !important;
+  height: 24px !important;
+}
+
+@media (max-width: 1180px) {
+  .analysis-v2-scoreboard {
+    grid-template-columns: 1fr !important;
+  }
+
+  .analysis-v2-score-center {
+    grid-row: 2;
+    min-height: 68px !important;
+  }
+
+  .analysis-v2-state-content,
+  .analysis-v2-body.is-archive .analysis-v2-state-content {
+    grid-template-columns: 1fr !important;
+  }
+
+  .analysis-v2-objectives,
+  .analysis-v2-body.is-archive .analysis-v2-objectives {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .game-panel .game-content {
+    height: auto !important;
+    max-height: none !important;
+    overflow-y: visible !important;
+  }
+}
+
+@media (max-width: 680px) {
+  .analysis-v2-shell {
+    padding: 10px !important;
+  }
+
+  .analysis-v2-lineups.players,
+  .analysis-v2-odds .bookmaker-market-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .analysis-v2-team.is-blue,
+  .analysis-v2-team.is-red {
+    grid-template-columns: 42px minmax(0, 1fr) 52px !important;
+  }
+}

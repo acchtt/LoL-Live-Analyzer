@@ -1,8 +1,8 @@
 // Keeps the selected live game updating without requiring another click.
 (() => {
-  const BUILD = '20260726-27';
-  const LIVE_REFRESH_MS = 5_000;
-  const RESOLVE_REFRESH_MS = 8_000;
+  const BUILD = '20260731-1';
+  const LIVE_REFRESH_MS = 3_000;
+  const RESOLVE_REFRESH_MS = 5_000;
 
   let refreshTimer = null;
   let inFlight = false;
@@ -10,10 +10,6 @@
 
   function selectedEvent() {
     return typeof selectedScheduleEvent === 'function' ? selectedScheduleEvent() : null;
-  }
-
-  function selectionKey() {
-    return `${state.selectedEventId || ''}:${state.selectedGameId || ''}:${state.selectedMatchState || ''}`;
   }
 
   function isFinished() {
@@ -40,17 +36,15 @@
     clearTimeout(refreshTimer);
     refreshTimer = null;
 
-    if (document.hidden || isFinished() || !state.selectedEventId) {
-      if (!isFinished() && state.selectedEventId) scheduleRefresh(LIVE_REFRESH_MS);
-      return;
-    }
+    // Visibility/focus handlers restart polling. Do not keep background timers
+    // alive while the tab is hidden.
+    if (document.hidden || isFinished() || !state.selectedEventId) return;
 
     if (inFlight) {
-      scheduleRefresh(1_000);
+      scheduleRefresh(500);
       return;
     }
 
-    const before = selectionKey();
     inFlight = true;
     try {
       if (state.selectedGameId) {
@@ -62,31 +56,32 @@
       console.warn('Automatic live refresh failed:', error);
     } finally {
       inFlight = false;
-      const changed = before !== selectionKey();
-      scheduleRefresh(changed || !state.selectedGameId ? 500 : (state.selectedGameId ? LIVE_REFRESH_MS : RESOLVE_REFRESH_MS));
+      scheduleRefresh(state.selectedGameId ? LIVE_REFRESH_MS : RESOLVE_REFRESH_MS);
     }
   }
 
-  // Replace the older interval with one non-overlapping recursive timer.
+  // The base resolver already loads the first frame before calling startPolling.
+  // Start the next refresh at the normal interval instead of immediately issuing
+  // a duplicate request for the same frame.
   startPolling = function resilientStartPolling() {
     clearInterval(state.pollTimer);
     state.pollTimer = null;
     stopRefresh();
-    scheduleRefresh(100);
+    scheduleRefresh(LIVE_REFRESH_MS);
   };
 
   const previousSelectEvent = selectEvent;
   selectEvent = async function refreshAwareSelectEvent(id) {
     stopRefresh();
     const result = await previousSelectEvent(id);
-    if (!isFinished()) scheduleRefresh(100);
+    if (!isFinished()) scheduleRefresh(state.selectedGameId ? LIVE_REFRESH_MS : RESOLVE_REFRESH_MS);
     return result;
   };
 
   const previousResolveLiveEvent = resolveLiveEvent;
   resolveLiveEvent = async function refreshAwareResolveLiveEvent(id, isRetry = false) {
     const result = await previousResolveLiveEvent(id, isRetry);
-    if (!isFinished()) scheduleRefresh(state.selectedGameId ? 100 : RESOLVE_REFRESH_MS);
+    if (!isFinished()) scheduleRefresh(state.selectedGameId ? LIVE_REFRESH_MS : RESOLVE_REFRESH_MS);
     return result;
   };
 
@@ -96,15 +91,15 @@
       refreshTimer = null;
       return;
     }
-    if (state.selectedEventId && !isFinished()) scheduleRefresh(50);
+    if (state.selectedEventId && !isFinished()) scheduleRefresh(25);
   });
 
   window.addEventListener('focus', () => {
-    if (state.selectedEventId && !isFinished()) scheduleRefresh(50);
+    if (state.selectedEventId && !isFinished()) scheduleRefresh(25);
   });
 
   const footer = document.querySelector('footer');
   if (footer) footer.insertAdjacentHTML('beforeend', `<span class="build-mark"> Live refresh · ${BUILD}</span>`);
 
-  if (state.selectedEventId && !isFinished()) scheduleRefresh(500);
+  if (state.selectedEventId && !isFinished()) scheduleRefresh(200);
 })();
