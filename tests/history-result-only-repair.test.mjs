@@ -35,9 +35,9 @@ test('clean rebuild removes the old result-only repair stack', () => {
   assert.doesNotMatch(html, /history-result-only-repair|history-shell-edge-final|history-shell-state|series-game-history/);
 });
 
-test('result-only surface has no outer frame or corner dependency', () => {
-  assert.match(css, /series-clean-panel[\s\S]*border:\s*0\s*!important/);
-  assert.match(css, /series-clean-panel[\s\S]*border-radius:\s*0\s*!important/);
-  assert.match(css, /series-clean-empty[\s\S]*min-height:\s*58px\s*!important/);
+test('result-only state uses one cohesive panel and an integrated notice', () => {
+  assert.match(css, /series-clean-panel[\s\S]*border:\s*1px solid var\(--series-line-strong\)\s*!important/);
+  assert.match(css, /series-clean-panel[\s\S]*border-radius:\s*10px\s*!important/);
+  assert.match(css, /series-clean-empty[\s\S]*min-height:\s*62px\s*!important/);
   assert.match(css, /series-clean-panel::before,[\s\S]*display:\s*none\s*!important/);
 });
