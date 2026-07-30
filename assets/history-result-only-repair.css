@@ -1,0 +1,154 @@
+/* Result-only history records: one coherent surface, no fake archive navigation. */
+body.minimal-pro-dark-v2 .game-panel:has(.series-hero[data-history-archive="missing"]),
+body.minimal-pro-dark-v2 .game-content:has(> .series-hero[data-history-archive="missing"]) {
+  background: var(--rp-bg) !important;
+}
+
+body.minimal-pro-dark-v2 .game-content > .series-hero[data-history-archive="missing"] {
+  overflow: hidden !important;
+  border-color: var(--rp-border) !important;
+  background: var(--rp-panel) !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero[data-history-archive="missing"] .series-scoreboard-meta,
+body.minimal-pro-dark-v2 .series-hero[data-history-archive="missing"] .series-scoreboard-main,
+body.minimal-pro-dark-v2 .series-hero[data-history-archive="missing"] .series-scoreboard-navigation,
+body.minimal-pro-dark-v2 .series-hero[data-history-archive="missing"] .series-hero-top,
+body.minimal-pro-dark-v2 .series-hero[data-history-archive="missing"] .series-hero-rail {
+  background: var(--rp-panel) !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero[data-history-archive="missing"] .series-scoreboard-meta {
+  border-bottom-color: var(--rp-divider) !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero[data-history-archive="missing"] .series-scoreboard-main {
+  min-height: 132px !important;
+  border-bottom: 1px solid var(--rp-divider) !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero[data-history-archive="missing"] .series-scoreboard-team-result {
+  display: none !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero[data-history-archive="missing"] .series-scoreboard-score {
+  min-height: 96px !important;
+  border-color: var(--rp-border) !important;
+  background: var(--rp-panel-soft) !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero[data-history-archive="missing"] .series-scoreboard-score > span,
+body.minimal-pro-dark-v2 .series-hero[data-history-archive="missing"] .series-scoreboard-score .series-scoreboard-score-side,
+body.minimal-pro-dark-v2 .series-hero[data-history-archive="missing"] .series-scoreboard-score-separator {
+  color: var(--rp-muted) !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero[data-history-archive="missing"] .series-scoreboard-score > small {
+  color: var(--rp-faint) !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero[data-history-archive="missing"] .series-scoreboard-navigation,
+body.minimal-pro-dark-v2 .series-hero[data-history-archive="missing"] .history-series-track {
+  padding: 14px 18px !important;
+  border-top: 0 !important;
+  border-radius: 0 0 9px 9px !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero[data-history-archive="missing"] .series-hero-games.is-unavailable,
+body.minimal-pro-dark-v2 .series-hero[data-history-archive="missing"] .history-game-nav.is-unavailable {
+  display: block !important;
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: visible !important;
+}
+
+body.minimal-pro-dark-v2 .history-archive-unavailable {
+  display: flex !important;
+  width: 100% !important;
+  min-height: 76px !important;
+  align-items: center !important;
+  gap: 14px !important;
+  padding: 16px 18px !important;
+  border: 1px solid var(--rp-divider) !important;
+  border-radius: 9px !important;
+  background: var(--rp-panel-soft) !important;
+}
+
+body.minimal-pro-dark-v2 .history-archive-unavailable-icon {
+  display: grid !important;
+  width: 38px !important;
+  height: 38px !important;
+  flex: 0 0 38px !important;
+  place-items: center !important;
+  border: 1px solid rgba(233, 162, 59, .30) !important;
+  border-radius: 9px !important;
+  background: rgba(233, 162, 59, .07) !important;
+  color: var(--rp-amber) !important;
+}
+
+body.minimal-pro-dark-v2 .history-archive-unavailable-icon svg {
+  width: 18px !important;
+  height: 18px !important;
+  fill: none !important;
+  stroke: currentColor !important;
+  stroke-width: 1.7 !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+}
+
+body.minimal-pro-dark-v2 .history-archive-unavailable-copy {
+  display: grid !important;
+  min-width: 0 !important;
+  gap: 5px !important;
+}
+
+body.minimal-pro-dark-v2 .history-archive-unavailable-copy strong {
+  color: var(--rp-text) !important;
+  font-size: 14px !important;
+  line-height: 1.2 !important;
+}
+
+body.minimal-pro-dark-v2 .history-archive-unavailable-copy small {
+  color: var(--rp-muted) !important;
+  font-size: 12px !important;
+  line-height: 1.45 !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero[data-history-archive="missing"] .history-archive-badge.is-unavailable,
+body.minimal-pro-dark-v2 .series-hero[data-history-archive="missing"] .series-hero-badge.is-unavailable {
+  border-color: rgba(233, 162, 59, .30) !important;
+  background: rgba(233, 162, 59, .06) !important;
+  color: var(--rp-amber) !important;
+}
+
+/* The availability notice already carries the state; do not reserve a separate rail column. */
+body.minimal-pro-dark-v2 .series-hero[data-history-archive="missing"] .history-series-track {
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  gap: 12px !important;
+  margin-top: 0 !important;
+  border: 0 !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero[data-history-archive="missing"][data-series-scoreboard-v3="true"] .series-scoreboard-navigation {
+  display: block !important;
+}
+
+@media (max-width: 760px) {
+  body.minimal-pro-dark-v2 .series-hero[data-history-archive="missing"] .series-scoreboard-main {
+    min-height: 0 !important;
+  }
+
+  body.minimal-pro-dark-v2 .series-hero[data-history-archive="missing"] .series-scoreboard-navigation,
+  body.minimal-pro-dark-v2 .series-hero[data-history-archive="missing"] .history-series-track {
+    padding: 12px !important;
+  }
+
+  body.minimal-pro-dark-v2 .history-archive-unavailable {
+    min-height: 0 !important;
+    align-items: flex-start !important;
+    padding: 14px !important;
+  }
+}
