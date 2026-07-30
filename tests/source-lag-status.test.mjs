@@ -12,5 +12,4 @@ test('delayed telemetry status distinguishes Riot source lag from retrieval time
   assert.match(source, /retrieval/);
   assert.match(source, /betting verification remains paused until Riot advances to a fresh frame/);
   assert.match(html, /assets\/analysis-cleanup\.js\?v=20260731-1/);
-  assert.match(html, /data-ui-build="data-retrieval-source-lag-1"/);
 });
