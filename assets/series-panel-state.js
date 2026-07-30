@@ -3,4 +3,5 @@
   'use strict';
   if (typeof state === 'object' && state) globalThis.state = state;
   if (typeof eventTeams === 'function') globalThis.eventTeams = eventTeams;
+  globalThis.RiftPulseUnifiedSeriesPanel?.render?.();
 })();
