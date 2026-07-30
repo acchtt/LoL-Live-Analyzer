@@ -3,89 +3,59 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
 const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
-const css = await readFile(new URL('../assets/series-scoreboard-v3.css', import.meta.url), 'utf8');
+const css = await readFile(new URL('../assets/series-panel-clean.css', import.meta.url), 'utf8');
+const script = await readFile(new URL('../assets/series-panel-clean.js', import.meta.url), 'utf8');
 const symmetry = await readFile(new URL('../assets/scoreboard-symmetry.css', import.meta.url), 'utf8');
-const trim = await readFile(new URL('../assets/scoreboard-detail-trim.css', import.meta.url), 'utf8');
-const resultOnly = await readFile(new URL('../assets/history-result-only-repair.css', import.meta.url), 'utf8');
-const script = await readFile(new URL('../assets/series-scoreboard-v3.js', import.meta.url), 'utf8');
 
-test('series scoreboard loads before the final symmetry, overview, score, and history repair layers', () => {
-  const previous = html.indexOf('player-comparison-board.css');
-  const scoreboard = html.indexOf('series-scoreboard-v3.css');
-  const symmetryIndex = html.indexOf('scoreboard-symmetry.css');
-  const overviewIndex = html.indexOf('overview-panel-v2.css');
-  const trimIndex = html.indexOf('scoreboard-detail-trim.css');
-  const surfaceIndex = html.indexOf('surface-edge-repair.css');
-  const resultOnlyIndex = html.indexOf('history-result-only-repair.css');
-  const finalShellIndex = html.indexOf('history-shell-edge-final.css');
-  assert.ok(
-    previous >= 0 &&
-    scoreboard > previous &&
-    symmetryIndex > scoreboard &&
-    overviewIndex > symmetryIndex &&
-    trimIndex > overviewIndex &&
-    surfaceIndex > trimIndex &&
-    resultOnlyIndex > surfaceIndex &&
-    finalShellIndex > resultOnlyIndex
-  );
-  assert.match(html, /data-ui-build="history-corner-frame-1"/);
-  assert.match(html, /series-scoreboard-v3\.js\?v=20260730-4/);
-  assert.match(html, /scoreboard-detail-trim\.css\?v=20260730-2/);
-  assert.match(html, /history-result-only-repair\.css\?v=20260730-2/);
-  assert.match(html, /history-shell-edge-final\.css\?v=20260730-3/);
-  assert.doesNotMatch(html, /series-header-layout-v2\.js\?v=20260730-1/);
+test('clean series assets replace every legacy series UI layer', () => {
+  assert.match(html, /series-panel-clean\.css\?v=20260730-1/);
+  assert.match(html, /series-panel-clean\.js\?v=20260730-1/);
+  assert.match(html, /data-ui-build="series-panel-clean-rebuild-1"/);
+  assert.doesNotMatch(html, /series-scoreboard-v3|series-header-layout-v2|series-control-dock|series-panel-unified|history-shell-edge-final/);
 });
 
-test('scoreboard structurally centers the series score between mirrored teams', () => {
-  assert.match(script, /main\.append\(leftTeam, score, rightTeam\)/);
-  assert.match(script, /if \(side === 'a'\) team\.append\(logo, copy\)/);
-  assert.match(script, /else team\.append\(copy, logo\)/);
-  assert.match(css, /series-scoreboard-main[\s\S]*grid-template-columns:\s*minmax\(0, 1fr\) 184px minmax\(0, 1fr\)/);
-  assert.match(symmetry, /series-scoreboard-team\.is-team-a[\s\S]*grid-template-columns:\s*64px minmax\(0, 1fr\)/);
-  assert.match(symmetry, /series-scoreboard-team\.is-team-b[\s\S]*grid-template-columns:\s*minmax\(0, 1fr\) 64px/);
+test('one renderer handles live, archive, history, and result-only states', () => {
+  assert.match(script, /function liveModel\(\)/);
+  assert.match(script, /function historyModel\(\)/);
+  assert.match(script, /variant: archiveMode \? 'archive' : 'live'/);
+  assert.match(script, /variant: available \? 'history' : 'result-only'/);
+  assert.match(script, /const model = liveModel\(\) \|\| historyModel\(\)/);
 });
 
-test('status, context, and live return action live in a separate metadata row', () => {
-  assert.match(script, /meta\.append\(metaPrimary, metaContext, metaActions\)/);
-  assert.match(script, /returnButton\.textContent = 'Back to live'/);
-  assert.match(css, /series-scoreboard-meta[\s\S]*grid-template-columns:\s*minmax\(180px, auto\) minmax\(0, 1fr\) auto/);
-  assert.match(css, /series-scoreboard-meta-actions[\s\S]*justify-content:\s*flex-end/);
+test('series matchup is structurally symmetrical', () => {
+  assert.match(script, /matchup\.append\(createTeam\(model\.teams\[0\][\s\S]*createScore\(model\.score\)[\s\S]*createTeam\(model\.teams\[1\]/);
+  assert.match(script, /if \(side === 'left'\) card\.append\(logo, copy\)/);
+  assert.match(script, /else card\.append\(copy, logo\)/);
+  assert.match(css, /series-clean-matchup[\s\S]*grid-template-columns:\s*minmax\(0, 1fr\) 190px minmax\(0, 1fr\)/);
+  assert.match(css, /series-clean-team\.is-left[\s\S]*grid-template-columns:\s*60px minmax\(0, 1fr\)/);
+  assert.match(css, /series-clean-team\.is-right[\s\S]*grid-template-columns:\s*minmax\(0, 1fr\) 60px/);
 });
 
-test('game navigation owns a full-width third row', () => {
-  assert.match(script, /navigation\.append\(games\)/);
-  assert.match(script, /hero\.replaceChildren\(meta, main, navigation\)/);
-  assert.match(css, /series-scoreboard-navigation[\s\S]*border-top:\s*1px solid/);
-  assert.match(css, /data-series-length="5"[\s\S]*repeat\(5, minmax\(130px, 1fr\)\)/);
+test('score values are separate and safely spaced', () => {
+  assert.match(script, /value\.append\(left, separator, right\)/);
+  assert.match(script, /available \? \(leftScore \?\? '—'\) : '—'/);
+  assert.match(script, /detail: available \? `[\s\S]*` : 'No completed games'/);
+  assert.match(css, /series-clean-score-value[\s\S]*grid-template-columns:\s*minmax\(42px, 1fr\) auto minmax\(42px, 1fr\)/);
+  assert.match(css, /series-clean-score-value[\s\S]*column-gap:\s*18px\s*!important/);
 });
 
-test('current-game scoreboard mirrors kills beside the center clock', () => {
+test('game navigation owns a dedicated full-width row', () => {
+  assert.match(script, /bottom\.className = 'series-clean-bottom'/);
+  assert.match(script, /games\.className = 'series-clean-games'/);
+  assert.match(script, /panel\.append\(top, matchup, bottom\)/);
+  assert.match(css, /series-clean-bottom[\s\S]*border-top:\s*1px solid var\(--rp-divider\)/);
+  assert.match(css, /series-clean-games[\s\S]*repeat\(var\(--series-clean-count\), minmax\(120px, 1fr\)\)/);
+});
+
+test('outer analysis and series shells have no rounded-corner dependency', () => {
+  assert.match(css, /\.game-panel[\s\S]*border:\s*0\s*!important[\s\S]*border-radius:\s*0\s*!important/);
+  assert.match(css, /\.game-content[\s\S]*border:\s*0\s*!important[\s\S]*border-radius:\s*0\s*!important/);
+  assert.match(css, /series-clean-panel[\s\S]*border-radius:\s*0\s*!important/);
+  assert.match(css, /series-clean-panel::before,[\s\S]*display:\s*none\s*!important/);
+});
+
+test('current-game scoreboard remains mirrored around the clock', () => {
   assert.match(symmetry, /analysis-v2-scoreboard[\s\S]*grid-template-columns:\s*minmax\(0, 1fr\) 144px minmax\(0, 1fr\)/);
   assert.match(symmetry, /analysis-v2-team\.is-blue[\s\S]*grid-template-areas:\s*"logo copy kills"/);
   assert.match(symmetry, /analysis-v2-team\.is-red[\s\S]*grid-template-areas:\s*"kills copy logo"/);
-});
-
-test('secondary details do not compete with team names', () => {
-  assert.match(trim, /analysis-v2-team[\s\S]*analysis-v2-team-copy > small[\s\S]*display:\s*none\s*!important/);
-  assert.match(trim, /series-scoreboard-team-result[\s\S]*font-size:\s*9px\s*!important/);
-  assert.match(script, /`\$\{wins\} win\$\{wins === '1' \? '' : 's'\}`/);
-});
-
-test('series score uses separated values and handles empty final records safely', () => {
-  assert.match(script, /series-scoreboard-score-value/);
-  assert.match(script, /value\.append\(left, separator, right\)/);
-  assert.match(script, /label\.textContent = 'No result'/);
-  assert.match(script, /detail\.textContent = 'No completed games'/);
-  assert.match(trim, /series-scoreboard-score-value[\s\S]*column-gap:\s*14px\s*!important/);
-  assert.match(trim, /series-scoreboard-score\.is-unresolved/);
-  assert.match(trim, /grid-row:\s*auto\s*!important/);
-});
-
-test('missing history archives share one coherent surface', () => {
-  assert.match(resultOnly, /data-history-archive="missing"/);
-  assert.match(resultOnly, /history-archive-unavailable/);
-  assert.match(resultOnly, /background:\s*var\(--rp-panel\)\s*!important/);
-  assert.match(resultOnly, /series-scoreboard-team-result[\s\S]*display:\s*none\s*!important/);
-  assert.match(resultOnly, /game-panel:has\([\s\S]*border:\s*0\s*!important/);
-  assert.match(resultOnly, /history-archive-unavailable[\s\S]*background:\s*transparent\s*!important/);
 });
