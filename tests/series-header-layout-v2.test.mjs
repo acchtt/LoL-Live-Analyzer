@@ -28,11 +28,11 @@ test('series scoreboard loads before the final symmetry, overview, score, and hi
     resultOnlyIndex > surfaceIndex &&
     finalShellIndex > resultOnlyIndex
   );
-  assert.match(html, /data-ui-build="history-shell-structural-1"/);
+  assert.match(html, /data-ui-build="history-corner-frame-1"/);
   assert.match(html, /series-scoreboard-v3\.js\?v=20260730-4/);
   assert.match(html, /scoreboard-detail-trim\.css\?v=20260730-2/);
   assert.match(html, /history-result-only-repair\.css\?v=20260730-2/);
-  assert.match(html, /history-shell-edge-final\.css\?v=20260730-2/);
+  assert.match(html, /history-shell-edge-final\.css\?v=20260730-3/);
   assert.doesNotMatch(html, /series-header-layout-v2\.js\?v=20260730-1/);
 });
 
