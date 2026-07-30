@@ -38,6 +38,20 @@ jobs:
               clearTimeout(timer);
             }
           };
+          const sleep = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds));
+
+          let previewHealth = null;
+          for (let attempt = 1; attempt <= 30; attempt += 1) {
+            previewHealth = await json(`${preview}/health?_=${Date.now()}`).catch(() => null);
+            const cutoff = Number(previewHealth?.reliability?.degradedFrameSeconds);
+            if (cutoff === 90) break;
+            console.log(`Preview policy not propagated yet (attempt ${attempt}, cutoff ${cutoff || 'unknown'}).`);
+            await sleep(5_000);
+          }
+          if (Number(previewHealth?.reliability?.degradedFrameSeconds) !== 90) {
+            throw new Error(`Preview did not expose the 90-second cutoff: ${JSON.stringify(previewHealth)}`);
+          }
+          console.log(JSON.stringify({ previewHealth }, null, 2));
 
           const eventsOf = payload => payload?.data?.schedule?.events || payload?.schedule?.events || payload?.events || [];
           const matchIdOf = event => String(event?.match?.id || event?.id || '');
