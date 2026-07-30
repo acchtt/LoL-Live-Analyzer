@@ -1,4 +1,4 @@
-/* Removes duplicated gold totals from team cards and softens series-win labels. */
+/* Removes duplicated team details, softens series-win labels, and repairs the central score card. */
 body.minimal-pro-dark-v2 .analysis-v2-team .analysis-v2-team-copy > small {
   display: none !important;
 }
@@ -14,4 +14,117 @@ body.minimal-pro-dark-v2 .series-hero[data-series-scoreboard-v3="true"] .series-
   line-height: 1.1 !important;
   letter-spacing: .02em !important;
   opacity: .58 !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero[data-series-scoreboard-v3="true"] .series-scoreboard-main {
+  grid-template-columns: minmax(0, 1fr) 200px minmax(0, 1fr) !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero[data-series-scoreboard-v3="true"] .series-scoreboard-score {
+  width: 200px !important;
+  min-width: 200px !important;
+  min-height: 112px !important;
+  overflow: hidden !important;
+  padding: 12px 18px !important;
+  border: 1px solid var(--rp-border) !important;
+  border-radius: 10px !important;
+  background: var(--rp-panel-raised) !important;
+}
+
+body.minimal-pro-dark-v2 .series-hero[data-series-scoreboard-v3="true"] .series-scoreboard-score > .series-scoreboard-score-value {
+  display: grid !important;
+  grid-template-columns: minmax(34px, 1fr) auto minmax(34px, 1fr) !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  align-items: center !important;
+  column-gap: 14px !important;
+  color: var(--rp-text) !important;
+  font-size: inherit !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+body.minimal-pro-dark-v2 .series-scoreboard-score-side {
+  min-width: 0 !important;
+  font-size: clamp(38px, 3vw, 48px) !important;
+  line-height: .95 !important;
+  letter-spacing: 0 !important;
+}
+
+body.minimal-pro-dark-v2 .series-scoreboard-score-side.is-left {
+  justify-self: end !important;
+}
+
+body.minimal-pro-dark-v2 .series-scoreboard-score-side.is-right {
+  justify-self: start !important;
+}
+
+body.minimal-pro-dark-v2 .series-scoreboard-score-separator {
+  justify-self: center !important;
+  color: var(--rp-faint) !important;
+  font-size: 24px !important;
+  font-style: normal !important;
+  font-weight: 500 !important;
+  line-height: 1 !important;
+  transform: translateY(-1px) !important;
+}
+
+body.minimal-pro-dark-v2 .series-scoreboard-score.is-unresolved > span,
+body.minimal-pro-dark-v2 .series-scoreboard-score.is-unresolved .series-scoreboard-score-side {
+  color: var(--rp-muted) !important;
+}
+
+body.minimal-pro-dark-v2 .series-scoreboard-score.is-unresolved > small {
+  color: var(--rp-faint) !important;
+}
+
+@media (max-width: 1100px) {
+  body.minimal-pro-dark-v2 .series-hero[data-series-scoreboard-v3="true"] .series-scoreboard-main {
+    grid-template-columns: minmax(0, 1fr) 172px minmax(0, 1fr) !important;
+  }
+
+  body.minimal-pro-dark-v2 .series-hero[data-series-scoreboard-v3="true"] .series-scoreboard-score {
+    width: 172px !important;
+    min-width: 172px !important;
+    padding-inline: 13px !important;
+  }
+
+  body.minimal-pro-dark-v2 .series-hero[data-series-scoreboard-v3="true"] .series-scoreboard-score > .series-scoreboard-score-value {
+    column-gap: 10px !important;
+  }
+}
+
+@media (max-width: 760px) {
+  body.minimal-pro-dark-v2 .series-hero[data-series-scoreboard-v3="true"] .series-scoreboard-team.is-team-a {
+    order: 1 !important;
+  }
+
+  body.minimal-pro-dark-v2 .series-hero[data-series-scoreboard-v3="true"] .series-scoreboard-score {
+    grid-row: auto !important;
+    order: 2 !important;
+    width: min(100%, 280px) !important;
+    min-width: 0 !important;
+    justify-self: center !important;
+  }
+
+  body.minimal-pro-dark-v2 .series-hero[data-series-scoreboard-v3="true"] .series-scoreboard-team.is-team-b {
+    order: 3 !important;
+  }
+}
+
+@media (max-width: 620px) {
+  body.minimal-pro-dark-v2 .series-hero[data-series-scoreboard-v3="true"] .series-scoreboard-score > .series-scoreboard-score-value {
+    grid-template-columns: minmax(28px, 1fr) auto minmax(28px, 1fr) !important;
+    column-gap: 6px !important;
+  }
+
+  body.minimal-pro-dark-v2 .series-scoreboard-score-side {
+    font-size: 32px !important;
+  }
+
+  body.minimal-pro-dark-v2 .series-scoreboard-score-separator {
+    font-size: 18px !important;
+  }
 }
