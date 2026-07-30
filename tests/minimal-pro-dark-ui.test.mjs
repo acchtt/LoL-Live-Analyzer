@@ -48,7 +48,7 @@ test('minimal pro dark assets end with the clean series rebuild', () => {
 
   assert.match(html, /series-panel-clean\.css\?v=20260730-2/);
   assert.match(html, /series-panel-clean\.js\?v=20260730-1/);
-  assert.match(html, /data-ui-build="series-panel-flat-reset-1"/);
+  assert.match(html, /data-ui-build="series-panel-polished-card-1"/);
   assert.doesNotMatch(html, /series-hero\.css|series-scoreboard-v3|history-shell-edge-final|history-result-only-repair|series-panel-unified/);
   assert.match(css, /RIFTPULSE_MINIMAL_PRO_DARK_V2/);
   assert.match(css, /--rp-bg:\s*#0b0f15/);
@@ -98,6 +98,7 @@ test('clean series panel mirrors teams around separated score values', () => {
   assert.match(seriesJs, /value\.append\(left, separator, right\)/);
   assert.match(seriesCss, /series-clean-matchup[\s\S]*grid-template-columns:\s*minmax\(0, 1fr\) 176px minmax\(0, 1fr\)/);
   assert.match(seriesCss, /series-clean-score-value[\s\S]*column-gap:\s*20px\s*!important/);
+  assert.match(seriesCss, /series-clean-panel[\s\S]*border-radius:\s*10px\s*!important/);
 });
 
 test('game overview becomes a gold summary and objective comparison dashboard', () => {
