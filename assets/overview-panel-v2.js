@@ -1,4 +1,4 @@
-// Rebuilds the map overview into a readable gold summary and objective comparison dashboard.
+// Rebuilds the map overview into a clear side-led gold and objective comparison.
 (() => {
   'use strict';
 
@@ -44,21 +44,15 @@
     const redShare = total !== null && total > 0 ? Math.round((redNumber / total) * 1000) / 10 : 50;
 
     return `<article class="overview-objective-v2">
-      <div class="overview-objective-value is-blue">
-        <strong>${escapeHtml(integer(blueValue))}</strong>
-        <small>Blue</small>
-      </div>
+      <strong class="overview-objective-number is-blue">${escapeHtml(integer(blueValue))}</strong>
       <div class="overview-objective-center">
         <span>${escapeHtml(label)}</span>
-        <div class="overview-objective-track" aria-hidden="true">
+        <div class="overview-objective-track" aria-label="Blue ${escapeHtml(integer(blueValue))}, Red ${escapeHtml(integer(redValue))}">
           <i class="is-blue" style="--share:${blueShare}%"></i>
           <i class="is-red" style="--share:${redShare}%"></i>
         </div>
       </div>
-      <div class="overview-objective-value is-red">
-        <strong>${escapeHtml(integer(redValue))}</strong>
-        <small>Red</small>
-      </div>
+      <strong class="overview-objective-number is-red">${escapeHtml(integer(redValue))}</strong>
     </article>`;
   }
 
@@ -71,8 +65,8 @@
 
     const blue = snapshot.blue || {};
     const red = snapshot.red || {};
-    const blueName = blue.name || 'Blue side';
-    const redName = red.name || 'Red side';
+    const blueName = blue.name || 'Blue team';
+    const redName = red.name || 'Red team';
     const blueGold = finiteNumber(blue.gold);
     const redGold = finiteNumber(red.gold);
     const difference = goldDifference(snapshot, blueGold, redGold);
@@ -92,27 +86,33 @@
       }
     }
 
+    const legend = section.querySelector('.analysis-v2-state-legend');
+    if (legend) {
+      legend.innerHTML = '<span class="overview-side-key is-blue"><i></i>Blue</span><span class="overview-side-key is-red"><i></i>Red</span>';
+      legend.setAttribute('aria-label', 'Blue and red side color key');
+    }
+
     const dashboard = document.createElement('div');
     dashboard.className = 'overview-panel-v2';
     dashboard.innerHTML = `
       <section class="overview-gold-summary" aria-label="Team gold comparison">
         <article class="overview-gold-team is-blue">
-          <span>Blue side</span>
+          <span class="overview-side-badge">Blue</span>
           <strong>${escapeHtml(blueName)}</strong>
-          <b>${escapeHtml(formatted(blue.gold))}<small> gold</small></b>
+          <b>${escapeHtml(formatted(blue.gold))}<small>gold</small></b>
         </article>
         <article class="overview-gold-lead ${leadClass}">
-          <span>Gold advantage</span>
+          <span>Gold lead</span>
           <strong>${escapeHtml(leadValue)}</strong>
           <small>${escapeHtml(leadDetail)}</small>
         </article>
         <article class="overview-gold-team is-red">
-          <span>Red side</span>
+          <span class="overview-side-badge">Red</span>
           <strong>${escapeHtml(redName)}</strong>
-          <b>${escapeHtml(formatted(red.gold))}<small> gold</small></b>
+          <b>${escapeHtml(formatted(red.gold))}<small>gold</small></b>
         </article>
       </section>
-      <section class="overview-objective-grid-v2" aria-label="Objective comparison">
+      <section class="overview-objective-grid-v2" aria-label="Objective comparison; blue values are left and red values are right">
         ${objectiveCard('Towers', blue.towers, red.towers)}
         ${objectiveCard('Dragons', Array.isArray(blue.dragons) ? blue.dragons.length : blue.dragons, Array.isArray(red.dragons) ? red.dragons.length : red.dragons)}
         ${objectiveCard('Barons', blue.barons, red.barons)}
