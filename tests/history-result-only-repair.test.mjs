@@ -35,7 +35,7 @@ test('result-only repair loads after the general edge repair', () => {
   assert.ok(surface >= 0 && resultOnly > surface);
   assert.match(html, /history-result-only-repair\.css\?v=20260730-2/);
   assert.match(html, /series-game-history\.js\?v=20260730-6/);
-  assert.match(html, /data-ui-build="history-shell-structural-1"/);
+  assert.match(html, /data-ui-build="history-corner-frame-1"/);
   assert.match(css, /data-history-archive="missing"/);
   assert.match(css, /history-archive-unavailable/);
 });
