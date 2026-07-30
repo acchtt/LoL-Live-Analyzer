@@ -11,6 +11,42 @@
     return values.length >= 2 ? values : ['—', '—'];
   }
 
+  function rebuildScore(score, leftWins, rightWins) {
+    const label = score.querySelector(':scope > span');
+    const detail = score.querySelector(':scope > small');
+    const original = score.querySelector(':scope > strong');
+    if (!original) return;
+
+    const detailText = String(detail?.textContent || '').trim().toLowerCase();
+    const noCompletedGames = /^(0 played games|0 completed)/.test(detailText);
+    if (noCompletedGames && leftWins === '0' && rightWins === '0') {
+      if (label) label.textContent = 'No result';
+      if (detail) detail.textContent = 'No completed games';
+      score.classList.remove('is-final');
+      score.classList.add('is-unresolved');
+    }
+
+    const value = document.createElement('strong');
+    value.className = 'series-scoreboard-score-value';
+    value.setAttribute('aria-label', `${leftWins} to ${rightWins}`);
+
+    const left = document.createElement('span');
+    left.className = 'series-scoreboard-score-side is-left';
+    left.textContent = leftWins;
+
+    const separator = document.createElement('i');
+    separator.className = 'series-scoreboard-score-separator';
+    separator.setAttribute('aria-hidden', 'true');
+    separator.textContent = '–';
+
+    const right = document.createElement('span');
+    right.className = 'series-scoreboard-score-side is-right';
+    right.textContent = rightWins;
+
+    value.append(left, separator, right);
+    original.replaceWith(value);
+  }
+
   function teamCopy(team, wins, side) {
     const logo = team.querySelector('.series-hero-team-logo');
     const name = team.querySelector(':scope > strong');
@@ -52,6 +88,7 @@
     const [leftWins, rightWins] = scoreValues(score);
     teamCopy(leftTeam, leftWins, 'a');
     teamCopy(rightTeam, rightWins, 'b');
+    rebuildScore(score, leftWins, rightWins);
 
     score.classList.add('series-scoreboard-score');
     matchup.querySelector('.series-hero-versus')?.remove();
