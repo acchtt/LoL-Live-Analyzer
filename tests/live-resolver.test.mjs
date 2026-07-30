@@ -2,10 +2,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { resolveActiveGame } from '../lib/live-resolver.js';
 
-function gameplayPayload() {
+function gameplayPayload(timestamp = new Date().toISOString()) {
   return {
     frames: [{
-      rfc460Timestamp: new Date().toISOString(),
+      rfc460Timestamp: timestamp,
       blueTeam: {
         totalGold: 6100,
         participants: [{ participantId: 1, level: 2, creepScore: 4 }]
@@ -123,6 +123,22 @@ test('resolver keeps champion select as waiting state instead of exposing pregam
   assert.equal(result.pregameGame?.id, 'g3');
   assert.equal(result.selectedPhase, 'pregame');
   assert.equal(result.telemetryAvailable, false);
+  assert.equal(result.quality.safeForLiveAnalysis, false);
+});
+
+test('resolver selects stale gameplay only as active-game context', async () => {
+  const event = activeSeriesEvent();
+  const staleTimestamp = new Date(Date.now() - 4 * 60 * 1000).toISOString();
+  const riot = riotFor(event, {
+    fetchBestLiveWindow: async gameId => gameId === 'g3' ? gameplayPayload(staleTimestamp) : null
+  });
+
+  const result = await resolveActiveGame('match-1', riot);
+
+  assert.equal(result.selectedGame?.id, 'g3');
+  assert.equal(result.selectedPhase, 'gameplay');
+  assert.equal(result.telemetryAvailable, true);
+  assert.equal(result.quality.freshness, 'stale');
   assert.equal(result.quality.safeForLiveAnalysis, false);
 });
 
