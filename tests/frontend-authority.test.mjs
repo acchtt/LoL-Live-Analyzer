@@ -19,9 +19,11 @@ test('production UI does not load inferred or hardcoded score authority layers',
   assert.equal(html.includes('assets/authoritative-ui.js'), true);
   assert.equal(html.includes('assets/reliable-lifecycle.js'), true);
   assert.equal(html.includes('assets/match-history.js'), true);
-  assert.equal(html.includes('assets/series-game-history.js'), true);
+  assert.equal(html.includes('assets/series-panel-clean.js'), true);
   assert.ok(
-    html.indexOf('assets/series-game-history.js') > html.indexOf('assets/match-history.js'),
-    'complete-series history must load after the base match-history controller'
+    html.indexOf('assets/series-panel-clean.js') > html.indexOf('assets/match-history.js'),
+    'clean series controller must load after the base match-history controller'
   );
+  assert.equal(html.includes('assets/series-game-history.js'), false);
+  assert.equal(html.includes('assets/live-series-nav.js'), false);
 });
