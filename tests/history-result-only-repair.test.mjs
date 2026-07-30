@@ -21,13 +21,21 @@ test('missing archives do not show fake game navigation or verified state', () =
   assert.match(history, /selectedNumber \? `Game \$\{selectedNumber\}` : 'Result only'/);
 });
 
+test('result-only rendering removes the structural panel frame synchronously', () => {
+  assert.match(history, /function setResultOnlyHistoryShell\(active = false\)/);
+  assert.match(history, /panel\.classList\.toggle\('panel', !active\)/);
+  assert.match(history, /panel\.classList\.toggle\('app-panel', !active\)/);
+  assert.match(history, /setResultOnlyHistoryShell\(!archiveAvailable\)/);
+  assert.match(history, /setResultOnlyHistoryShell\(false\)[\s\S]*Loading match history/);
+});
+
 test('result-only repair loads after the general edge repair', () => {
   const surface = html.indexOf('surface-edge-repair.css');
   const resultOnly = html.indexOf('history-result-only-repair.css');
   assert.ok(surface >= 0 && resultOnly > surface);
   assert.match(html, /history-result-only-repair\.css\?v=20260730-2/);
-  assert.match(html, /series-game-history\.js\?v=20260730-5/);
-  assert.match(html, /data-ui-build="history-result-only-repair-1"/);
+  assert.match(html, /series-game-history\.js\?v=20260730-6/);
+  assert.match(html, /data-ui-build="history-shell-structural-1"/);
   assert.match(css, /data-history-archive="missing"/);
   assert.match(css, /history-archive-unavailable/);
 });
