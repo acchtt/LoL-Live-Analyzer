@@ -53,10 +53,10 @@ test('clean stylesheet loads last and old cinematic hero layers are absent', () 
   assert.doesNotMatch(html, /series-hero\.css|series-hero-refinement\.css|live-series-nav\.css/);
 });
 
-test('series panel is readable and does not depend on rounded outer corners', () => {
+test('series panel is readable and uses one polished outer card', () => {
   assert.match(css, /series-clean-matchup[\s\S]*min-height:\s*132px/);
-  assert.match(css, /series-clean-team-copy strong[\s\S]*font-size:\s*clamp\(20px, 1\.55vw, 28px\)/);
-  assert.match(css, /series-clean-panel[\s\S]*border:\s*0\s*!important/);
-  assert.match(css, /series-clean-panel[\s\S]*border-radius:\s*0\s*!important/);
+  assert.match(css, /series-clean-team-copy strong[\s\S]*font-size:\s*clamp\(19px, 1\.45vw, 27px\)/);
+  assert.match(css, /series-clean-panel[\s\S]*border:\s*1px solid var\(--series-line-strong\)\s*!important/);
+  assert.match(css, /series-clean-panel[\s\S]*border-radius:\s*10px\s*!important/);
   assert.match(css, /series-clean-panel::before,[\s\S]*display:\s*none\s*!important/);
 });
