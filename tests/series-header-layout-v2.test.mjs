@@ -17,6 +17,7 @@ test('series scoreboard loads before the final symmetry, overview, score, and hi
   const trimIndex = html.indexOf('scoreboard-detail-trim.css');
   const surfaceIndex = html.indexOf('surface-edge-repair.css');
   const resultOnlyIndex = html.indexOf('history-result-only-repair.css');
+  const finalShellIndex = html.indexOf('history-shell-edge-final.css');
   assert.ok(
     previous >= 0 &&
     scoreboard > previous &&
@@ -24,12 +25,14 @@ test('series scoreboard loads before the final symmetry, overview, score, and hi
     overviewIndex > symmetryIndex &&
     trimIndex > overviewIndex &&
     surfaceIndex > trimIndex &&
-    resultOnlyIndex > surfaceIndex
+    resultOnlyIndex > surfaceIndex &&
+    finalShellIndex > resultOnlyIndex
   );
-  assert.match(html, /data-ui-build="history-result-only-repair-1"/);
+  assert.match(html, /data-ui-build="history-shell-structural-1"/);
   assert.match(html, /series-scoreboard-v3\.js\?v=20260730-4/);
   assert.match(html, /scoreboard-detail-trim\.css\?v=20260730-2/);
   assert.match(html, /history-result-only-repair\.css\?v=20260730-2/);
+  assert.match(html, /history-shell-edge-final\.css\?v=20260730-2/);
   assert.doesNotMatch(html, /series-header-layout-v2\.js\?v=20260730-1/);
 });
 
