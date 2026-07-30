@@ -1,5 +1,4 @@
-// Applies an explicit shell class for result-only history records.
-// This avoids relying on :has() to remove the outer game-panel frame.
+// Keeps the result-only history shell synchronized even when other renderers replace content.
 (() => {
   'use strict';
 
@@ -13,8 +12,18 @@
     const resultOnly = Boolean(
       content.querySelector('.series-hero[data-history-archive="missing"]')
     );
+
     content.classList.toggle(className, resultOnly);
     panel.classList.toggle(className, resultOnly);
+
+    // .panel and .app-panel each add the outer rounded frame. Remove both
+    // while the result-only history card is present, then restore them when
+    // switching back to a live game or a normal archived game.
+    panel.classList.toggle('panel', !resultOnly);
+    panel.classList.toggle('app-panel', !resultOnly);
+
+    if (resultOnly) panel.dataset.historyShell = 'result-only';
+    else delete panel.dataset.historyShell;
   }
 
   const observer = new MutationObserver(syncHistoryShell);
