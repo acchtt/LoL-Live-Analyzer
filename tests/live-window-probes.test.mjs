@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { liveWindowProbeTimes } from '../lib/riot-client.js';
+import { detailProbeTimes, liveWindowProbeTimes } from '../lib/riot-client.js';
 import { classifyTimestamp } from '../lib/reliability-policy.js';
 
 const NOW = Date.parse('2026-07-29T00:10:00.000Z');
@@ -32,6 +32,17 @@ test('older displayed frames also receive wall-clock delay anchors', () => {
     ...[10, 20, 30, 60, 90].map(seconds => rounded(afterMs + seconds * 1000)),
     rounded(NOW - 120_000),
     rounded(NOW - 240_000)
+  ]);
+});
+
+test('details lookup covers exact, rounded, next and previous frame keys', () => {
+  const timestamp = '2026-07-29T00:09:04.250Z';
+  const timestampMs = Date.parse(timestamp);
+  assert.deepEqual(detailProbeTimes(timestamp), [
+    new Date(timestampMs).toISOString(),
+    rounded(timestampMs),
+    rounded(timestampMs + 10_000),
+    rounded(timestampMs - 10_000)
   ]);
 });
 
