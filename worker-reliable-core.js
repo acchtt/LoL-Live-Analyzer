@@ -95,7 +95,7 @@ export default {
             freshFrameSeconds: FRESH_FRAME_SECONDS,
             degradedFrameSeconds: DEGRADED_FRAME_SECONDS,
             futureToleranceSeconds: FUTURE_TOLERANCE_SECONDS,
-            maximumWindowRequestsPerSnapshot: 3,
+            maximumWindowRequestsPerSnapshot: 6,
             officialScoresFromTelemetryInference: false,
             clinchedSeriesRetiredFromLiveSchedule: true,
             unresolvedPlaceholderMatchesHidden: true
