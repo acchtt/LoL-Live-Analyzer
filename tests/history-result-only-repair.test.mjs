@@ -3,47 +3,41 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
 const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
-const history = await readFile(new URL('../assets/series-game-history.js', import.meta.url), 'utf8');
-const css = await readFile(new URL('../assets/history-result-only-repair.css', import.meta.url), 'utf8');
+const script = await readFile(new URL('../assets/series-panel-clean.js', import.meta.url), 'utf8');
+const css = await readFile(new URL('../assets/series-panel-clean.css', import.meta.url), 'utf8');
 
-test('history records without game ids render one result-only surface', () => {
-  assert.match(history, /summary\.dataset\.historyArchive = archiveAvailable \? 'available' : 'missing'/);
-  assert.match(history, /Game archive unavailable/);
-  assert.match(history, /Archive unavailable/);
-  assert.match(history, /gameContent\.innerHTML = ''[\s\S]*renderSeriesNavigation\(\)/);
-  assert.doesNotMatch(history, /Series result available<\/strong><span>No archived game IDs/);
+test('history records without game ids use the clean result-only model', () => {
+  assert.match(script, /variant: available \? 'history' : 'result-only'/);
+  assert.match(script, /label: available \? 'Final' : 'No result'/);
+  assert.match(script, /detail: available \? `[\s\S]*` : 'No completed games'/);
+  assert.match(script, /title: 'Game archive unavailable'/);
+  assert.match(script, /Riot returned the match result without archived game IDs/);
 });
 
-test('missing archives do not show fake game navigation or verified state', () => {
-  assert.match(history, /if \(!games\.length\)/);
-  assert.match(history, /series-hero-games is-unavailable/);
-  assert.match(history, /archiveAvailable \? 'Verified archive' : 'Archive unavailable'/);
-  assert.match(history, /selectedNumber \? `Game \$\{selectedNumber\}` : 'Result only'/);
+test('missing archives do not create fake game buttons', () => {
+  assert.match(script, /games: available[\s\S]*: \[\]/);
+  assert.match(script, /if \(model\.empty\)/);
+  assert.match(script, /bottom\.append\(empty\)/);
+  assert.doesNotMatch(script, /Series result available<\/strong>/);
 });
 
-test('result-only rendering removes the structural panel frame synchronously', () => {
-  assert.match(history, /function setResultOnlyHistoryShell\(active = false\)/);
-  assert.match(history, /panel\.classList\.toggle\('panel', !active\)/);
-  assert.match(history, /panel\.classList\.toggle\('app-panel', !active\)/);
-  assert.match(history, /setResultOnlyHistoryShell\(!archiveAvailable\)/);
-  assert.match(history, /setResultOnlyHistoryShell\(false\)[\s\S]*Loading match history/);
+test('result-only loading clears telemetry and renders one panel', () => {
+  assert.match(script, /if \(!finalGame\?\.id\)/);
+  assert.match(script, /state\.selectedGameId = null/);
+  assert.match(script, /gameContent\.innerHTML = ''/);
+  assert.match(script, /scheduleRender\(\)/);
+  assert.match(script, /History · result only · archive unavailable/);
 });
 
-test('result-only repair loads after the general edge repair', () => {
-  const surface = html.indexOf('surface-edge-repair.css');
-  const resultOnly = html.indexOf('history-result-only-repair.css');
-  assert.ok(surface >= 0 && resultOnly > surface);
-  assert.match(html, /history-result-only-repair\.css\?v=20260730-2/);
-  assert.match(html, /series-game-history\.js\?v=20260730-6/);
-  assert.match(html, /data-ui-build="history-corner-frame-1"/);
-  assert.match(css, /data-history-archive="missing"/);
-  assert.match(css, /history-archive-unavailable/);
+test('clean rebuild removes the old result-only repair stack', () => {
+  assert.match(html, /series-panel-clean\.css\?v=20260730-1/);
+  assert.match(html, /series-panel-clean\.js\?v=20260730-1/);
+  assert.doesNotMatch(html, /history-result-only-repair|history-shell-edge-final|history-shell-state|series-game-history/);
 });
 
-test('result-only history uses one outer card with flat internal rows', () => {
-  assert.match(css, /game-panel:has\(\.series-hero\[data-history-archive="missing"\]\)[\s\S]*border:\s*0\s*!important/);
-  assert.match(css, /game-content > \.series-hero\[data-history-archive="missing"\][\s\S]*border-radius:\s*12px\s*!important/);
-  assert.match(css, /series-scoreboard-meta,[\s\S]*series-scoreboard-main,[\s\S]*series-scoreboard-navigation[\s\S]*border-radius:\s*0\s*!important/);
-  assert.match(css, /history-archive-unavailable[\s\S]*border:\s*0\s*!important[\s\S]*background:\s*transparent\s*!important/);
-  assert.match(css, /series-scoreboard-main[\s\S]*border-bottom:\s*1px solid var\(--rp-divider\)/);
+test('result-only surface is rectangular and uses one border', () => {
+  assert.match(css, /series-clean-panel[\s\S]*border:\s*1px solid var\(--rp-divider\)\s*!important/);
+  assert.match(css, /series-clean-panel[\s\S]*border-radius:\s*0\s*!important/);
+  assert.match(css, /series-clean-empty[\s\S]*min-height:\s*62px\s*!important/);
+  assert.match(css, /series-clean-panel::before,[\s\S]*display:\s*none\s*!important/);
 });
