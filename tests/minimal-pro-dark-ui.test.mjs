@@ -17,6 +17,7 @@ const seriesScoreboardCss = await readFile(new URL('../assets/series-scoreboard-
 const symmetryCss = await readFile(new URL('../assets/scoreboard-symmetry.css', import.meta.url), 'utf8');
 const overviewCss = await readFile(new URL('../assets/overview-panel-v2.css', import.meta.url), 'utf8');
 const trimCss = await readFile(new URL('../assets/scoreboard-detail-trim.css', import.meta.url), 'utf8');
+const resultOnlyCss = await readFile(new URL('../assets/history-result-only-repair.css', import.meta.url), 'utf8');
 const overviewJs = await readFile(new URL('../assets/overview-panel-v2.js', import.meta.url), 'utf8');
 const seriesScoreboardJs = await readFile(new URL('../assets/series-scoreboard-v3.js', import.meta.url), 'utf8');
 const analysis = await readFile(new URL('../assets/analysis-workspace-v2.js', import.meta.url), 'utf8');
@@ -39,6 +40,8 @@ test('minimal pro dark styles load in final cache-safe order', () => {
   const symmetryIndex = html.indexOf('scoreboard-symmetry.css');
   const overviewIndex = html.indexOf('overview-panel-v2.css');
   const trimIndex = html.indexOf('scoreboard-detail-trim.css');
+  const surfaceIndex = html.indexOf('surface-edge-repair.css');
+  const resultOnlyIndex = html.indexOf('history-result-only-repair.css');
   assert.ok(
     heroIndex >= 0 &&
     minimalIndex > heroIndex &&
@@ -53,7 +56,9 @@ test('minimal pro dark styles load in final cache-safe order', () => {
     seriesScoreboardIndex > comparisonIndex &&
     symmetryIndex > seriesScoreboardIndex &&
     overviewIndex > symmetryIndex &&
-    trimIndex > overviewIndex
+    trimIndex > overviewIndex &&
+    surfaceIndex > trimIndex &&
+    resultOnlyIndex > surfaceIndex
   );
   assert.match(html, /series-control-dock\.css\?v=20260730-2/);
   assert.match(html, /series-header-layout-v2\.css\?v=20260730-1/);
@@ -63,15 +68,19 @@ test('minimal pro dark styles load in final cache-safe order', () => {
   assert.match(html, /scoreboard-symmetry\.css\?v=20260730-1/);
   assert.match(html, /overview-panel-v2\.css\?v=20260730-2/);
   assert.match(html, /scoreboard-detail-trim\.css\?v=20260730-2/);
+  assert.match(html, /surface-edge-repair\.css\?v=20260730-1/);
+  assert.match(html, /history-result-only-repair\.css\?v=20260730-1/);
   assert.match(html, /overview-panel-v2\.js\?v=20260730-2/);
   assert.match(html, /series-scoreboard-v3\.js\?v=20260730-4/);
-  assert.match(html, /<body class="minimal-pro-dark-v2" data-ui-build="series-score-card-repair-1">/);
+  assert.match(html, /series-game-history\.js\?v=20260730-5/);
+  assert.match(html, /<body class="minimal-pro-dark-v2" data-ui-build="history-result-only-repair-1">/);
   assert.match(css, /RIFTPULSE_MINIMAL_PRO_DARK_V2/);
   assert.match(css, /--rp-bg:\s*#0b0f15/);
   assert.match(fixes, /data-drawer:not\(\.is-open\) \.feed-body/);
   assert.match(headerV2, /series-hero\[data-header-layout-v2="true"\]/);
   assert.match(seriesScoreboardCss, /series-hero\[data-series-scoreboard-v3="true"\]/);
   assert.match(seriesScoreboardJs, /hero\.dataset\.seriesScoreboardV3 = 'true'/);
+  assert.match(resultOnlyCss, /data-history-archive="missing"/);
 });
 
 test('machine-readable feed is collapsed into a bottom drawer', () => {
