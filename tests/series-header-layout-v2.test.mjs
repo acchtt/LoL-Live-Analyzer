@@ -6,18 +6,30 @@ const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
 const css = await readFile(new URL('../assets/series-scoreboard-v3.css', import.meta.url), 'utf8');
 const symmetry = await readFile(new URL('../assets/scoreboard-symmetry.css', import.meta.url), 'utf8');
 const trim = await readFile(new URL('../assets/scoreboard-detail-trim.css', import.meta.url), 'utf8');
+const resultOnly = await readFile(new URL('../assets/history-result-only-repair.css', import.meta.url), 'utf8');
 const script = await readFile(new URL('../assets/series-scoreboard-v3.js', import.meta.url), 'utf8');
 
-test('series scoreboard loads before the final symmetry, overview, and score-repair layers', () => {
+test('series scoreboard loads before the final symmetry, overview, score, and history repair layers', () => {
   const previous = html.indexOf('player-comparison-board.css');
   const scoreboard = html.indexOf('series-scoreboard-v3.css');
   const symmetryIndex = html.indexOf('scoreboard-symmetry.css');
   const overviewIndex = html.indexOf('overview-panel-v2.css');
   const trimIndex = html.indexOf('scoreboard-detail-trim.css');
-  assert.ok(previous >= 0 && scoreboard > previous && symmetryIndex > scoreboard && overviewIndex > symmetryIndex && trimIndex > overviewIndex);
-  assert.match(html, /data-ui-build="series-score-card-repair-1"/);
+  const surfaceIndex = html.indexOf('surface-edge-repair.css');
+  const resultOnlyIndex = html.indexOf('history-result-only-repair.css');
+  assert.ok(
+    previous >= 0 &&
+    scoreboard > previous &&
+    symmetryIndex > scoreboard &&
+    overviewIndex > symmetryIndex &&
+    trimIndex > overviewIndex &&
+    surfaceIndex > trimIndex &&
+    resultOnlyIndex > surfaceIndex
+  );
+  assert.match(html, /data-ui-build="history-result-only-repair-1"/);
   assert.match(html, /series-scoreboard-v3\.js\?v=20260730-4/);
   assert.match(html, /scoreboard-detail-trim\.css\?v=20260730-2/);
+  assert.match(html, /history-result-only-repair\.css\?v=20260730-1/);
   assert.doesNotMatch(html, /series-header-layout-v2\.js\?v=20260730-1/);
 });
 
@@ -64,4 +76,11 @@ test('series score uses separated values and handles empty final records safely'
   assert.match(trim, /series-scoreboard-score-value[\s\S]*column-gap:\s*14px\s*!important/);
   assert.match(trim, /series-scoreboard-score\.is-unresolved/);
   assert.match(trim, /grid-row:\s*auto\s*!important/);
+});
+
+test('missing history archives share one coherent surface', () => {
+  assert.match(resultOnly, /data-history-archive="missing"/);
+  assert.match(resultOnly, /history-archive-unavailable/);
+  assert.match(resultOnly, /background:\s*var\(--rp-panel\)\s*!important/);
+  assert.match(resultOnly, /series-scoreboard-team-result[\s\S]*display:\s*none\s*!important/);
 });
