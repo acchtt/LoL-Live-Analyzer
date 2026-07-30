@@ -1,0 +1,149 @@
+name: Compare Production and Preview Telemetry
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/telemetry-parity.yml
+
+permissions:
+  contents: read
+
+jobs:
+  compare:
+    name: Compare live telemetry paths
+    runs-on: ubuntu-latest
+    env:
+      PRODUCTION_URL: https://lol-live-analyzer-api.acchtt.workers.dev
+      PREVIEW_URL: https://dashboard-lol-live-analyzer-api.acchtt.workers.dev
+    steps:
+      - name: Compare production and preview
+        shell: bash
+        run: |
+          cat > compare-telemetry.mjs <<'NODE'
+          const production = process.env.PRODUCTION_URL;
+          const preview = process.env.PREVIEW_URL;
+
+          const json = async (url) => {
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), 12_000);
+            try {
+              const response = await fetch(url, { cache: 'no-store', signal: controller.signal });
+              const payload = await response.json().catch(() => ({}));
+              if (!response.ok) throw new Error(`${response.status} ${url}: ${JSON.stringify(payload)}`);
+              return payload;
+            } finally {
+              clearTimeout(timer);
+            }
+          };
+
+          const eventsOf = payload => payload?.data?.schedule?.events || payload?.schedule?.events || payload?.events || [];
+          const matchIdOf = event => String(event?.match?.id || event?.id || '');
+          const teamsOf = event => (event?.match?.teams || []).map(team => team?.name || team?.code || 'TBD');
+          const selectedGameId = resolution => String(resolution?.selectedGame?.id || '');
+          const snapshotSummary = snapshot => ({
+            status: snapshot?.status || null,
+            gameId: String(snapshot?.source?.gameId || ''),
+            gameNumber: snapshot?.match?.gameNumber ?? null,
+            frameTimestamp: snapshot?.source?.frameTimestamp || null,
+            frameAgeSeconds: snapshot?.quality?.frameAgeSeconds ?? snapshot?.source?.dataAgeSeconds ?? null,
+            freshness: snapshot?.quality?.freshness || null,
+            telemetryAdvancing: snapshot?.quality?.telemetryAdvancing ?? null,
+            safeForLiveAnalysis: Boolean(snapshot?.quality?.safeForLiveAnalysis),
+            retrieval: snapshot?.retrieval || null
+          });
+
+          const [productionLive, previewLive] = await Promise.all([
+            json(`${production}/api/live?_=${Date.now()}`),
+            json(`${preview}/api/live?_=${Date.now()}`)
+          ]);
+          const productionById = new Map(eventsOf(productionLive).map(event => [matchIdOf(event), event]));
+          const previewById = new Map(eventsOf(previewLive).map(event => [matchIdOf(event), event]));
+          const commonIds = [...previewById.keys()].filter(id => id && productionById.has(id)).slice(0, 10);
+
+          console.log(JSON.stringify({
+            checkedAt: new Date().toISOString(),
+            productionLiveEvents: productionById.size,
+            previewLiveEvents: previewById.size,
+            commonLiveMatchIds: commonIds
+          }, null, 2));
+
+          if (!commonIds.length) {
+            console.log('No common live match IDs were available for parity comparison.');
+            process.exit(0);
+          }
+
+          const results = [];
+          for (const matchId of commonIds) {
+            const [productionResolution, previewResolution] = await Promise.all([
+              json(`${production}/api/resolve-game?matchId=${encodeURIComponent(matchId)}&_=${Date.now()}`),
+              json(`${preview}/api/resolve-game?matchId=${encodeURIComponent(matchId)}&_=${Date.now()}`)
+            ]);
+            const productionGameId = selectedGameId(productionResolution);
+            const previewGameId = selectedGameId(previewResolution);
+            const result = {
+              matchId,
+              teams: teamsOf(previewById.get(matchId) || productionById.get(matchId)),
+              sameSelectedGame: Boolean(productionGameId && productionGameId === previewGameId),
+              productionResolution: {
+                gameId: productionGameId || null,
+                phase: productionResolution?.selectedPhase || null,
+                quality: productionResolution?.quality || null,
+                diagnostics: productionResolution?.diagnostics || null
+              },
+              previewResolution: {
+                gameId: previewGameId || null,
+                phase: previewResolution?.selectedPhase || null,
+                quality: previewResolution?.quality || null,
+                diagnostics: previewResolution?.diagnostics || null
+              }
+            };
+
+            if (productionGameId) {
+              const snapshot = await json(`${production}/api/chatgpt?gameId=${encodeURIComponent(productionGameId)}&_=${Date.now()}`);
+              result.productionSnapshot = snapshotSummary(snapshot);
+            }
+            if (previewGameId) {
+              const snapshot = await json(`${preview}/api/chatgpt?gameId=${encodeURIComponent(previewGameId)}&_=${Date.now()}`);
+              result.previewSnapshot = snapshotSummary(snapshot);
+            }
+            if (productionGameId && productionGameId === previewGameId) {
+              const [productionSameGame, previewSameGame] = await Promise.all([
+                json(`${production}/api/chatgpt?gameId=${encodeURIComponent(productionGameId)}&_=${Date.now()}-prod`),
+                json(`${preview}/api/chatgpt?gameId=${encodeURIComponent(productionGameId)}&_=${Date.now()}-preview`)
+              ]);
+              result.sameGameComparison = {
+                production: snapshotSummary(productionSameGame),
+                preview: snapshotSummary(previewSameGame)
+              };
+            }
+            results.push(result);
+            console.log(JSON.stringify(result, null, 2));
+          }
+
+          const comparable = results.filter(result => result.productionSnapshot && result.previewSnapshot);
+          console.log(JSON.stringify({
+            summary: comparable.map(result => ({
+              matchId: result.matchId,
+              teams: result.teams,
+              sameSelectedGame: result.sameSelectedGame,
+              productionAgeSeconds: result.productionSnapshot.frameAgeSeconds,
+              previewAgeSeconds: result.previewSnapshot.frameAgeSeconds,
+              ageDifferenceSeconds: Number.isFinite(Number(result.productionSnapshot.frameAgeSeconds)) && Number.isFinite(Number(result.previewSnapshot.frameAgeSeconds))
+                ? Number(result.previewSnapshot.frameAgeSeconds) - Number(result.productionSnapshot.frameAgeSeconds)
+                : null,
+              productionStatus: result.productionSnapshot.status,
+              previewStatus: result.previewSnapshot.status
+            }))
+          }, null, 2));
+          NODE
+          node compare-telemetry.mjs | tee telemetry-parity-output.txt
+
+      - name: Upload parity output
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: telemetry-parity-output
+          path: telemetry-parity-output.txt
