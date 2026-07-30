@@ -28,16 +28,16 @@ test('clean controller owns navigation and return-to-live behavior', () => {
   assert.match(script, /host\.classList\.add\('panel', 'app-panel'\)/);
 });
 
-test('outer series surface is a single square frame with no repair pseudo border', () => {
-  assert.match(css, /\.series-clean-panel[\s\S]*border:\s*1px solid var\(--rp-divider\)/);
+test('reset layout has no outer frame or rounded corner dependency', () => {
+  assert.match(css, /\.series-clean-panel[\s\S]*border:\s*0\s*!important/);
   assert.match(css, /\.series-clean-panel[\s\S]*border-radius:\s*0\s*!important/);
   assert.match(css, /\.series-clean-panel::before,[\s\S]*display:\s*none\s*!important/);
   assert.doesNotMatch(css, /:has\(|contain:\s*paint|box-shadow:\s*inset 0 0 0 1px/);
 });
 
-test('matchup and score remain symmetrical', () => {
-  assert.match(css, /series-clean-matchup[\s\S]*grid-template-columns:\s*minmax\(0, 1fr\) 190px minmax\(0, 1fr\)/);
-  assert.match(css, /series-clean-team\.is-left[\s\S]*grid-template-columns:\s*60px minmax\(0, 1fr\)/);
-  assert.match(css, /series-clean-team\.is-right[\s\S]*grid-template-columns:\s*minmax\(0, 1fr\) 60px/);
-  assert.match(css, /series-clean-score-value[\s\S]*column-gap:\s*18px/);
+test('matchup remains symmetrical without a boxed outer shell', () => {
+  assert.match(css, /series-clean-matchup[\s\S]*grid-template-columns:\s*minmax\(0, 1fr\) 176px minmax\(0, 1fr\)/);
+  assert.match(css, /series-clean-team\.is-left[\s\S]*grid-template-columns:\s*58px minmax\(0, 1fr\)/);
+  assert.match(css, /series-clean-team\.is-right[\s\S]*grid-template-columns:\s*minmax\(0, 1fr\) 58px/);
+  assert.match(css, /series-clean-score-value[\s\S]*column-gap:\s*20px/);
 });
