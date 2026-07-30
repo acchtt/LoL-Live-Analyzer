@@ -49,13 +49,14 @@ test('clean stylesheet loads last and old cinematic hero layers are absent', () 
   const priorityIndex = html.indexOf('analysis-priority.css');
   const cleanIndex = html.indexOf('series-panel-clean.css');
   assert.ok(priorityIndex >= 0 && cleanIndex > priorityIndex);
-  assert.match(html, /assets\/series-panel-clean\.css\?v=20260730-1/);
+  assert.match(html, /assets\/series-panel-clean\.css\?v=20260730-2/);
   assert.doesNotMatch(html, /series-hero\.css|series-hero-refinement\.css|live-series-nav\.css/);
 });
 
 test('series panel is readable and does not depend on rounded outer corners', () => {
-  assert.match(css, /series-clean-matchup[\s\S]*min-height:\s*138px/);
-  assert.match(css, /series-clean-team-copy strong[\s\S]*font-size:\s*clamp\(20px, 1\.65vw, 29px\)/);
+  assert.match(css, /series-clean-matchup[\s\S]*min-height:\s*132px/);
+  assert.match(css, /series-clean-team-copy strong[\s\S]*font-size:\s*clamp\(20px, 1\.55vw, 28px\)/);
+  assert.match(css, /series-clean-panel[\s\S]*border:\s*0\s*!important/);
   assert.match(css, /series-clean-panel[\s\S]*border-radius:\s*0\s*!important/);
   assert.match(css, /series-clean-panel::before,[\s\S]*display:\s*none\s*!important/);
 });
