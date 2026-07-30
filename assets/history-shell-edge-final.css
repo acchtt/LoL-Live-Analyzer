@@ -1,0 +1,56 @@
+/* Final explicit shell repair for result-only history records. */
+body.minimal-pro-dark-v2 .game-panel.is-result-only-history {
+  overflow: visible !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  outline: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+body.minimal-pro-dark-v2 .game-panel.is-result-only-history::before,
+body.minimal-pro-dark-v2 .game-panel.is-result-only-history::after,
+body.minimal-pro-dark-v2 .game-content.is-result-only-history::before,
+body.minimal-pro-dark-v2 .game-content.is-result-only-history::after {
+  display: none !important;
+  content: none !important;
+}
+
+body.minimal-pro-dark-v2 .game-content.is-result-only-history {
+  overflow: visible !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  outline: 0 !important;
+  background: var(--rp-bg) !important;
+  box-shadow: none !important;
+}
+
+body.minimal-pro-dark-v2 .game-content.is-result-only-history > .series-hero[data-history-archive="missing"] {
+  width: calc(100% - 24px) !important;
+  max-width: calc(100% - 24px) !important;
+  margin: 12px !important;
+  overflow: hidden !important;
+  border: 1px solid var(--rp-border) !important;
+  border-radius: 12px !important;
+  outline: 0 !important;
+  background: var(--rp-panel) !important;
+  background-clip: padding-box !important;
+  box-shadow: none !important;
+}
+
+body.minimal-pro-dark-v2 .game-content.is-result-only-history > .series-hero[data-history-archive="missing"] > * {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-right: 0 !important;
+  margin-left: 0 !important;
+}
+
+@media (max-width: 820px) {
+  body.minimal-pro-dark-v2 .game-content.is-result-only-history > .series-hero[data-history-archive="missing"] {
+    width: calc(100% - 16px) !important;
+    max-width: calc(100% - 16px) !important;
+    margin: 8px !important;
+  }
+}
