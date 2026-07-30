@@ -3,21 +3,16 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
 const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
-const css = await readFile(new URL('../assets/series-panel-unified.css', import.meta.url), 'utf8');
-const script = await readFile(new URL('../assets/series-panel-unified.js', import.meta.url), 'utf8');
+const css = await readFile(new URL('../assets/series-panel-clean.css', import.meta.url), 'utf8');
+const script = await readFile(new URL('../assets/series-panel-clean.js', import.meta.url), 'utf8');
 
-test('unified series panel loads after all legacy series repair layers', () => {
-  const legacyCss = html.indexOf('history-shell-edge-final.css');
-  const unifiedCss = html.indexOf('series-panel-unified.css');
-  const legacyScript = html.indexOf('history-shell-state.js');
-  const unifiedScript = html.indexOf('series-panel-unified.js');
-  assert.ok(legacyCss >= 0 && unifiedCss > legacyCss);
-  assert.ok(legacyScript >= 0 && unifiedScript > legacyScript);
-  assert.match(html, /series-panel-unified\.css\?v=20260730-1/);
-  assert.match(html, /series-panel-unified\.js\?v=20260730-1/);
+test('clean series panel is the only runtime series UI', () => {
+  assert.match(html, /series-panel-clean\.css\?v=20260730-1/);
+  assert.match(html, /series-panel-clean\.js\?v=20260730-1/);
+  assert.doesNotMatch(html, /series-panel-unified|history-shell-state|series-scoreboard-v3|series-game-history|live-series-nav/);
 });
 
-test('one visual renderer covers live, archive, history, and result-only states', () => {
+test('one controller covers live, archive, history, and result-only states', () => {
   assert.match(script, /function liveModel\(\)/);
   assert.match(script, /function historyModel\(\)/);
   assert.match(script, /variant: archiveMode \? 'archive' : 'live'/);
@@ -25,25 +20,24 @@ test('one visual renderer covers live, archive, history, and result-only states'
   assert.match(script, /const model = liveModel\(\) \|\| historyModel\(\)/);
 });
 
-test('new panel keeps existing navigation contracts while removing legacy panels', () => {
-  assert.match(script, /data-live-series-game-id/);
-  assert.match(script, /data-history-game-id/);
-  assert.match(script, /data-return-live-game/);
-  assert.match(script, /removeLegacySeriesPanels/);
+test('clean controller owns navigation and return-to-live behavior', () => {
+  assert.match(script, /data\.seriesCleanLiveGameId/);
+  assert.match(script, /data\.seriesCleanHistoryGameId/);
+  assert.match(script, /data\.seriesCleanReturnLive/);
+  assert.match(script, /function removeLegacyPanels\(\)/);
   assert.match(script, /host\.classList\.add\('panel', 'app-panel'\)/);
 });
 
-test('outer series surface has square continuous edges and no pseudo-border repair', () => {
-  assert.match(css, /\.rp-series-panel[\s\S]*border-radius:\s*0\s*!important/);
-  assert.match(css, /\.rp-series-panel[\s\S]*border-top:\s*1px solid var\(--rp-divider\)/);
-  assert.match(css, /\.rp-series-panel[\s\S]*border-bottom:\s*1px solid var\(--rp-divider\)/);
-  assert.match(css, /\.rp-series-panel::before,[\s\S]*display:\s*none\s*!important/);
-  assert.doesNotMatch(css, /:has\(/);
+test('outer series surface is a single square frame with no repair pseudo border', () => {
+  assert.match(css, /\.series-clean-panel[\s\S]*border:\s*1px solid var\(--rp-divider\)/);
+  assert.match(css, /\.series-clean-panel[\s\S]*border-radius:\s*0\s*!important/);
+  assert.match(css, /\.series-clean-panel::before,[\s\S]*display:\s*none\s*!important/);
+  assert.doesNotMatch(css, /:has\(|contain:\s*paint|box-shadow:\s*inset 0 0 0 1px/);
 });
 
 test('matchup and score remain symmetrical', () => {
-  assert.match(css, /rp-series-matchup[\s\S]*grid-template-columns:\s*minmax\(0, 1fr\) 190px minmax\(0, 1fr\)/);
-  assert.match(css, /rp-series-team\.is-left[\s\S]*grid-template-columns:\s*60px minmax\(0, 1fr\)/);
-  assert.match(css, /rp-series-team\.is-right[\s\S]*grid-template-columns:\s*minmax\(0, 1fr\) 60px/);
-  assert.match(css, /rp-series-score-value[\s\S]*column-gap:\s*16px/);
+  assert.match(css, /series-clean-matchup[\s\S]*grid-template-columns:\s*minmax\(0, 1fr\) 190px minmax\(0, 1fr\)/);
+  assert.match(css, /series-clean-team\.is-left[\s\S]*grid-template-columns:\s*60px minmax\(0, 1fr\)/);
+  assert.match(css, /series-clean-team\.is-right[\s\S]*grid-template-columns:\s*minmax\(0, 1fr\) 60px/);
+  assert.match(css, /series-clean-score-value[\s\S]*column-gap:\s*18px/);
 });
