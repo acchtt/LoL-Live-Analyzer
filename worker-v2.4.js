@@ -127,7 +127,7 @@ async function healthResponse(request, env, ctx) {
       freshFrameSeconds: 30,
       degradedFrameSeconds: 90,
       futureTimestampToleranceSeconds: 15,
-      maximumWindowRequestsPerSnapshot: 3,
+      maximumWindowRequestsPerSnapshot: 6,
       missingValuesPreservedAsNull: true,
       inferredTelemetryWinnersDisabled: true,
       historicalPregameFramesRejected: true
