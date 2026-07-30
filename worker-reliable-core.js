@@ -3,7 +3,7 @@ import {
   FRESH_FRAME_SECONDS,
   FUTURE_TOLERANCE_SECONDS
 } from './lib/reliability-policy.js';
-import { createRiotClient } from './lib/riot-client.js';
+import { createRiotClient } from './lib/fresh-riot-client.js';
 import { buildLiveSnapshot } from './lib/live-snapshot.js';
 import { resolveActiveGame } from './lib/live-resolver.js';
 import {
@@ -104,9 +104,11 @@ export default {
             freshFrameSeconds: FRESH_FRAME_SECONDS,
             degradedFrameSeconds: DEGRADED_FRAME_SECONDS,
             futureToleranceSeconds: FUTURE_TOLERANCE_SECONDS,
-            maximumWindowRequestsPerSnapshot: 11,
+            maximumWindowRequestsPerSnapshot: 17,
             detailsProbeKeys: 4,
             hedgedWindowLookup: true,
+            delayedPrimaryFreshnessSweep: true,
+            freshnessSweepCooldownSeconds: 15,
             upstreamTimeoutsEnabled: true,
             officialScoresFromTelemetryInference: false,
             clinchedSeriesRetiredFromLiveSchedule: true,
