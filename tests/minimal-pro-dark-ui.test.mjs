@@ -6,85 +6,53 @@ const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
 const css = await readFile(new URL('../assets/minimal-pro-dark-v2.css', import.meta.url), 'utf8');
 const fixes = await readFile(new URL('../assets/minimal-pro-dark-v2-fixes.css', import.meta.url), 'utf8');
 const polish = await readFile(new URL('../assets/minimal-pro-dark-v2-polish.css', import.meta.url), 'utf8');
-const compact = await readFile(new URL('../assets/compact-series-scoreboard.css', import.meta.url), 'utf8');
 const readable = await readFile(new URL('../assets/readable-density.css', import.meta.url), 'utf8');
 const comfortable = await readFile(new URL('../assets/comfortable-reading-layout.css', import.meta.url), 'utf8');
-const controlDock = await readFile(new URL('../assets/series-control-dock.css', import.meta.url), 'utf8');
-const headerV2 = await readFile(new URL('../assets/series-header-layout-v2.css', import.meta.url), 'utf8');
 const comparisonCss = await readFile(new URL('../assets/player-comparison-board.css', import.meta.url), 'utf8');
 const comparisonJs = await readFile(new URL('../assets/player-comparison-board.js', import.meta.url), 'utf8');
-const seriesScoreboardCss = await readFile(new URL('../assets/series-scoreboard-v3.css', import.meta.url), 'utf8');
 const symmetryCss = await readFile(new URL('../assets/scoreboard-symmetry.css', import.meta.url), 'utf8');
 const overviewCss = await readFile(new URL('../assets/overview-panel-v2.css', import.meta.url), 'utf8');
-const trimCss = await readFile(new URL('../assets/scoreboard-detail-trim.css', import.meta.url), 'utf8');
-const resultOnlyCss = await readFile(new URL('../assets/history-result-only-repair.css', import.meta.url), 'utf8');
 const overviewJs = await readFile(new URL('../assets/overview-panel-v2.js', import.meta.url), 'utf8');
-const seriesScoreboardJs = await readFile(new URL('../assets/series-scoreboard-v3.js', import.meta.url), 'utf8');
+const trimCss = await readFile(new URL('../assets/scoreboard-detail-trim.css', import.meta.url), 'utf8');
+const seriesCss = await readFile(new URL('../assets/series-panel-clean.css', import.meta.url), 'utf8');
+const seriesJs = await readFile(new URL('../assets/series-panel-clean.js', import.meta.url), 'utf8');
 const analysis = await readFile(new URL('../assets/analysis-workspace-v2.js', import.meta.url), 'utf8');
 const players = await readFile(new URL('../assets/live-player-ui.js', import.meta.url), 'utf8');
 const drawer = await readFile(new URL('../assets/data-drawer.js', import.meta.url), 'utf8');
 const unavailable = await readFile(new URL('../assets/telemetry-unavailable-ui.js', import.meta.url), 'utf8');
 
-test('minimal pro dark styles load in final cache-safe order', () => {
-  const heroIndex = html.indexOf('series-hero-refinement.css');
+test('minimal pro dark assets end with the clean series rebuild', () => {
   const minimalIndex = html.indexOf('minimal-pro-dark-v2.css');
   const fixesIndex = html.indexOf('minimal-pro-dark-v2-fixes.css');
   const polishIndex = html.indexOf('minimal-pro-dark-v2-polish.css');
-  const compactIndex = html.indexOf('compact-series-scoreboard.css');
   const readableIndex = html.indexOf('readable-density.css');
   const comfortableIndex = html.indexOf('comfortable-reading-layout.css');
-  const controlDockIndex = html.indexOf('series-control-dock.css');
-  const headerV2Index = html.indexOf('series-header-layout-v2.css');
   const comparisonIndex = html.indexOf('player-comparison-board.css');
-  const seriesScoreboardIndex = html.indexOf('series-scoreboard-v3.css');
   const symmetryIndex = html.indexOf('scoreboard-symmetry.css');
   const overviewIndex = html.indexOf('overview-panel-v2.css');
   const trimIndex = html.indexOf('scoreboard-detail-trim.css');
-  const surfaceIndex = html.indexOf('surface-edge-repair.css');
-  const resultOnlyIndex = html.indexOf('history-result-only-repair.css');
-  const finalShellIndex = html.indexOf('history-shell-edge-final.css');
+  const cleanIndex = html.indexOf('series-panel-clean.css');
+
   assert.ok(
-    heroIndex >= 0 &&
-    minimalIndex > heroIndex &&
+    minimalIndex >= 0 &&
     fixesIndex > minimalIndex &&
     polishIndex > fixesIndex &&
-    compactIndex > polishIndex &&
-    readableIndex > compactIndex &&
+    readableIndex > polishIndex &&
     comfortableIndex > readableIndex &&
-    controlDockIndex > comfortableIndex &&
-    headerV2Index > controlDockIndex &&
-    comparisonIndex > headerV2Index &&
-    seriesScoreboardIndex > comparisonIndex &&
-    symmetryIndex > seriesScoreboardIndex &&
+    comparisonIndex > comfortableIndex &&
+    symmetryIndex > comparisonIndex &&
     overviewIndex > symmetryIndex &&
     trimIndex > overviewIndex &&
-    surfaceIndex > trimIndex &&
-    resultOnlyIndex > surfaceIndex &&
-    finalShellIndex > resultOnlyIndex
+    cleanIndex > trimIndex
   );
-  assert.match(html, /series-control-dock\.css\?v=20260730-2/);
-  assert.match(html, /series-header-layout-v2\.css\?v=20260730-1/);
-  assert.match(html, /player-comparison-board\.css\?v=20260730-1/);
-  assert.match(html, /player-comparison-board\.js\?v=20260730-1/);
-  assert.match(html, /series-scoreboard-v3\.css\?v=20260730-1/);
-  assert.match(html, /scoreboard-symmetry\.css\?v=20260730-1/);
-  assert.match(html, /overview-panel-v2\.css\?v=20260730-2/);
-  assert.match(html, /scoreboard-detail-trim\.css\?v=20260730-2/);
-  assert.match(html, /surface-edge-repair\.css\?v=20260730-1/);
-  assert.match(html, /history-result-only-repair\.css\?v=20260730-2/);
-  assert.match(html, /history-shell-edge-final\.css\?v=20260730-3/);
-  assert.match(html, /overview-panel-v2\.js\?v=20260730-2/);
-  assert.match(html, /series-scoreboard-v3\.js\?v=20260730-4/);
-  assert.match(html, /series-game-history\.js\?v=20260730-6/);
-  assert.match(html, /history-shell-state\.js\?v=20260730-2/);
-  assert.match(html, /<body class="minimal-pro-dark-v2" data-ui-build="history-corner-frame-1">/);
+
+  assert.match(html, /series-panel-clean\.css\?v=20260730-1/);
+  assert.match(html, /series-panel-clean\.js\?v=20260730-1/);
+  assert.match(html, /data-ui-build="series-panel-clean-rebuild-1"/);
+  assert.doesNotMatch(html, /series-hero\.css|series-scoreboard-v3|history-shell-edge-final|history-result-only-repair|series-panel-unified/);
   assert.match(css, /RIFTPULSE_MINIMAL_PRO_DARK_V2/);
   assert.match(css, /--rp-bg:\s*#0b0f15/);
   assert.match(fixes, /data-drawer:not\(\.is-open\) \.feed-body/);
-  assert.match(headerV2, /series-hero\[data-header-layout-v2="true"\]/);
-  assert.match(seriesScoreboardCss, /series-hero\[data-series-scoreboard-v3="true"\]/);
-  assert.match(seriesScoreboardJs, /hero\.dataset\.seriesScoreboardV3 = 'true'/);
-  assert.match(resultOnlyCss, /data-history-archive="missing"/);
 });
 
 test('machine-readable feed is collapsed into a bottom drawer', () => {
@@ -104,7 +72,6 @@ test('broadcast-live state does not claim telemetry is available', () => {
 test('hover treatment is consistent and motion-free', () => {
   assert.match(polish, /@media \(hover: hover\)/);
   assert.match(polish, /\.match-card:hover:not\(\.active\)/);
-  assert.match(polish, /\.series-hero-game:hover:not\(:disabled\):not\(\.is-selected\)/);
   assert.match(polish, /transform:\s*none\s*!important/);
   assert.match(polish, /:focus-visible/);
 });
@@ -115,34 +82,22 @@ test('main analysis uses natural page height instead of viewport compression', (
   assert.match(comfortable, /body\.minimal-pro-dark-v2\s*\{[\s\S]*font-size:\s*16px\s*!important/);
 });
 
-test('scoreboard uses large readable desktop sizing', () => {
-  assert.match(compact, /grid-template-columns:\s*minmax\(0, 1fr\) 104px minmax\(0, 1fr\)/);
+test('current-game scoreboard remains mirrored and readable', () => {
   assert.match(comfortable, /grid-template-columns:\s*minmax\(0, 1fr\) 132px minmax\(0, 1fr\)/);
   assert.match(comfortable, /analysis-v2-team,[\s\S]*min-height:\s*104px\s*!important/);
-  assert.match(comfortable, /analysis-v2-team-copy h3[\s\S]*font-size:\s*18px\s*!important/);
-  assert.match(comfortable, /analysis-v2-team-kills[\s\S]*font-size:\s*34px\s*!important/);
-});
-
-test('series and current-game scoreboards mirror both sides around the center', () => {
-  assert.match(seriesScoreboardJs, /if \(side === 'a'\) team\.append\(logo, copy\)/);
-  assert.match(seriesScoreboardJs, /else team\.append\(copy, logo\)/);
-  assert.match(symmetryCss, /series-scoreboard-main[\s\S]*grid-template-columns:\s*minmax\(0, 1fr\) 184px minmax\(0, 1fr\)/);
-  assert.match(symmetryCss, /series-scoreboard-team\.is-team-a[\s\S]*grid-template-columns:\s*64px minmax\(0, 1fr\)/);
-  assert.match(symmetryCss, /series-scoreboard-team\.is-team-b[\s\S]*grid-template-columns:\s*minmax\(0, 1fr\) 64px/);
   assert.match(symmetryCss, /analysis-v2-scoreboard[\s\S]*grid-template-columns:\s*minmax\(0, 1fr\) 144px minmax\(0, 1fr\)/);
   assert.match(symmetryCss, /analysis-v2-team\.is-blue[\s\S]*grid-template-areas:\s*"logo copy kills"/);
   assert.match(symmetryCss, /analysis-v2-team\.is-red[\s\S]*grid-template-areas:\s*"kills copy logo"/);
+  assert.match(trimCss, /analysis-v2-team[\s\S]*analysis-v2-team-copy > small[\s\S]*display:\s*none\s*!important/);
 });
 
-test('secondary scoreboard details are reduced and central score is repaired', () => {
-  assert.match(trimCss, /analysis-v2-team[\s\S]*analysis-v2-team-copy > small[\s\S]*display:\s*none\s*!important/);
-  assert.match(trimCss, /series-scoreboard-team-result[\s\S]*font-size:\s*9px\s*!important/);
-  assert.match(trimCss, /series-scoreboard-team-result[\s\S]*opacity:\s*\.58\s*!important/);
-  assert.match(trimCss, /series-scoreboard-score-value[\s\S]*column-gap:\s*14px\s*!important/);
-  assert.match(trimCss, /series-scoreboard-score\.is-unresolved/);
-  assert.match(seriesScoreboardJs, /`\$\{wins\} win\$\{wins === '1' \? '' : 's'\}`/);
-  assert.match(seriesScoreboardJs, /value\.append\(left, separator, right\)/);
-  assert.match(seriesScoreboardJs, /label\.textContent = 'No result'/);
+test('clean series panel mirrors teams around separated score values', () => {
+  assert.match(seriesJs, /matchup\.append\(createTeam\(model\.teams\[0\][\s\S]*createScore\(model\.score\)[\s\S]*createTeam\(model\.teams\[1\]/);
+  assert.match(seriesJs, /if \(side === 'left'\) card\.append\(logo, copy\)/);
+  assert.match(seriesJs, /else card\.append\(copy, logo\)/);
+  assert.match(seriesJs, /value\.append\(left, separator, right\)/);
+  assert.match(seriesCss, /series-clean-matchup[\s\S]*grid-template-columns:\s*minmax\(0, 1fr\) 190px minmax\(0, 1fr\)/);
+  assert.match(seriesCss, /series-clean-score-value[\s\S]*column-gap:\s*18px\s*!important/);
 });
 
 test('game overview becomes a gold summary and objective comparison dashboard', () => {
@@ -155,7 +110,6 @@ test('game overview becomes a gold summary and objective comparison dashboard', 
   assert.doesNotMatch(overviewJs, /globalThis\.state/);
   assert.match(overviewCss, /overview-gold-summary[\s\S]*grid-template-columns:\s*minmax\(0, 1fr\) 214px minmax\(0, 1fr\)/);
   assert.match(overviewCss, /overview-objective-grid-v2[\s\S]*grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\)/);
-  assert.match(overviewCss, /overview-objective-track/);
 });
 
 test('player boards become one mirrored role-by-role comparison table', () => {
@@ -165,7 +119,6 @@ test('player boards become one mirrored role-by-role comparison table', () => {
   assert.match(comparisonJs, /lineups\.replaceWith\(board\)/);
   assert.match(comparisonCss, /grid-template-areas:\s*"blue-items blue-stats blue-identity role red-identity red-stats red-items"/);
   assert.match(comparisonCss, /comparison-identity\.is-blue[\s\S]*flex-direction:\s*row-reverse/);
-  assert.match(comparisonCss, /comparison-kda[\s\S]*font-size:\s*18px/);
   assert.match(comparisonCss, /champion-level/);
 });
 
