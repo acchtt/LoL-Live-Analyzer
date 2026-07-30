@@ -31,6 +31,10 @@
     };
   }
 
+  function explicitPregameEvidence(resolution = {}) {
+    return resolution.selectedPhase === 'pregame' || Boolean(resolution.pregameGame?.id);
+  }
+
   function showDraftOrBreak(event, resolution, progress) {
     const [a, b] = eventTeams(event || selectedScheduleEvent());
     const title = `${a.name || 'Team 1'} vs ${b.name || 'Team 2'}`;
@@ -40,7 +44,7 @@
     gameContent.innerHTML = `
       <div class="empty hero-empty">
         <strong>${gameLabel} draft / between games</strong>
-        <span>${title} is still live as a series. ${gameLabel} has not produced an in-game telemetry frame yet, which is normal during champion select and the break before loading into game.</span>
+        <span>${title} is still live as a series. ${gameLabel} has published champion-select telemetry but has not produced a progressing in-game frame yet.</span>
       </div>`;
 
     jsonUrl.value = '';
@@ -50,8 +54,10 @@
       matchId: state.selectedEventId,
       nextGameNumber: progress.nextGameNumber || null,
       completedGames: progress.playedCount,
+      selectedPhase: resolution.selectedPhase || null,
+      pregameGameId: resolution.pregameGame?.id || null,
       checkedAt: resolution.checkedAt || new Date().toISOString(),
-      message: 'The series is active, but the next game has not started publishing in-game telemetry.'
+      message: 'Champion-select telemetry is available, but no progressing gameplay frame has been verified yet.'
     }, null, 2);
 
     setConnection(`LIVE · ${gameLabel} draft / break`, 'live');
@@ -60,7 +66,11 @@
   showWaiting = function patchedShowWaiting(event, resolution = {}) {
     const progress = inferSeriesProgress(event, resolution);
 
-    if (!resolution.selectedGame && progress.hasNextGame) {
+    // A missing selected game is not proof that the series is between games.
+    // Riot may report the broadcast as live while the gameplay frame is stale,
+    // unavailable, or temporarily unresolved. Only explicit pregame telemetry
+    // may activate the draft/break presentation.
+    if (!resolution.selectedGame && progress.hasNextGame && explicitPregameEvidence(resolution)) {
       showDraftOrBreak(event, resolution, progress);
       return;
     }
