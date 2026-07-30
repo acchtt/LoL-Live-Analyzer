@@ -10,7 +10,7 @@ const symmetry = await readFile(new URL('../assets/scoreboard-symmetry.css', imp
 test('clean series assets replace every legacy series UI layer', () => {
   assert.match(html, /series-panel-clean\.css\?v=20260730-2/);
   assert.match(html, /series-panel-clean\.js\?v=20260730-1/);
-  assert.match(html, /data-ui-build="series-panel-flat-reset-1"/);
+  assert.match(html, /data-ui-build="series-panel-polished-card-1"/);
   assert.doesNotMatch(html, /series-scoreboard-v3|series-header-layout-v2|series-control-dock|series-panel-unified|history-shell-edge-final/);
 });
 
@@ -43,15 +43,16 @@ test('game navigation owns a dedicated full-width row', () => {
   assert.match(script, /bottom\.className = 'series-clean-bottom'/);
   assert.match(script, /games\.className = 'series-clean-games'/);
   assert.match(script, /panel\.append\(top, matchup, bottom\)/);
-  assert.match(css, /series-clean-bottom[\s\S]*background:\s*var\(--rp-panel-soft\)/);
+  assert.match(css, /series-clean-bottom[\s\S]*border-top:\s*1px solid var\(--series-line\)/);
+  assert.match(css, /series-clean-bottom[\s\S]*background:\s*rgba\(8, 13, 20, \.38\)/);
   assert.match(css, /series-clean-games[\s\S]*repeat\(var\(--series-clean-count\), minmax\(120px, 1fr\)\)/);
 });
 
-test('outer analysis and series shells have no rounded-corner dependency', () => {
+test('outer analysis shell is borderless and the series card owns one frame', () => {
   assert.match(css, /\.game-panel[\s\S]*border:\s*0\s*!important[\s\S]*border-radius:\s*0\s*!important/);
   assert.match(css, /\.game-content[\s\S]*border:\s*0\s*!important[\s\S]*border-radius:\s*0\s*!important/);
-  assert.match(css, /series-clean-panel[\s\S]*border:\s*0\s*!important/);
-  assert.match(css, /series-clean-panel[\s\S]*border-radius:\s*0\s*!important/);
+  assert.match(css, /series-clean-panel[\s\S]*border:\s*1px solid var\(--series-line-strong\)\s*!important/);
+  assert.match(css, /series-clean-panel[\s\S]*border-radius:\s*10px\s*!important/);
   assert.match(css, /series-clean-panel::before,[\s\S]*display:\s*none\s*!important/);
 });
 
