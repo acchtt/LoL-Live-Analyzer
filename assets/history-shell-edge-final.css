@@ -28,16 +28,37 @@ body.minimal-pro-dark-v2 .game-content.is-result-only-history {
 }
 
 body.minimal-pro-dark-v2 .game-content.is-result-only-history > .series-hero[data-history-archive="missing"] {
+  position: relative !important;
+  isolation: isolate !important;
+  contain: paint !important;
   width: calc(100% - 24px) !important;
   max-width: calc(100% - 24px) !important;
   margin: 12px !important;
   overflow: hidden !important;
-  border: 1px solid var(--rp-border) !important;
-  border-radius: 12px !important;
+  border: 0 !important;
+  border-radius: 8px !important;
   outline: 0 !important;
   background: var(--rp-panel) !important;
-  background-clip: padding-box !important;
+  background-clip: border-box !important;
   box-shadow: none !important;
+}
+
+/*
+ * Draw the frame as an inset layer instead of a CSS border. At fractional
+ * browser zoom levels a one-pixel rounded border can lose the diagonal corner
+ * pixels and appear as two disconnected lines. The inset frame stays joined.
+ */
+body.minimal-pro-dark-v2 .game-content.is-result-only-history > .series-hero[data-history-archive="missing"]::after {
+  content: "" !important;
+  display: block !important;
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 50 !important;
+  pointer-events: none !important;
+  border: 0 !important;
+  border-radius: inherit !important;
+  background: transparent !important;
+  box-shadow: inset 0 0 0 1px var(--rp-border) !important;
 }
 
 body.minimal-pro-dark-v2 .game-content.is-result-only-history > .series-hero[data-history-archive="missing"] > * {
