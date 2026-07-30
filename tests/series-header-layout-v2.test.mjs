@@ -29,7 +29,7 @@ test('series scoreboard loads before the final symmetry, overview, score, and hi
   assert.match(html, /data-ui-build="history-result-only-repair-1"/);
   assert.match(html, /series-scoreboard-v3\.js\?v=20260730-4/);
   assert.match(html, /scoreboard-detail-trim\.css\?v=20260730-2/);
-  assert.match(html, /history-result-only-repair\.css\?v=20260730-1/);
+  assert.match(html, /history-result-only-repair\.css\?v=20260730-2/);
   assert.doesNotMatch(html, /series-header-layout-v2\.js\?v=20260730-1/);
 });
 
@@ -83,4 +83,6 @@ test('missing history archives share one coherent surface', () => {
   assert.match(resultOnly, /history-archive-unavailable/);
   assert.match(resultOnly, /background:\s*var\(--rp-panel\)\s*!important/);
   assert.match(resultOnly, /series-scoreboard-team-result[\s\S]*display:\s*none\s*!important/);
+  assert.match(resultOnly, /game-panel:has\([\s\S]*border:\s*0\s*!important/);
+  assert.match(resultOnly, /history-archive-unavailable[\s\S]*background:\s*transparent\s*!important/);
 });
