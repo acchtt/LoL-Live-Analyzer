@@ -1,0 +1,136 @@
+/* Final surface and edge repair for series waiting / unavailable states. */
+body.minimal-pro-dark-v2 .game-content > .series-hero,
+body.minimal-pro-dark-v2 .game-content > .empty.hero-empty,
+body.minimal-pro-dark-v2 .game-content > .authority-message {
+  width: calc(100% - 24px) !important;
+  max-width: calc(100% - 24px) !important;
+  margin-right: 12px !important;
+  margin-left: 12px !important;
+  box-sizing: border-box !important;
+}
+
+body.minimal-pro-dark-v2 .game-content > .series-hero {
+  margin-top: 12px !important;
+  margin-bottom: 0 !important;
+  overflow: hidden !important;
+  border: 1px solid var(--rp-border) !important;
+  border-radius: 10px !important;
+  background: var(--rp-panel) !important;
+  background-clip: padding-box !important;
+  box-shadow: none !important;
+  isolation: isolate !important;
+}
+
+body.minimal-pro-dark-v2 .game-content > .series-hero::before,
+body.minimal-pro-dark-v2 .game-content > .series-hero::after {
+  display: none !important;
+  content: none !important;
+}
+
+body.minimal-pro-dark-v2 .game-content > .series-hero > *,
+body.minimal-pro-dark-v2 .game-content > .series-hero .series-scoreboard-main,
+body.minimal-pro-dark-v2 .game-content > .series-hero .series-scoreboard-navigation,
+body.minimal-pro-dark-v2 .game-content > .series-hero .series-scoreboard-meta {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+body.minimal-pro-dark-v2 .game-content > .series-hero .series-scoreboard-meta {
+  border-radius: 9px 9px 0 0 !important;
+  background: var(--rp-panel-soft) !important;
+}
+
+body.minimal-pro-dark-v2 .game-content > .series-hero .series-scoreboard-main {
+  background: var(--rp-panel) !important;
+}
+
+body.minimal-pro-dark-v2 .game-content > .series-hero .series-scoreboard-navigation {
+  overflow: hidden !important;
+  border-radius: 0 0 9px 9px !important;
+  background: var(--rp-panel-soft) !important;
+}
+
+body.minimal-pro-dark-v2 .game-content > .empty.hero-empty,
+body.minimal-pro-dark-v2 .game-content > .authority-message {
+  display: grid !important;
+  min-height: 0 !important;
+  align-content: start !important;
+  justify-content: stretch !important;
+  gap: 10px !important;
+  margin-top: 12px !important;
+  margin-bottom: 12px !important;
+  padding: 20px 22px !important;
+  overflow: hidden !important;
+  border: 1px solid var(--rp-border) !important;
+  border-radius: 10px !important;
+  background: var(--rp-panel) !important;
+  background-clip: padding-box !important;
+  box-shadow: none !important;
+  text-align: left !important;
+}
+
+body.minimal-pro-dark-v2 .game-content > .empty.hero-empty strong,
+body.minimal-pro-dark-v2 .game-content > .authority-message h2 {
+  margin: 0 !important;
+  color: var(--rp-text) !important;
+  font-size: 17px !important;
+  line-height: 1.25 !important;
+}
+
+body.minimal-pro-dark-v2 .game-content > .empty.hero-empty span,
+body.minimal-pro-dark-v2 .game-content > .authority-message p {
+  max-width: 980px !important;
+  margin: 0 !important;
+  color: var(--rp-muted) !important;
+  font-size: 13px !important;
+  line-height: 1.55 !important;
+}
+
+/* A live series followed by a waiting/unavailable card must not claim verified telemetry. */
+body.minimal-pro-dark-v2 .game-content > .series-hero:has(+ .empty.hero-empty) .series-hero-badge.is-live {
+  border-color: rgba(233, 162, 59, .42) !important;
+  background: rgba(233, 162, 59, .08) !important;
+  color: var(--rp-amber) !important;
+}
+
+body.minimal-pro-dark-v2 .game-content > .series-hero:has(+ .empty.hero-empty) .series-hero-badge.is-live > span {
+  display: none !important;
+}
+
+body.minimal-pro-dark-v2 .game-content > .series-hero:has(+ .empty.hero-empty) .series-hero-badge.is-live::after {
+  content: "Waiting for stats" !important;
+  color: inherit !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  letter-spacing: .05em !important;
+  text-transform: uppercase !important;
+}
+
+body.minimal-pro-dark-v2 .game-content > .series-hero:has(+ .empty.hero-empty) .series-scoreboard-score.is-live > span,
+body.minimal-pro-dark-v2 .game-content > .series-hero:has(+ .empty.hero-empty) .series-scoreboard-score.is-live > strong,
+body.minimal-pro-dark-v2 .game-content > .series-hero:has(+ .empty.hero-empty) .series-scoreboard-score.is-live .series-scoreboard-score-side {
+  color: var(--rp-muted) !important;
+}
+
+@media (max-width: 820px) {
+  body.minimal-pro-dark-v2 .game-content > .series-hero,
+  body.minimal-pro-dark-v2 .game-content > .empty.hero-empty,
+  body.minimal-pro-dark-v2 .game-content > .authority-message {
+    width: calc(100% - 16px) !important;
+    max-width: calc(100% - 16px) !important;
+    margin-right: 8px !important;
+    margin-left: 8px !important;
+  }
+
+  body.minimal-pro-dark-v2 .game-content > .series-hero {
+    margin-top: 8px !important;
+  }
+
+  body.minimal-pro-dark-v2 .game-content > .empty.hero-empty,
+  body.minimal-pro-dark-v2 .game-content > .authority-message {
+    margin-top: 8px !important;
+    margin-bottom: 8px !important;
+    padding: 18px !important;
+  }
+}
