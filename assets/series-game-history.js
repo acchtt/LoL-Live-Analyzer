@@ -112,7 +112,37 @@
     const selectedIndex = games.findIndex(game => String(game?.id || '') === selectedId);
     if (selectedIndex >= 0) return gameNumber(games[selectedIndex], selectedIndex);
     const last = games[games.length - 1];
-    return last ? gameNumber(last, games.length - 1) : 1;
+    return last ? gameNumber(last, games.length - 1) : null;
+  }
+
+  function archiveNavigation(games, format, gameByNumber) {
+    if (!games.length) {
+      return `
+        <div class="history-game-nav series-hero-games is-unavailable" role="status" aria-label="Historical game archive unavailable">
+          <div class="history-archive-unavailable">
+            <span class="history-archive-unavailable-icon">${archiveIcon()}</span>
+            <span class="history-archive-unavailable-copy">
+              <strong>Game archive unavailable</strong>
+              <small>Riot returned the match record without any archived game IDs.</small>
+            </span>
+          </div>
+        </div>`;
+    }
+
+    return `
+      <div class="history-game-nav series-hero-games" role="tablist" aria-label="Best of ${format} game navigation">
+        ${Array.from({ length: format }, (_, index) => {
+          const number = index + 1;
+          const game = gameByNumber.get(number) || null;
+          const id = String(game?.id || '');
+          const selected = Boolean(id) && id === String(state.selectedGameId);
+          const available = Boolean(id);
+          const status = selected ? 'Selected' : available ? 'Open archive' : 'Not played';
+          return `<button class="history-game-button series-hero-game ${available ? 'is-complete' : 'is-locked'} ${selected ? 'active is-selected' : ''}" ${available ? `data-history-game-id="${escapeHtml(id)}"` : ''} type="button" role="tab" aria-selected="${selected}" ${available ? '' : 'disabled aria-disabled="true"'}>
+            <span>Game ${number}</span><small>${status}</small>
+          </button>`;
+        }).join('')}
+      </div>`;
   }
 
   function renderSeriesNavigation() {
@@ -126,6 +156,7 @@
     const a = teams[0] || {};
     const b = teams[1] || {};
     const games = state.historyMatch.games || [];
+    const archiveAvailable = games.length > 0;
     const format = seriesLength(event, games);
     const aScore = finiteScore(a);
     const bScore = finiteScore(b);
@@ -136,6 +167,7 @@
     summary.id = 'historySeriesSummary';
     summary.className = 'history-series-summary series-hero series-hero--history';
     summary.dataset.seriesLength = String(format);
+    summary.dataset.historyArchive = archiveAvailable ? 'available' : 'missing';
     summary.innerHTML = `
       <div class="series-hero-top">
         <div class="series-hero-main">
@@ -155,31 +187,19 @@
             </article>
           </div>
         </div>
-        <div class="series-hero-score is-final">
-          <span>Final</span>
+        <div class="series-hero-score ${archiveAvailable ? 'is-final' : 'is-unresolved'}">
+          <span>${archiveAvailable ? 'Final' : 'No result'}</span>
           <strong>${aScore ?? '—'}–${bScore ?? '—'}</strong>
-          <small>${games.length} played game${games.length === 1 ? '' : 's'}</small>
+          <small>${archiveAvailable ? `${games.length} played game${games.length === 1 ? '' : 's'}` : 'No completed games'}</small>
         </div>
       </div>
       <div class="history-series-track series-hero-rail" data-series-length="${format}">
-        <div class="history-game-nav series-hero-games" role="tablist" aria-label="Best of ${format} game navigation">
-          ${Array.from({ length: format }, (_, index) => {
-            const number = index + 1;
-            const game = gameByNumber.get(number) || null;
-            const id = String(game?.id || '');
-            const selected = Boolean(id) && id === String(state.selectedGameId);
-            const available = Boolean(id);
-            const status = selected ? 'Selected' : available ? 'Open archive' : 'Not played';
-            return `<button class="history-game-button series-hero-game ${available ? 'is-complete' : 'is-locked'} ${selected ? 'active is-selected' : ''}" ${available ? `data-history-game-id="${escapeHtml(id)}"` : ''} type="button" role="tab" aria-selected="${selected}" ${available ? '' : 'disabled aria-disabled="true"'}>
-              <span>Game ${number}</span><small>${status}</small>
-            </button>`;
-          }).join('')}
-        </div>
-        <span class="history-archive-badge series-hero-badge is-archive" aria-label="Verified historical archive">${archiveIcon()}<span>Verified archive</span></span>
+        ${archiveNavigation(games, format, gameByNumber)}
+        <span class="history-archive-badge series-hero-badge ${archiveAvailable ? 'is-archive' : 'is-unavailable'}" aria-label="${archiveAvailable ? 'Verified historical archive' : 'Historical archive unavailable'}">${archiveIcon()}<span>${archiveAvailable ? 'Verified archive' : 'Archive unavailable'}</span></span>
       </div>
       <div class="series-hero-context">
         <span class="series-hero-context-icon">${contextIcon()}</span>
-        <strong>${escapeHtml(league)}</strong><i>•</i><span>Match history</span><i>•</i><span>Game ${selectedNumber}</span>
+        <strong>${escapeHtml(league)}</strong><i>•</i><span>Match history</span><i>•</i><span>${selectedNumber ? `Game ${selectedNumber}` : 'Result only'}</span>
       </div>`;
     gameContent.insertBefore(summary, gameContent.firstChild);
   }
@@ -213,9 +233,9 @@
         matchId: String(id),
         event
       }, null, 2);
-      gameContent.innerHTML = '<div class="empty hero-empty"><strong>Series result available</strong><span>No archived game IDs were returned for this match.</span></div>';
+      gameContent.innerHTML = '';
       renderSeriesNavigation();
-      setConnection('History · game archive unavailable', '');
+      setConnection('History · result only · archive unavailable', '');
       return;
     }
 
