@@ -21,9 +21,9 @@ test('one controller covers live, archive, history, and result-only states', () 
 });
 
 test('clean controller owns navigation and return-to-live behavior', () => {
-  assert.match(script, /data\.seriesCleanLiveGameId/);
-  assert.match(script, /data\.seriesCleanHistoryGameId/);
-  assert.match(script, /data\.seriesCleanReturnLive/);
+  assert.match(script, /dataset\.seriesCleanLiveGameId/);
+  assert.match(script, /dataset\.seriesCleanHistoryGameId/);
+  assert.match(script, /dataset\.seriesCleanReturnLive/);
   assert.match(script, /function removeLegacyPanels\(\)/);
   assert.match(script, /host\.classList\.add\('panel', 'app-panel'\)/);
 });
