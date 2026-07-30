@@ -15,15 +15,28 @@
     return Number.isFinite(parsed) ? Math.max(0, Math.round(parsed)) : null;
   }
 
+  function retrievalMs(snapshot) {
+    const parsed = Number(snapshot?.retrieval?.totalMs);
+    return Number.isFinite(parsed) ? Math.max(0, Math.round(parsed)) : null;
+  }
+
+  function durationLabel(seconds) {
+    if (!Number.isFinite(seconds)) return null;
+    if (seconds < 60) return `${seconds}s`;
+    const minutes = Math.floor(seconds / 60);
+    const remainder = seconds % 60;
+    return remainder ? `${minutes}m ${remainder}s` : `${minutes}m`;
+  }
+
   function setText(element, value) {
     if (element && element.textContent !== value) element.textContent = value;
   }
 
-  function applySeriesHeroPresentation(snapshot, age) {
+  function applySeriesHeroPresentation(snapshot, ageLabel) {
     const hero = gameContent?.querySelector?.('.series-hero--live');
     if (!hero) return;
 
-    setText(hero.querySelector('.series-hero-kicker strong'), 'Delayed live data');
+    setText(hero.querySelector('.series-hero-kicker strong'), 'Riot feed delayed');
 
     const score = hero.querySelector('.series-hero-score');
     score?.classList.remove('is-live', 'is-stale');
@@ -32,21 +45,21 @@
     const gameNumber = snapshot?.match?.gameNumber ?? '?';
     setText(
       score?.querySelector(':scope > small'),
-      age === null ? `Latest delayed Riot frame · Game ${gameNumber}` : `${age}s behind · Game ${gameNumber}`
+      ageLabel ? `${ageLabel} source lag · Game ${gameNumber}` : `Latest delayed Riot frame · Game ${gameNumber}`
     );
 
     const badge = hero.querySelector('.series-hero-badge');
     badge?.classList.remove('is-live', 'is-stale');
     badge?.classList.add('is-pending');
-    setText(badge?.querySelector('span'), 'Delayed frame');
+    setText(badge?.querySelector('span'), 'Riot feed delayed');
 
     const selectedGame = hero.querySelector('.series-hero-game.is-selected');
     selectedGame?.classList.remove('is-live', 'is-stale');
     selectedGame?.classList.add('is-waiting');
-    setText(selectedGame?.querySelector('small'), 'Delayed');
+    setText(selectedGame?.querySelector('small'), 'Source delayed');
 
     const contextLabels = hero.querySelectorAll('.series-hero-context > span:not(.series-hero-context-icon)');
-    setText(contextLabels?.[0], 'Delayed live data');
+    setText(contextLabels?.[0], 'Riot feed delayed');
   }
 
   function applyFreshnessPresentation(snapshot) {
@@ -56,28 +69,38 @@
     if (fields.length !== 0) return;
 
     const age = frameAge(snapshot);
-    const ageText = age === null ? '' : ` Riot’s latest frame is ${age}s behind the current time.`;
+    const ageLabel = durationLabel(age);
+    const requestMs = retrievalMs(snapshot);
+    const sourceText = ageLabel
+      ? `The newest frame Riot returned is ${ageLabel} behind the current time.`
+      : 'Riot returned a delayed gameplay frame.';
+    const retrievalText = requestMs === null
+      ? ''
+      : ` RiftPulse retrieved and processed this response in ${requestMs}ms.`;
+
     const quality = gameContent?.querySelector?.('.analysis-v2-quality');
     if (quality) {
       quality.classList.add('is-delayed');
-      setText(quality, 'Full stats · delayed');
+      setText(quality, 'Full stats · Riot source delayed');
     }
 
     const banner = gameContent?.querySelector?.('.authority-context-banner');
     if (banner) {
       banner.classList.remove('is-stale');
       banner.classList.add('is-delayed');
-      setText(banner.querySelector('strong'), 'Delayed live telemetry');
+      setText(banner.querySelector('strong'), 'Riot feed delayed');
       setText(
         banner.querySelector('span'),
-        `Score, gold, objectives, KDA, CS and available player details are loaded.${ageText} RiftPulse is polling for newer Riot frames; betting verification remains paused until a fresh frame arrives.`
+        `Score, gold, objectives, KDA, CS and available player details are loaded. ${sourceText}${retrievalText} RiftPulse is polling for the next published frame; betting verification remains paused until Riot advances to a fresh frame.`
       );
     }
 
-    applySeriesHeroPresentation(snapshot, age);
+    applySeriesHeroPresentation(snapshot, ageLabel);
 
     if (typeof setConnection === 'function') {
-      setConnection(`LIVE · delayed telemetry${age === null ? '' : ` · ${age}s behind`}`, 'live');
+      const lag = ageLabel ? ` · ${ageLabel} source lag` : '';
+      const retrieval = requestMs === null ? '' : ` · ${requestMs}ms retrieval`;
+      setConnection(`RIOT FEED DELAYED${lag}${retrieval}`, 'live');
     }
   }
 
