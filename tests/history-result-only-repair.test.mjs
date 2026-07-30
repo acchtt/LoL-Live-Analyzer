@@ -25,8 +25,17 @@ test('result-only repair loads after the general edge repair', () => {
   const surface = html.indexOf('surface-edge-repair.css');
   const resultOnly = html.indexOf('history-result-only-repair.css');
   assert.ok(surface >= 0 && resultOnly > surface);
+  assert.match(html, /history-result-only-repair\.css\?v=20260730-2/);
   assert.match(html, /series-game-history\.js\?v=20260730-5/);
   assert.match(html, /data-ui-build="history-result-only-repair-1"/);
   assert.match(css, /data-history-archive="missing"/);
   assert.match(css, /history-archive-unavailable/);
+});
+
+test('result-only history uses one outer card with flat internal rows', () => {
+  assert.match(css, /game-panel:has\(\.series-hero\[data-history-archive="missing"\]\)[\s\S]*border:\s*0\s*!important/);
+  assert.match(css, /game-content > \.series-hero\[data-history-archive="missing"\][\s\S]*border-radius:\s*12px\s*!important/);
+  assert.match(css, /series-scoreboard-meta,[\s\S]*series-scoreboard-main,[\s\S]*series-scoreboard-navigation[\s\S]*border-radius:\s*0\s*!important/);
+  assert.match(css, /history-archive-unavailable[\s\S]*border:\s*0\s*!important[\s\S]*background:\s*transparent\s*!important/);
+  assert.match(css, /series-scoreboard-main[\s\S]*border-bottom:\s*1px solid var\(--rp-divider\)/);
 });
