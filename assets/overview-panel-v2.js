@@ -86,11 +86,7 @@
       }
     }
 
-    const legend = section.querySelector('.analysis-v2-state-legend');
-    if (legend) {
-      legend.innerHTML = '<span class="overview-side-key is-blue"><i></i>Blue</span><span class="overview-side-key is-red"><i></i>Red</span>';
-      legend.setAttribute('aria-label', 'Blue and red side color key');
-    }
+    section.querySelector('.analysis-v2-state-legend')?.remove();
 
     const dashboard = document.createElement('div');
     dashboard.className = 'overview-panel-v2';
