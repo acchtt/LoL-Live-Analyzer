@@ -1,12 +1,23 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createRiotClient, detailProbeTimes } from '../lib/riot-client.js';
+import { createRiotClient, detailProbeTimes, liveWindowProbeTimes } from '../lib/riot-client.js';
 
 test('detail probes include exact and rounded Riot timestamps without duplicates', () => {
   assert.deepEqual(detailProbeTimes('2026-07-28T12:47:49.909Z'), [
     '2026-07-28T12:47:49.909Z',
     '2026-07-28T12:47:40.000Z',
     '2026-07-28T12:47:30.000Z'
+  ]);
+});
+
+test('live window probes include delayed regional feed anchors', () => {
+  const now = Date.parse('2026-07-30T19:00:00.000Z');
+  assert.deepEqual(liveWindowProbeTimes(now), [
+    '2026-07-30T18:59:40.000Z',
+    '2026-07-30T18:59:00.000Z',
+    '2026-07-30T18:58:00.000Z',
+    '2026-07-30T18:56:00.000Z',
+    '2026-07-30T18:54:00.000Z'
   ]);
 });
 
