@@ -26,9 +26,17 @@ for (const format of [1, 2, 3, 5]) {
   });
 }
 
-test('unplayed history slots are visible but disabled', () => {
+test('unplayed history slots are visible but disabled when game ids exist', () => {
   assert.match(historySource, /Not played/);
   assert.match(historySource, /disabled aria-disabled=\"true\"/);
+});
+
+test('history without game ids renders a result-only record instead of a fake game tab', () => {
+  assert.match(historySource, /if \(!games\.length\)/);
+  assert.match(historySource, /series-hero-games is-unavailable/);
+  assert.match(historySource, /Game archive unavailable/);
+  assert.match(historySource, /Archive unavailable/);
+  assert.match(historySource, /summary\.dataset\.historyArchive = archiveAvailable \? 'available' : 'missing'/);
 });
 
 test('live navigation distinguishes final, waiting, live, locked, and stale slots', () => {
@@ -39,17 +47,18 @@ test('live navigation distinguishes final, waiting, live, locked, and stale slot
   assert.match(liveSource, /'Stale frame'/);
 });
 
-test('completed history renders the full matchup hero, score, rail, badge, and context strip', () => {
+test('completed history renders the full matchup hero, adaptive score, rail, badge, and context strip', () => {
   for (const className of [
     'series-hero-matchup',
     'series-hero-team-logo',
-    'series-hero-score is-final',
     'series-hero-rail',
-    'series-hero-badge is-archive',
+    'series-hero-badge',
     'series-hero-context'
   ]) {
     assert.match(historySource, new RegExp(className));
   }
+  assert.match(historySource, /archiveAvailable \? 'is-final' : 'is-unresolved'/);
+  assert.match(historySource, /archiveAvailable \? 'Verified archive' : 'Archive unavailable'/);
   assert.match(historySource, /teamLogo\(a\)/);
   assert.match(historySource, /teamLogo\(b\)/);
 });
