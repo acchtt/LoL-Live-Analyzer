@@ -62,10 +62,10 @@ test('minimal pro dark styles load in final cache-safe order', () => {
   assert.match(html, /series-scoreboard-v3\.css\?v=20260730-1/);
   assert.match(html, /scoreboard-symmetry\.css\?v=20260730-1/);
   assert.match(html, /overview-panel-v2\.css\?v=20260730-2/);
-  assert.match(html, /scoreboard-detail-trim\.css\?v=20260730-1/);
+  assert.match(html, /scoreboard-detail-trim\.css\?v=20260730-2/);
   assert.match(html, /overview-panel-v2\.js\?v=20260730-2/);
-  assert.match(html, /series-scoreboard-v3\.js\?v=20260730-3/);
-  assert.match(html, /<body class="minimal-pro-dark-v2" data-ui-build="scoreboard-detail-trim-1">/);
+  assert.match(html, /series-scoreboard-v3\.js\?v=20260730-4/);
+  assert.match(html, /<body class="minimal-pro-dark-v2" data-ui-build="series-score-card-repair-1">/);
   assert.match(css, /RIFTPULSE_MINIMAL_PRO_DARK_V2/);
   assert.match(css, /--rp-bg:\s*#0b0f15/);
   assert.match(fixes, /data-drawer:not\(\.is-open\) \.feed-body/);
@@ -121,11 +121,15 @@ test('series and current-game scoreboards mirror both sides around the center', 
   assert.match(symmetryCss, /analysis-v2-team\.is-red[\s\S]*grid-template-areas:\s*"kills copy logo"/);
 });
 
-test('secondary scoreboard details are reduced', () => {
+test('secondary scoreboard details are reduced and central score is repaired', () => {
   assert.match(trimCss, /analysis-v2-team[\s\S]*analysis-v2-team-copy > small[\s\S]*display:\s*none\s*!important/);
   assert.match(trimCss, /series-scoreboard-team-result[\s\S]*font-size:\s*9px\s*!important/);
   assert.match(trimCss, /series-scoreboard-team-result[\s\S]*opacity:\s*\.58\s*!important/);
+  assert.match(trimCss, /series-scoreboard-score-value[\s\S]*column-gap:\s*14px\s*!important/);
+  assert.match(trimCss, /series-scoreboard-score\.is-unresolved/);
   assert.match(seriesScoreboardJs, /`\$\{wins\} win\$\{wins === '1' \? '' : 's'\}`/);
+  assert.match(seriesScoreboardJs, /value\.append\(left, separator, right\)/);
+  assert.match(seriesScoreboardJs, /label\.textContent = 'No result'/);
 });
 
 test('game overview becomes a gold summary and objective comparison dashboard', () => {
