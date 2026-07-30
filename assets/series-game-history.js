@@ -10,6 +10,25 @@
   `;
   document.head.appendChild(style);
 
+  const RESULT_ONLY_CLASS = 'is-result-only-history';
+
+  function setResultOnlyHistoryShell(active = false) {
+    const panel = gameContent?.closest?.('.game-panel');
+    gameContent?.classList?.toggle(RESULT_ONLY_CLASS, active);
+
+    if (!panel) return;
+
+    panel.classList.toggle(RESULT_ONLY_CLASS, active);
+    // The general .panel/.app-panel rules own the duplicate rounded frame.
+    // Remove those structural classes while the result-only hero is active,
+    // then restore them when a normal live or archived game is rendered.
+    panel.classList.toggle('panel', !active);
+    panel.classList.toggle('app-panel', !active);
+
+    if (active) panel.dataset.historyShell = 'result-only';
+    else delete panel.dataset.historyShell;
+  }
+
   function escapeHtml(value = '') {
     return String(value)
       .replaceAll('&', '&amp;')
@@ -157,6 +176,8 @@
     const b = teams[1] || {};
     const games = state.historyMatch.games || [];
     const archiveAvailable = games.length > 0;
+    setResultOnlyHistoryShell(!archiveAvailable);
+
     const format = seriesLength(event, games);
     const aScore = finiteScore(a);
     const bScore = finiteScore(b);
@@ -205,9 +226,10 @@
   }
 
   globalThis.renderHistorySeriesSummary = renderSeriesNavigation;
-  globalThis.RiftPulseSeriesHistory = { playedGames, seriesLength };
+  globalThis.RiftPulseSeriesHistory = { playedGames, seriesLength, setResultOnlyHistoryShell };
 
   loadFinishedMatch = async function allGameHistory(id) {
+    setResultOnlyHistoryShell(false);
     gameContent.innerHTML = '<div class="empty hero-empty"><strong>Loading match history</strong><span>Finding every played game and its archived final frame…</span></div>';
 
     const payload = await api(`/api/match-details?matchId=${encodeURIComponent(id)}`);
@@ -239,6 +261,7 @@
       return;
     }
 
+    setResultOnlyHistoryShell(false);
     state.selectedGameId = String(finalGame.id);
     state.historyGameId = state.selectedGameId;
     setJsonEndpoint(state.selectedGameId, true);
