@@ -166,14 +166,6 @@
     </div>`;
   }
 
-  function qualityLabel(snapshot, historical, safeForLive) {
-    if (historical) return 'Verified archive';
-    if (safeForLive) return 'Verified live';
-    if (snapshot.status === 'degraded') return 'Delayed data';
-    if (snapshot.status === 'telemetry_stale') return 'Stale context';
-    return 'Context only';
-  }
-
   function stateHeading(snapshot, historical, safeForLive) {
     if (historical) return 'Final map totals';
     if (snapshot.status === 'telemetry_stale') return 'Last available map totals';
@@ -195,9 +187,7 @@
 
     const blue = snapshot.blue || {};
     const red = snapshot.red || {};
-    const event = selectedScheduleEvent();
     const historical = state.selectedMatchState === 'completed' || snapshot.match?.state === 'finished';
-    const league = snapshot.match?.league || event?.league?.name || event?.league?.slug || 'LoL Esports';
     const gameNumber = snapshot.match?.gameNumber || '?';
     const blueGold = finiteNumber(blue.gold);
     const redGold = finiteNumber(red.gold);
@@ -255,16 +245,6 @@
     </section>`;
 
     gameContent.innerHTML = `<div class="analysis-v2-shell">
-      <header class="analysis-v2-header">
-        <div class="analysis-v2-title">
-          <p>${escapeHtml(league)} · ${historical ? 'Match history' : 'Live analysis'} · Game ${escapeHtml(gameNumber)}</p>
-          <h2>${escapeHtml(blue.name || 'Blue side')} <span>vs</span> ${escapeHtml(red.name || 'Red side')}</h2>
-        </div>
-        <div class="analysis-v2-header-meta">
-          <span class="analysis-v2-quality ${safeForLive ? '' : 'is-context'}">${escapeHtml(qualityLabel(snapshot, historical, safeForLive))}</span>
-        </div>
-      </header>
-
       <section class="analysis-v2-scoreboard" aria-label="Game scoreboard">
         ${teamCard(blue, 'Blue side')}
         <div class="analysis-v2-score-center" aria-label="Game time and series score">
