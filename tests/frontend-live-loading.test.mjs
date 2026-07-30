@@ -29,6 +29,24 @@ test('authoritative loader requests advancing frames without replacing lifecycle
   assert.match(source, /\['degraded', 'telemetry_stale'\]/);
 });
 
+test('stagnant gameplay frames trigger authoritative game re-resolution', async () => {
+  const source = await readFile(new URL('../assets/reliable-lifecycle.js', import.meta.url), 'utf8');
+
+  assert.match(source, /const STAGNANT_FRAME_LIMIT = 3/);
+  assert.match(source, /telemetryAdvancing/);
+  assert.match(source, /advancing === false/);
+  assert.match(source, /RESOLUTION_COOLDOWN_MS/);
+  assert.match(source, /resolveLiveEvent\(matchId, true\)/);
+});
+
+test('live refresh avoids an immediate duplicate request after initial resolution', async () => {
+  const source = await readFile(new URL('../assets/live-refresh.js', import.meta.url), 'utf8');
+
+  assert.match(source, /startPolling = function resilientStartPolling\(\)[\s\S]*scheduleRefresh\(LIVE_REFRESH_MS\)/);
+  assert.doesNotMatch(source, /startPolling = function resilientStartPolling\(\)[\s\S]*scheduleRefresh\(50\)/);
+  assert.match(source, /document\.hidden \|\| isFinished\(\) \|\| !state\.selectedEventId/);
+});
+
 test('main analysis panel is a bounded scroll container with compact sizing', async () => {
   const css = await readFile(new URL('../assets/analysis-priority.css', import.meta.url), 'utf8');
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
