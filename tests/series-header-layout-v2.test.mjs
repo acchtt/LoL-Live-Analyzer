@@ -8,9 +8,9 @@ const script = await readFile(new URL('../assets/series-panel-clean.js', import.
 const symmetry = await readFile(new URL('../assets/scoreboard-symmetry.css', import.meta.url), 'utf8');
 
 test('clean series assets replace every legacy series UI layer', () => {
-  assert.match(html, /series-panel-clean\.css\?v=20260730-1/);
+  assert.match(html, /series-panel-clean\.css\?v=20260730-2/);
   assert.match(html, /series-panel-clean\.js\?v=20260730-1/);
-  assert.match(html, /data-ui-build="series-panel-clean-rebuild-1"/);
+  assert.match(html, /data-ui-build="series-panel-flat-reset-1"/);
   assert.doesNotMatch(html, /series-scoreboard-v3|series-header-layout-v2|series-control-dock|series-panel-unified|history-shell-edge-final/);
 });
 
@@ -26,30 +26,31 @@ test('series matchup is structurally symmetrical', () => {
   assert.match(script, /matchup\.append\(createTeam\(model\.teams\[0\][\s\S]*createScore\(model\.score\)[\s\S]*createTeam\(model\.teams\[1\]/);
   assert.match(script, /if \(side === 'left'\) card\.append\(logo, copy\)/);
   assert.match(script, /else card\.append\(copy, logo\)/);
-  assert.match(css, /series-clean-matchup[\s\S]*grid-template-columns:\s*minmax\(0, 1fr\) 190px minmax\(0, 1fr\)/);
-  assert.match(css, /series-clean-team\.is-left[\s\S]*grid-template-columns:\s*60px minmax\(0, 1fr\)/);
-  assert.match(css, /series-clean-team\.is-right[\s\S]*grid-template-columns:\s*minmax\(0, 1fr\) 60px/);
+  assert.match(css, /series-clean-matchup[\s\S]*grid-template-columns:\s*minmax\(0, 1fr\) 176px minmax\(0, 1fr\)/);
+  assert.match(css, /series-clean-team\.is-left[\s\S]*grid-template-columns:\s*58px minmax\(0, 1fr\)/);
+  assert.match(css, /series-clean-team\.is-right[\s\S]*grid-template-columns:\s*minmax\(0, 1fr\) 58px/);
 });
 
 test('score values are separate and safely spaced', () => {
   assert.match(script, /value\.append\(left, separator, right\)/);
   assert.match(script, /available \? \(leftScore \?\? '—'\) : '—'/);
   assert.match(script, /detail: available \? `[\s\S]*` : 'No completed games'/);
-  assert.match(css, /series-clean-score-value[\s\S]*grid-template-columns:\s*minmax\(42px, 1fr\) auto minmax\(42px, 1fr\)/);
-  assert.match(css, /series-clean-score-value[\s\S]*column-gap:\s*18px\s*!important/);
+  assert.match(css, /series-clean-score-value[\s\S]*grid-template-columns:\s*minmax\(40px, 1fr\) auto minmax\(40px, 1fr\)/);
+  assert.match(css, /series-clean-score-value[\s\S]*column-gap:\s*20px\s*!important/);
 });
 
 test('game navigation owns a dedicated full-width row', () => {
   assert.match(script, /bottom\.className = 'series-clean-bottom'/);
   assert.match(script, /games\.className = 'series-clean-games'/);
   assert.match(script, /panel\.append\(top, matchup, bottom\)/);
-  assert.match(css, /series-clean-bottom[\s\S]*border-top:\s*1px solid var\(--rp-divider\)/);
+  assert.match(css, /series-clean-bottom[\s\S]*background:\s*var\(--rp-panel-soft\)/);
   assert.match(css, /series-clean-games[\s\S]*repeat\(var\(--series-clean-count\), minmax\(120px, 1fr\)\)/);
 });
 
 test('outer analysis and series shells have no rounded-corner dependency', () => {
   assert.match(css, /\.game-panel[\s\S]*border:\s*0\s*!important[\s\S]*border-radius:\s*0\s*!important/);
   assert.match(css, /\.game-content[\s\S]*border:\s*0\s*!important[\s\S]*border-radius:\s*0\s*!important/);
+  assert.match(css, /series-clean-panel[\s\S]*border:\s*0\s*!important/);
   assert.match(css, /series-clean-panel[\s\S]*border-radius:\s*0\s*!important/);
   assert.match(css, /series-clean-panel::before,[\s\S]*display:\s*none\s*!important/);
 });
